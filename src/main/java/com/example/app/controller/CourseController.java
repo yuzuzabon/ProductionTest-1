@@ -26,9 +26,9 @@ public class CourseController {
 		}
 		
 		@GetMapping("/show")
-		public String allSelect(Model model) {
-			model.addAttribute("course",service.searchAll());
-			System.out.println(service.searchAll());
+		public String selectCourses(Model model) {
+			model.addAttribute("course",service.selectCourses());
+			
 			return "courseList";
 		}
 		@GetMapping("/add")
@@ -44,8 +44,10 @@ public class CourseController {
 			if(errors.hasErrors()) {
 					return "courseAdd";
 			}
-			service.save(course);
+			service.addCourse(course);
+			model.addAttribute("status","講座を登録しました");
 			
 		return "/menu";
 		}
+		
 }

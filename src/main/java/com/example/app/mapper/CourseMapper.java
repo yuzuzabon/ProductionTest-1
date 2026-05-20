@@ -10,9 +10,9 @@ import com.example.app.domain.Course;
 public interface CourseMapper {
 
 	//全件
-		List<Course> selectCourses();
+		List<Course> searchAll();
 	//１件
-		
+		Course searchById(Integer id);
 	//登録
-		void addCourse(Course course);
+		void save(Course course);
 }

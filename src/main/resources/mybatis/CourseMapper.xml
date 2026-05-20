@@ -3,16 +3,22 @@
 <!--  -->
 <mapper namespace="com.example.app.mapper.CourseMapper">
 
-<select id="selectCourses" resultType="course">
+<select id="searchAll" resultType="course">
 	select
 		 * FROM course;
 </select>
 
-<insert id="addCourse" >
+<insert id="save" >
  insert into course
  	(title,place,capacity,created)
  	values
  	(#{title},#{place},#{capacity},now())
 </insert>
+
+<select id="searchById" parameterType="int" resultType="course">
+	select
+		 * FROM course
+		 where course.id=#{id}
+</select>
 
 </mapper>
