@@ -26,25 +26,25 @@ public class CourseController {
 		}
 		
 		@GetMapping("/show")
-		public String selectCourses(Model model) {
-			model.addAttribute("course",service.selectCourses());
+		public String contSelectCourseAll(Model model) {
+			model.addAttribute("course",service.servSelectCourseAll());
 			
 			return "courseList";
 		}
 		@GetMapping("/add")
-		public String addCoursePrepare() {
+		public String showInsertForm() {
 				//Course course=new Course();
-				return "courseAdd";
+				return "insertCourse";
 		}
 		@PostMapping("/add")
-		public String addCourse(
+		public String contInsertCourse(
 				@Valid Course course,
 								Errors errors,
 								Model model) {
 			if(errors.hasErrors()) {
-					return "courseAdd";
+					return "insertCourse";
 			}
-			service.addCourse(course);
+			service.servInsertCourse(course);
 			model.addAttribute("status","講座を登録しました");
 			
 		return "/menu";

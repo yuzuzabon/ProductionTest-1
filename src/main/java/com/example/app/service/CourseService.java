@@ -7,13 +7,14 @@ import com.example.app.domain.Course;
 public interface CourseService {
 
 	//全件
-		List<Course> selectCourses();
+		List<Course> servSelectCourseAll();
 	//１件
-		Course sellectCourseById(Integer id); 
+		Course servSellectCourseById(Integer id); 
 	//検索	
 		
 	//登録	
-		void addCourse(Course course);
+		void servInsertCourse(Course course);
+		
 	//修正
 		
 	//申し込み	

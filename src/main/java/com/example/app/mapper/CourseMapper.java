@@ -5,14 +5,17 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.example.app.domain.Course;
+import com.example.app.domain.CourseCapacity;
 
 @Mapper
 public interface CourseMapper {
 
 	//全件
-		List<Course> searchAll();
+		List<Course> selectCourseAll();
 	//１件
-		Course searchById(Integer id);
+		Course selectCourseById(Integer id);
 	//登録
-		void save(Course course);
+		void insertCourse(Course course);
+		void insertCourseCapacity(CourseCapacity courseCapacity);
+			
 }

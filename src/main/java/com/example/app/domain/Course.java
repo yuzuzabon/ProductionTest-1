@@ -2,27 +2,26 @@ package com.example.app.domain;
 
 import java.time.LocalDateTime;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Course {
 
 		private Integer id;
-		
+		private Integer courseCode;
 		@NotBlank
 		private String title;
 		@NotBlank
-		private String place;
-		@NotNull
-		@Min(value=0)
-		@Max(value=5)
-		private Integer capacity;
-		private Integer numberOfApplicant;
-		private LocalDateTime created;
-	
+		private String detail;
+				
+		
+		private LocalDateTime createdAt;
+		
+		private CourseCapacity courseCapacity;
 }

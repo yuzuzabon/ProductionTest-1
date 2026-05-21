@@ -9,16 +9,16 @@
  	<table>
 		
 		<tr>
+			<th>講座番号</th>
 			<th>タイトル</th>
-			<th>場所</th>
-			<th>定員</th>
-			<th>申し込み人数</th>
+			<th>内容</th>
+			<th>更新日</th>
  		</tr>
  		<tr th:each=" c : ${course} ">
+			<td>[[${c.coursecode}]]</td>
 			<td>[[${c.title}]]</td>
-			<td>[[${c.place}]]</td>
-			<td>[[${c.capacity}]]</td>
-			<td>[[${c.numberOfApplicant}]]</td>
+			<td>[[${c.detail}]]</td>
+			<td>[[${c.createdAt}]]</td>
 		
 		</tr>
 	</table>
