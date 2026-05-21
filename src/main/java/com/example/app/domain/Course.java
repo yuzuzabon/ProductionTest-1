@@ -2,6 +2,7 @@ package com.example.app.domain;
 
 import java.time.LocalDateTime;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 
 import lombok.AllArgsConstructor;
@@ -14,14 +15,15 @@ import lombok.NoArgsConstructor;
 public class Course {
 
 		private Integer id;
-		private Integer courseCode;
+		private String courseCode;
+
 		@NotBlank
 		private String title;
+
 		@NotBlank
 		private String detail;
-				
-		
+
 		private LocalDateTime createdAt;
-		
+		@Valid
 		private CourseCapacity courseCapacity;
 }

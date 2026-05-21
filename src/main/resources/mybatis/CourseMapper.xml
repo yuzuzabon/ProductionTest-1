@@ -3,25 +3,48 @@
 <!--  -->
 <mapper namespace="com.example.app.mapper.CourseMapper">
 
-<select id="selectCourseAll" resultType="course">
-	select
-		 * FROM course;
+<resultMap type="Course" id="joinCourse">
+		<id property="id" column="id"/>
+		<result property="courseCode" column="course_code"/>
+		<result property="title" column="title"/>
+		<result property="detail" column="detail"/>
+		<result property="createdAt" column="created_at"/>
+
+	<association property="courseCapacity" javaType="CourseCapacity">
+		<result property="capacity" column="capacity"/>
+		<result property="NumberOfApplicant" column="number_of_applicant"/>
+	</association>
+
+</resultMap>
+
+<select id="selectCourseAll" resultMap="joinCourse">
+			select * FROM course
+			join  course_capacity
+			on course.course_code=
+			course_capacity.course_code
+
 </select>
 
-<insert id="insertCourse" >
+<insert id="insertCourse">
+ 		<selectKey keyProperty="courseCode" resultType="String" order="AFTER">
+        SELECT course_code
+        FROM course
+        WHERE id = LAST_INSERT_ID()
+    </selectKey>
+
  insert into course
  	(title,detail)
  	values
  	(#{title},#{detail})
  </insert>
- 
+
  <insert id="insertCourseCapacity" >
  insert into course_capacity
  	(course_code,capacity)
  	values
  	(#{courseCode},#{capacity})
  </insert>
- 
+
 
 <select id="selectCourseById" parameterType="int" resultType="course">
 	select

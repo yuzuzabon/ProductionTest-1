@@ -6,21 +6,21 @@
 </head>
 <body>
  <h1>登録</h1>
- 	<form th:action="@{/course/insert}" method="post" th:object="${course}">
+ 	<form th:action="@{/add}" method="post" th:object="${course}">
 		<ul>
 			<li>タイトル：
-				<input type="text" th:field="*{title}"/>	
+				<input type="text" th:field="*{title}"/>
 			</li>
 			<li>内容：
-				<input type="text" th:field="*{detail}"/>	
+				<input type="text" th:field="*{detail}"/>
 			</li>
 			<li>定員：
-							<input type="number" th:field="*{coursecapacity.capacity}"/>	
+							<input type="number" th:field="*{courseCapacity.capacity}"/>
 			</li>
 				<input type="submit" />
 		</ul>
-		
-		
+
+
 	</form>
  <a href="/menu">メニュー</a>
 </body>

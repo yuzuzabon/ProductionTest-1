@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class CourseServiceImpl implements CourseService{
 
 		private final CourseMapper courseMapper;
-		
+
 		@Override
 		public List<Course> servSelectCourseAll(){
 				return courseMapper.selectCourseAll();
@@ -26,22 +26,22 @@ public class CourseServiceImpl implements CourseService{
 		@Transactional
 		public void servInsertCourse(Course course) {
 				courseMapper.insertCourse(course);
-				Integer generatedCode=course.getCourseCode();
+				String generatedCode=course.getCourseCode();
 				CourseCapacity courseCapacity=course.getCourseCapacity();
-				
+
 				if (courseCapacity == null) {
 					courseCapacity = new CourseCapacity();
-				
+
 					course.setCourseCapacity(courseCapacity);
 				}
 				courseCapacity.setCourseCode(generatedCode);
 				courseMapper.insertCourseCapacity(courseCapacity);
-			
+
 		}
 		@Override
 		public void join(Course course) {
 			// TODO 自動生成されたメソッド・スタブ
-			
+
 		}
 		@Override
 		public Course servSellectCourseById(Integer id) {

@@ -7,19 +7,23 @@
 <body>
  <h1>一覧</h1>
  	<table>
-		
-		<tr>
-			<th>講座番号</th>
-			<th>タイトル</th>
-			<th>内容</th>
-			<th>更新日</th>
+
+		<tr align="left">
+			<th width="100">講座番号</th>
+			<th  width="250">タイトル</th>
+			<th>定員</th>
+			<th>申込数</th>
+			<th>空き</th>
+
  		</tr>
  		<tr th:each=" c : ${course} ">
-			<td>[[${c.coursecode}]]</td>
+			<td>[[${c.courseCode}]]</td>
 			<td>[[${c.title}]]</td>
-			<td>[[${c.detail}]]</td>
-			<td>[[${c.createdAt}]]</td>
-		
+			<td align="center">[[${c.courseCapacity.capacity}]]</td>
+			<td align="center">[[${c.courseCapacity.numberOfApplicant}]]</td>
+			<td th:text="${c.courseCapacity.capacity} - ${c.courseCapacity.numberOfApplicant}"></td>
+
+
 		</tr>
 	</table>
  		<a href="/menu">メニュー</a>

@@ -19,21 +19,21 @@ import lombok.RequiredArgsConstructor;
 public class CourseController {
 
 		private final CourseService service;
-		
+
 		@GetMapping("/menu")
 		public String showMenu() {
 			return "menu";
 		}
-		
+
 		@GetMapping("/show")
 		public String contSelectCourseAll(Model model) {
 			model.addAttribute("course",service.servSelectCourseAll());
-			
+
 			return "courseList";
 		}
 		@GetMapping("/add")
-		public String showInsertForm() {
-				//Course course=new Course();
+		public String showInsertForm(Model model) {
+				model.addAttribute("course",new Course());
 				return "insertCourse";
 		}
 		@PostMapping("/add")
@@ -46,8 +46,8 @@ public class CourseController {
 			}
 			service.servInsertCourse(course);
 			model.addAttribute("status","講座を登録しました");
-			
+
 		return "/menu";
 		}
-		
+
 }
