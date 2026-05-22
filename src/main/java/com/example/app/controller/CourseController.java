@@ -21,6 +21,12 @@ public class CourseController {
 
 		private final CourseService service;
 		private final ClassRoomService classRoomService;
+		
+//		@ModelAttribute("classRoomList")
+//			public List<ClassRoom>populateClassRooms() {
+//			return classRoomService.servSelectRoomAll();
+//			
+//		}
 
 		@GetMapping("/menu")
 		public String showMenu() {
@@ -30,7 +36,7 @@ public class CourseController {
 		@GetMapping("/show")
 		public String contSelectCourseAll(Model model) {
 			model.addAttribute("course",service.servSelectCourseAll());
-				System.out.println(service.servSelectCourseAll());
+		//System.out.println(service.servSelectCourseAll());
 			return "courseList";
 		}
 		@GetMapping("/add")
@@ -45,9 +51,11 @@ public class CourseController {
 								Errors errors,
 								Model model) {
 			if(errors.hasErrors()) {
+				model.addAttribute("room", classRoomService.servSelectRoomAll());
 					return "insertCourse";
 			}
 			service.servInsertCourse(course);
+			
 			model.addAttribute("status","講座を登録しました");
 
 		return "/menu";

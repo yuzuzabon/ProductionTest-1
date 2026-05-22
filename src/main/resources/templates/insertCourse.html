@@ -15,7 +15,7 @@
 				<input type="text" th:field="*{detail}"/>
 			</li>
 			<li>教室：
-				<select th:field="*{classId}">
+				<select th:field="*{classRoomId}">
 					<option th:each="c : ${room}" th:value="${c.id}"
 								th:text="${c.classRoom}"></option>
 				</select>	

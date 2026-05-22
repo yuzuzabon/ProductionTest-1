@@ -8,7 +8,7 @@
 		<result property="courseId" column="course_id"/>
 		<result property="title" column="title"/>
 		<result property="detail" column="detail"/>
-		<result property="classId" column="class_id"/>
+		<result property="classRoomId" column="class_room_id"/>
 		<result property="registeredAt" column="registered_at"/>
 		<result property="updatedAt" column="updated_at"/>
 
@@ -32,7 +32,7 @@
 			on course.course_id=
 			course_capacity.course_id
 			join class_room
-			on course.class_id=
+			on course.class_room_id=
 			class_room.id
 
 </select>
@@ -45,9 +45,9 @@
     </selectKey>
 
  insert into course
- 	(title,detail,class_id)
+ 	(title,detail,class_room_id)
  	values
- 	(#{title},#{detail},#{classId})
+ 	(#{title},#{detail},#{classRoomId})
  </insert>
 
  <insert id="insertCourseCapacity" >

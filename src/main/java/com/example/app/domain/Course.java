@@ -24,7 +24,7 @@ public class Course {
 		private String detail;
 
 	
-		private Integer classId;
+		private Integer classRoomId;
 		
 		private LocalDateTime registeredAt;
 		private LocalDateTime updatedAt;
@@ -32,4 +32,6 @@ public class Course {
 		private CourseCapacity courseCapacity;
 		@Valid
 		private ClassRoom classRoom;
+		@Valid
+		private ClassRoomSchedule classRoomSchedule;
 }
