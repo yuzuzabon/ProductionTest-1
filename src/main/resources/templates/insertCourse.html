@@ -14,6 +14,12 @@
 			<li>内容：
 				<input type="text" th:field="*{detail}"/>
 			</li>
+			<li>教室：
+				<select th:field="*{classId}">
+					<option th:each="c : ${room}" th:value="${c.id}"
+								th:text="${c.classRoom}"></option>
+				</select>	
+			</li>
 			<li>定員：
 							<input type="number" th:field="*{courseCapacity.capacity}"/>
 			</li>

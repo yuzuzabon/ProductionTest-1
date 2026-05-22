@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.example.app.domain.Course;
+import com.example.app.service.ClassRoomService;
 import com.example.app.service.CourseService;
 
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class CourseController {
 
 		private final CourseService service;
+		private final ClassRoomService classRoomService;
 
 		@GetMapping("/menu")
 		public String showMenu() {
@@ -28,12 +30,13 @@ public class CourseController {
 		@GetMapping("/show")
 		public String contSelectCourseAll(Model model) {
 			model.addAttribute("course",service.servSelectCourseAll());
-
+				System.out.println(service.servSelectCourseAll());
 			return "courseList";
 		}
 		@GetMapping("/add")
-		public String showInsertForm(Model model) {
+		public String showInsertCourse(Model model) {
 				model.addAttribute("course",new Course());
+				model.addAttribute("room", classRoomService.servSelectRoomAll());
 				return "insertCourse";
 		}
 		@PostMapping("/add")

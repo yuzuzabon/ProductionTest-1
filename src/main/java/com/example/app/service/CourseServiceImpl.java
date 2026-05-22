@@ -26,7 +26,7 @@ public class CourseServiceImpl implements CourseService{
 		@Transactional
 		public void servInsertCourse(Course course) {
 				courseMapper.insertCourse(course);
-				String generatedCode=course.getCourseCode();
+				String generatedCode=course.getCourseId();
 				CourseCapacity courseCapacity=course.getCourseCapacity();
 
 				if (courseCapacity == null) {
@@ -34,7 +34,7 @@ public class CourseServiceImpl implements CourseService{
 
 					course.setCourseCapacity(courseCapacity);
 				}
-				courseCapacity.setCourseCode(generatedCode);
+				courseCapacity.setCourseId(generatedCode);
 				courseMapper.insertCourseCapacity(courseCapacity);
 
 		}

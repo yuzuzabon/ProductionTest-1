@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class Course {
 
 		private Integer id;
-		private String courseCode;
+		private String courseId;
 
 		@NotBlank
 		private String title;
@@ -23,7 +23,13 @@ public class Course {
 		@NotBlank
 		private String detail;
 
-		private LocalDateTime createdAt;
+	
+		private Integer classId;
+		
+		private LocalDateTime registeredAt;
+		private LocalDateTime updatedAt;
 		@Valid
 		private CourseCapacity courseCapacity;
+		@Valid
+		private ClassRoom classRoom;
 }
