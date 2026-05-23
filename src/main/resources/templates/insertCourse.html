@@ -23,11 +23,56 @@
 
 			<div class="mb-3">
 				<label for="formName">回数</label>
-			  <input type="number" th:field="*{numberOfDays}"	id="formName"
+			  <input type="number" th:field="*{numberOfDays}"	onkeydown="return false" id="formName"
 			       	class="form-control"/>
 			</div>
 
+			<div class="mb-3">
+				<label for="formName">開催日</label>
+			  <input type="date" th:field="*{classRoomSchedule.date}"	id="formName"
+							min="2026-05-01" max="2026-09-30"
+							onkeydown="return false"
+			       	class="form-control"/>
+			</div>
 
+			<div class="mb-3">
+				<label for="formName">開始時間</label>
+<!--			  <input type="time" th:field="*{classRoomSchedule.startTime}" min="10:00" max="15:00" step="900"-->
+<!--				onkeydown="return false" id="formStartTime"	class="form-control"/>-->
+<select th:field="*{classRoomSchedule.startTime}" id="formStartTime" class="form-control">
+        <option value="10:00">10:00</option>
+        <option value="10:15">10:15</option>
+        <option value="10:30">10:30</option>
+        <option value="10:45">10:45</option>
+        <option value="11:00">11:00</option>
+        <option value="11:15">11:15</option>
+        <option value="11:30">11:30</option>
+        <option value="11:45">11:45</option>
+        <option value="12:00">12:00</option>
+        <option value="12:15">12:15</option>
+        <option value="12:30">12:30</option>
+        <option value="12:45">12:45</option>
+        <option value="13:00">13:00</option>
+        <option value="13:15">13:15</option>
+        <option value="13:30">13:30</option>
+        <option value="13:45">13:45</option>
+        <option value="14:00">14:00</option>
+        <option value="14:15">14:15</option>
+        <option value="14:30">14:30</option>
+        <option value="14:45">14:45</option>
+        <option value="15:00">15:00</option>
+    </select>
+
+
+			</div>
+
+			<div class="mb-3">
+				<label for="formName">講座時間</label><br>
+			  <label><input type="radio" th:field="*{classRoomSchedule.corsePeriod}" value="30"/>30分　</label>
+				<label><input type="radio" th:field="*{classRoomSchedule.corsePeriod}" value="45"/>45分　</label>
+			  <label><input type="radio" th:field="*{classRoomSchedule.corsePeriod}" value="60"/>60分　</label>
+
+			</div>
 
 			<div class="mb-3">
 			<label for="formLocation">教室</label>
@@ -40,16 +85,27 @@
 			<div class="mb-3">
 			<label for="formCapacity">定員</label>
 					<input type="number" th:field="*{courseCapacity.capacity}"
-				         id="formCapacity" class="form-control"/>
+				         id="formCapacity" onkeydown="return false" class="form-control"/>
 			</div>
 
-				<input type="submit" />
+				<input type="submit" class="btn btn-primary" value="登録"/>
+	 			<a th:href="@{/menu}" class="btn btn-secondary">メニュー</a>
+				<a th:href="@{/show}" class="btn btn-secondary">一覧</a>
+
 		</ul>
-
-
 	</form>
- <a href="/menu">メニュー</a>
- <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+ 			<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<!--			<script>-->
+<!--				function checkTimeLimit(input) {-->
+<!--				    if (input.value < input.min) {-->
+<!--				        input.value = input.min;-->
+<!--				    }-->
+<!--				    if (input.value > input.max) {-->
+<!--				        input.value = input.max;-->
+<!--				    }-->
+<!--				}-->
+
+<!--			</script>-->
 </body>
 </html>
 

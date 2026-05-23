@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
 import com.example.app.domain.CourseCapacity;
 import com.example.app.mapper.CourseMapper;
@@ -27,16 +28,27 @@ public class CourseServiceImpl implements CourseService{
 		public void servInsertCourse(Course course) {
 				courseMapper.insertCourse(course);
 				String generatedCode=course.getCourseId();
-				CourseCapacity courseCapacity=course.getCourseCapacity();
+				Integer classRoomCode=course.getClassRoomId();
 
-				if (courseCapacity == null) {
-					courseCapacity = new CourseCapacity();
+			if (course.getCourseCapacity() == null) {
+	        course.setCourseCapacity(new CourseCapacity());
+	    }
+	    if (course.getClassRoomSchedule() == null) {
+	        course.setClassRoomSchedule(new ClassRoomSchedule());
+	    }
+
+				CourseCapacity courseCapacity=course.getCourseCapacity();
+				ClassRoomSchedule classRoomSchedule=course.getClassRoomSchedule();
 
 					course.setCourseCapacity(courseCapacity);
-				}
-				courseCapacity.setCourseId(generatedCode);
-				courseMapper.insertCourseCapacity(courseCapacity);
+					course.setClassRoomSchedule(classRoomSchedule);
 
+				courseCapacity.setCourseId(generatedCode);
+				classRoomSchedule.setCourseId(generatedCode);
+				classRoomSchedule.setClassRoomId(classRoomCode);
+
+				courseMapper.insertCourseCapacity(courseCapacity);
+				courseMapper.insertClassRoomSchedule(classRoomSchedule);
 		}
 		@Override
 		public void join(Course course) {

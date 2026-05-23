@@ -12,15 +12,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ClassRoomSchedule {
-	
+
 	private Integer id;
 	private String courseId;
 	private Integer classRoomId;
-	private LocalDate Date;
+	private LocalDate date;
 	private LocalTime startTime;
 	private LocalTime endTime;
-	
+	private Integer corsePeriod;
+
 	private LocalDateTime registeredAt;
 	private LocalDateTime updatedAt;
-		
+
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
+import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
 import com.example.app.domain.CourseCapacity;
 
@@ -17,5 +18,5 @@ public interface CourseMapper {
 	//登録
 		void insertCourse(Course course);
 		void insertCourseCapacity(CourseCapacity courseCapacity);
-			
+		void insertClassRoomSchedule(ClassRoomSchedule classRoomSchedule);
 }

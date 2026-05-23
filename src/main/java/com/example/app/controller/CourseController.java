@@ -1,16 +1,17 @@
 package com.example.app.controller;
 
+import java.time.LocalTime;
 import java.util.List;
-
-import jakarta.validation.Valid;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
 import com.example.app.service.ClassRoomService;
 import com.example.app.service.CourseService;
@@ -24,6 +25,7 @@ public class CourseController {
 
 		private final CourseService service;
 		private final ClassRoomService classRoomService;
+		//private final ClassRoomScheduleService classRoomScheduleService;
 
 		@ModelAttribute("classRoomList")
 		public List<ClassRoomService> populateClassRooms() {
@@ -50,14 +52,24 @@ public class CourseController {
 		}
 		@PostMapping("/add")
 		public String contInsertCourse(
-				@Valid Course course,
+				@Validated Course course,
 								Errors errors,
 								Model model) {
 			if(errors.hasErrors()) {
 				//model.addAttribute("room", classRoomService.servSelectRoomAll());
 					return "insertCourse";
 			}
-			service.servInsertCourse(course);
+			ClassRoomSchedule schedule = course.getClassRoomSchedule();
+			if (schedule != null && schedule.getStartTime() != null && schedule.getCorsePeriod() != null) {
+				LocalTime start = schedule.getStartTime();
+        int period = schedule.getCorsePeriod();
+        LocalTime end = start.plusMinutes(period);
+
+        // 計算した終了時間をセットする
+        schedule.setEndTime(end);
+        System.out.println(course);
+			}
+				service.servInsertCourse(course);
 
 			model.addAttribute("status","講座を登録しました");
 

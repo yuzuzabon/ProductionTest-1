@@ -25,6 +25,19 @@
 		<result property="registeredAt" column="registered_at"/>
 		<result property="updatedAt" column="updated_at"/>
 	</association>
+	<association property="classRoomSchedule" javaType="ClassRoomSchedule">
+		<result property="id" column="id"/>
+		<result property="courseId" column="course_id"/>
+		<result property="classRoomId" column="class_room_id"/>
+		<result property="updatedAt" column="updated_at"/>
+		<result property="date" column="date"/>
+		<result property="startTime" column="start_time"/>
+		<result property="endTime" column="end_time"/>
+		<result property="registeredAt" column="registered_at"/>
+		<result property="updatedAt" column="updated_at"/>
+	</association>
+
+
 </resultMap>
 
 <select id="selectCourseAll" resultMap="joinCourse">
@@ -35,6 +48,9 @@
 			join class_room
 			on course.class_room_id=
 			class_room.id
+			join class_room_schedule
+      on course.course_id =
+      class_room_schedule.course_id
 
 </select>
 
@@ -56,6 +72,13 @@
  	(course_Id,capacity)
  	values
  	(#{courseId},#{capacity})
+ </insert>
+
+ <insert id="insertClassRoomSchedule" >
+ insert into class_room_schedule
+ 	(course_Id,class_room_id,date,start_time,end_time)
+ 	values
+ 	(#{courseId},#{classRoomId},#{date},#{startTime},#{endTime})
  </insert>
 
 
