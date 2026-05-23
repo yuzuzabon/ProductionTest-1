@@ -43,9 +43,9 @@ public class CourseServiceImpl implements CourseService{
 			//		course.setCourseCapacity(courseCapacity);
 			//		course.setClassRoomSchedule(classRoomSchedule);
 
-				courseCapacity.setCourseId(generatedCode);
-				classRoomSchedule.setCourseId(generatedCode);
-				classRoomSchedule.setClassRoomId(classRoomCode);
+				courseCapacity.setCourseId(generatedCode);//CourseCapacityへのCourseId登録
+				classRoomSchedule.setCourseId(generatedCode);//ClassRoomScheduleへのCourseId登録
+				classRoomSchedule.setClassRoomId(classRoomCode);//↑↑へのClassRoomId登録
 
 				courseMapper.insertCourseCapacity(courseCapacity);
 				courseMapper.insertClassRoomSchedule(classRoomSchedule);
