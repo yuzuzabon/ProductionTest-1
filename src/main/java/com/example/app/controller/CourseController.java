@@ -1,11 +1,14 @@
 package com.example.app.controller;
 
+import java.util.List;
+
 import jakarta.validation.Valid;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.example.app.domain.Course;
@@ -21,12 +24,12 @@ public class CourseController {
 
 		private final CourseService service;
 		private final ClassRoomService classRoomService;
-		
-//		@ModelAttribute("classRoomList")
-//			public List<ClassRoom>populateClassRooms() {
-//			return classRoomService.servSelectRoomAll();
-//			
-//		}
+
+		@ModelAttribute("classRoomList")
+		public List<ClassRoomService> populateClassRooms() {
+		return classRoomService.servSelectRoomAll();
+
+	}
 
 		@GetMapping("/menu")
 		public String showMenu() {
@@ -42,7 +45,7 @@ public class CourseController {
 		@GetMapping("/add")
 		public String showInsertCourse(Model model) {
 				model.addAttribute("course",new Course());
-				model.addAttribute("room", classRoomService.servSelectRoomAll());
+				//model.addAttribute("room", classRoomService.servSelectRoomAll());
 				return "insertCourse";
 		}
 		@PostMapping("/add")
@@ -51,11 +54,11 @@ public class CourseController {
 								Errors errors,
 								Model model) {
 			if(errors.hasErrors()) {
-				model.addAttribute("room", classRoomService.servSelectRoomAll());
+				//model.addAttribute("room", classRoomService.servSelectRoomAll());
 					return "insertCourse";
 			}
 			service.servInsertCourse(course);
-			
+
 			model.addAttribute("status","講座を登録しました");
 
 		return "/menu";

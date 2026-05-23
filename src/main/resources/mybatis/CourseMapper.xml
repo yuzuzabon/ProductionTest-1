@@ -9,6 +9,7 @@
 		<result property="title" column="title"/>
 		<result property="detail" column="detail"/>
 		<result property="classRoomId" column="class_room_id"/>
+		<result property="numberOfDays" column="number_of_days"/>
 		<result property="registeredAt" column="registered_at"/>
 		<result property="updatedAt" column="updated_at"/>
 
@@ -45,9 +46,9 @@
     </selectKey>
 
  insert into course
- 	(title,detail,class_room_id)
+ 	(title,detail,class_room_id,number_of_days)
  	values
- 	(#{title},#{detail},#{classRoomId})
+ 	(#{title},#{detail},#{classRoomId},#{numberOfDays})
  </insert>
 
  <insert id="insertCourseCapacity" >

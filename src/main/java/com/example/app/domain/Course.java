@@ -3,7 +3,9 @@ package com.example.app.domain;
 import java.time.LocalDateTime;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,9 +25,11 @@ public class Course {
 		@NotBlank
 		private String detail;
 
-	
 		private Integer classRoomId;
-		
+		@NotNull
+		@Min(1)
+		private Integer numberOfDays;
+
 		private LocalDateTime registeredAt;
 		private LocalDateTime updatedAt;
 		@Valid

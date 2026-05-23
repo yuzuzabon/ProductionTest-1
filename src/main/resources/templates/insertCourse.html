@@ -2,32 +2,54 @@
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
 <head>
 	<meta charset="UTF-8" />
+	<link th:href="@{/css/style.css}" rel="stylesheet" />
+	<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
 	<title>Document</title>
 </head>
 <body>
  <h1>登録</h1>
  	<form th:action="@{/add}" method="post" th:object="${course}">
 		<ul>
-			<li>タイトル：
-				<input type="text" th:field="*{title}"/>
-			</li>
-			<li>内容：
-				<input type="text" th:field="*{detail}"/>
-			</li>
-			<li>教室：
-				<select th:field="*{classRoomId}">
-					<option th:each="c : ${room}" th:value="${c.id}"
-								th:text="${c.classRoom}"></option>
-				</select>	
-			</li>
-			<li>定員：
-							<input type="number" th:field="*{courseCapacity.capacity}"/>
-			</li>
+			<p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="alert alert-danger w-50 py-2 mb-2 rounded"></p>
+			<div class="mb-3">
+			<label for="formName">タイトル</label>
+         <input type="text"	th:field="*{title}"	id="formName"
+		             	class="form-control"/>
+			</div>
+			<div class="mb-3">
+			<label for="formNote">内容</label>
+			  <textarea th:field="*{detail}" id="formNote" class="form-control"></textarea>
+			</div>
+
+			<div class="mb-3">
+				<label for="formName">回数</label>
+			  <input type="number" th:field="*{numberOfDays}"	id="formName"
+			       	class="form-control"/>
+			</div>
+
+
+
+			<div class="mb-3">
+			<label for="formLocation">教室</label>
+				<select th:field="*{classRoomId}"  id="formLocation" class="form-control">
+				  <option th:each="r : ${classRoomList}" th:value="${r.id}" th:text="${r.classRoom}">
+					</option>
+			  </select>
+			</div>
+			<p th:if="${#fields.hasErrors('courseCapacity.capacity')}" th:errors="*{courseCapacity.capacity}" class="alert alert-danger w-50 py-2 mb-2 rounded"></p>
+			<div class="mb-3">
+			<label for="formCapacity">定員</label>
+					<input type="number" th:field="*{courseCapacity.capacity}"
+				         id="formCapacity" class="form-control"/>
+			</div>
+
 				<input type="submit" />
 		</ul>
 
 
 	</form>
  <a href="/menu">メニュー</a>
+ <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>
+
