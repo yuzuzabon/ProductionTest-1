@@ -12,6 +12,9 @@
 			<th width="100">講座番号</th>
 			<th  width="250">タイトル</th>
 			<th>教室</th>
+			<th>日付</th>
+			<th>開始時間</th>
+			<th>終了時間</th>
 			<th>定員</th>
 			<th>申込数</th>
 			<th>空き</th>
@@ -21,6 +24,9 @@
 			<td>[[${c.courseId}]]</td>
 			<td>[[${c.title}]]</td>
 			<td align="center">[[${c.classRoom.classRoom}]]</td>
+			<td align="center">[[${c.classRoomSchedule.date}]]</td>
+			<td align="center">[[${c.classRoomSchedule.startTime}]]</td>
+			<td align="center">[[${c.classRoomSchedule.endTime}]]</td>
 			<td align="center">[[${c.courseCapacity.capacity}]]</td>
 			<td align="center">[[${c.courseCapacity.numberOfApplicant}]]</td>
 			<td th:text="${c.courseCapacity.capacity} - ${c.courseCapacity.numberOfApplicant}"></td>
