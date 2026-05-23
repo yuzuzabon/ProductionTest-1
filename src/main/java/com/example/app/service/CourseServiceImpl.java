@@ -40,8 +40,8 @@ public class CourseServiceImpl implements CourseService{
 				CourseCapacity courseCapacity=course.getCourseCapacity();
 				ClassRoomSchedule classRoomSchedule=course.getClassRoomSchedule();
 
-					course.setCourseCapacity(courseCapacity);
-					course.setClassRoomSchedule(classRoomSchedule);
+			//		course.setCourseCapacity(courseCapacity);
+			//		course.setClassRoomSchedule(classRoomSchedule);
 
 				courseCapacity.setCourseId(generatedCode);
 				classRoomSchedule.setCourseId(generatedCode);
