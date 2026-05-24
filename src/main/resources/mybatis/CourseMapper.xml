@@ -4,50 +4,83 @@
 <mapper namespace="com.example.app.mapper.CourseMapper">
 
 <resultMap type="Course" id="joinCourse">
-		<id property="id" column="id"/>
-		<result property="courseId" column="course_id"/>
-		<result property="title" column="title"/>
-		<result property="detail" column="detail"/>
-		<result property="classRoomId" column="class_room_id"/>
-		<result property="numberOfDays" column="number_of_days"/>
-		<result property="registeredAt" column="registered_at"/>
-		<result property="updatedAt" column="updated_at"/>
+		<id property="id" column="c_id"/>
+		<result property="courseId" column="c_course_id"/>
+		<result property="title" column="c_title"/>
+		<result property="detail" column="c_detail"/>
+		<result property="classRoomId" column="c_class_room_id"/>
+		<result property="numberOfDays" column="c_number_of_days"/>
+		<result property="registeredAt" column="c_registered_at"/>
+		<result property="updatedAt" column="c_updated_at"/>
 
 	<association property="courseCapacity" javaType="CourseCapacity">
-		<result property="capacity" column="capacity"/>
-		<result property="numberOfApplicant" column="number_of_applicant"/>
-		<result property="registeredAt" column="registered_at"/>
-		<result property="updatedAt" column="updated_at"/>
+		<result property="capacity" column="p_capacity"/>
+		<result property="numberOfApplicant" column="p_number_of_applicant"/>
+		<result property="registeredAt" column="p_registered_at"/>
+		<result property="updatedAt" column="p_updated_at"/>
 	</association>
+
 	<association property="classRoom" javaType="ClassRoom">
-		<result property="id" column="id"/>
-		<result property="classRoom" column="class_room"/>
-		<result property="registeredAt" column="registered_at"/>
-		<result property="updatedAt" column="updated_at"/>
+		<id property="id" column="r_id"/>
+		<result property="classRoom" column="r_class_room"/>
+		<result property="registeredAt" column="r_registered_at"/>
+		<result property="updatedAt" column="r_updated_at"/>
 	</association>
-	<association property="classRoomSchedule" javaType="ClassRoomSchedule">
-		<result property="id" column="id"/>
-		<result property="courseId" column="course_id"/>
-		<result property="classRoomId" column="class_room_id"/>
-		<result property="updatedAt" column="updated_at"/>
-		<result property="date" column="date"/>
-		<result property="startTime" column="start_time"/>
-		<result property="endTime" column="end_time"/>
-		<result property="registeredAt" column="registered_at"/>
-		<result property="updatedAt" column="updated_at"/>
-	</association>
+
+	<collection property="classRoomSchedule" ofType="ClassRoomSchedule">
+		<id property="id" column="id"/>
+		<result property="courseId" column="s_course_id"/>
+		<result property="classRoomId" column="s_class_room_id"/>
+		<result property="date" column="s_date"/>
+		<result property="startTime" column="s_start_time"/>
+		<result property="endTime" column="s_end_time"/>
+		<result property="registeredAt" column="s_registered_at"/>
+		<result property="updatedAt" column="s_updated_at"/>
+	</collection>
 
 
 </resultMap>
 
 <select id="selectCourseAll" resultMap="joinCourse">
-			select * FROM course
+			select
+				course.id AS c_id,
+        course.course_id AS c_course_id,
+        course.title AS c_title,
+        course.detail AS c_detail,
+        course.class_room_id AS c_class_room_id,
+        course.number_of_days AS c_number_of_days,
+        course.registered_at AS c_registered_at,
+        course.updated_at AS c_updated_at,
+
+        course_capacity.capacity AS p_capacity,
+        course_capacity.number_of_applicant AS p_number_of_applicant,
+        course_capacity.registered_at AS p_registered_at,
+        course_capacity.updated_at AS p_updated_at,
+
+        class_room.id AS r_id,
+        class_room.class_room AS r_class_room,
+        class_room.registered_at AS r_registered_at,
+        class_room.updated_at AS r_updated_at,
+
+        class_room_schedule.id AS s_id,
+        class_room_schedule.course_id AS s_course_id,
+        class_room_schedule.class_room_id AS s_class_room_id,
+        class_room_schedule.date AS s_date,
+        class_room_schedule.start_time AS s_start_time,
+        class_room_schedule.end_time AS s_end_time,
+        class_room_schedule.registered_at AS s_registered_at,
+        class_room_schedule.updated_at AS s_updated_at
+
+			FROM course
+
 			join  course_capacity
 			on course.course_id=
 			course_capacity.course_id
+
 			join class_room
 			on course.class_room_id=
 			class_room.id
+
 			join class_room_schedule
       on course.course_id =
       class_room_schedule.course_id
@@ -56,7 +89,7 @@
 
 <insert id="insertCourse">
  		<selectKey keyProperty="courseId" resultType="String" order="AFTER">
-        SELECT course_Id
+        SELECT course_id
         FROM course
         WHERE id = LAST_INSERT_ID()
     </selectKey>
@@ -69,16 +102,18 @@
 
  <insert id="insertCourseCapacity" >
  insert into course_capacity
- 	(course_Id,capacity)
+ 	(course_id,capacity)
  	values
  	(#{courseId},#{capacity})
  </insert>
 
  <insert id="insertClassRoomSchedule" >
  insert into class_room_schedule
- 	(course_Id,class_room_id,date,start_time,end_time)
+ 	(course_id,class_room_id,date,start_time,end_time)
  	values
- 	(#{courseId},#{classRoomId},#{date},#{startTime},#{endTime})
+ 	<foreach collection="classRoomSchedule" item="item" separator=",">
+ 	(#{item.courseId},#{item.classRoomId},#{item.date},#{item.startTime},#{item.endTime})
+ 	</foreach>
  </insert>
 
 

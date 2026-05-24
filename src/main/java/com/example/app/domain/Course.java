@@ -1,6 +1,7 @@
 package com.example.app.domain;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -37,5 +38,5 @@ public class Course {
 		@Valid
 		private ClassRoom classRoom;
 		@Valid
-		private ClassRoomSchedule classRoomSchedule;
+		private List<ClassRoomSchedule> classRoomSchedule;
 }

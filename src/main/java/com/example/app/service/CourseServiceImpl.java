@@ -1,5 +1,6 @@
 package com.example.app.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -34,18 +35,23 @@ public class CourseServiceImpl implements CourseService{
 	        course.setCourseCapacity(new CourseCapacity());
 	    }
 	    if (course.getClassRoomSchedule() == null) {
-	        course.setClassRoomSchedule(new ClassRoomSchedule());
+	        course.setClassRoomSchedule(new ArrayList<>());
 	    }
 
 				CourseCapacity courseCapacity=course.getCourseCapacity();
-				ClassRoomSchedule classRoomSchedule=course.getClassRoomSchedule();
+
+				List<ClassRoomSchedule> classRoomSchedule=course.getClassRoomSchedule();
 
 			//		course.setCourseCapacity(courseCapacity);
 			//		course.setClassRoomSchedule(classRoomSchedule);
 
 				courseCapacity.setCourseId(generatedCode);//CourseCapacityへのCourseId登録
-				classRoomSchedule.setCourseId(generatedCode);//ClassRoomScheduleへのCourseId登録
-				classRoomSchedule.setClassRoomId(classRoomCode);//↑↑へのClassRoomId登録
+
+				for(ClassRoomSchedule schedule : classRoomSchedule) {
+					 schedule.setCourseId(generatedCode);//ClassRoomScheduleへのCourseId登録
+					 schedule.setClassRoomId(classRoomCode);//↑↑へのClassRoomId登録
+
+				}
 
 				courseMapper.insertCourseCapacity(courseCapacity);
 				courseMapper.insertClassRoomSchedule(classRoomSchedule);

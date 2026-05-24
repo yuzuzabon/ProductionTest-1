@@ -9,8 +9,14 @@
 <body>
  <h1>登録</h1>
  	<form th:action="@{/add}" method="post" th:object="${course}">
+
 		<ul>
-			<p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="alert alert-danger w-50 py-2 mb-2 rounded"></p>
+			<div class="mb-3">
+			 	<a th:href="@{/menu}" class="btn btn-secondary">メニュー画面</a>
+			 	<a th:href="@{/show}" class="btn btn-secondary">一覧画面</a>
+			</div>
+
+				<p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="alert alert-danger w-50 py-2 mb-2 rounded"></p>
 			<div class="mb-3">
 			<label for="formName">タイトル</label>
          <input type="text"	th:field="*{title}"	id="formName"
@@ -29,7 +35,7 @@
 
 			<div class="mb-3">
 				<label for="formName">開催日</label>
-			  <input type="date" th:field="*{classRoomSchedule.date}"	id="formName"
+			  <input type="date" th:field="*{classRoomSchedule[0].date}"	id="formName"
 							min="2026-05-01" max="2026-09-30"
 							onkeydown="return false"
 			       	class="form-control"/>
@@ -39,7 +45,7 @@
 				<label for="formName">開始時間</label>
 <!--			  <input type="time" th:field="*{classRoomSchedule.startTime}" min="10:00" max="15:00" step="900"-->
 <!--				onkeydown="return false" id="formStartTime"	class="form-control"/>-->
-				<select th:field="*{classRoomSchedule.startTime}" id="formStartTime" class="form-control">
+				<select th:field="*{classRoomSchedule[0].startTime}" id="formStartTime" class="form-control">
 <!-- 💡 10時から14時までループを回し、各時で0分、15分、30分、45分のオプションを生成 -->
 	        <th:block th:each="hour : ${#numbers.sequence(10, 14)}">
 						<th:block th:each="min : ${#numbers.sequence(0, 45, 15)}">
@@ -56,9 +62,12 @@
 
 			<div class="mb-3">
 				<label for="formName">講座時間</label><br>
-			  <label><input type="radio" th:field="*{classRoomSchedule.corsePeriod}" value="30"/>30分　</label>
-				<label><input type="radio" th:field="*{classRoomSchedule.corsePeriod}" value="45"/>45分　</label>
-			  <label><input type="radio" th:field="*{classRoomSchedule.corsePeriod}" value="60"/>60分　</label>
+			  <label><input type="radio" th:field="*{classRoomSchedule[0].coursePeriod}"
+											value="30"/>30分　</label>
+				<label><input type="radio" th:field="*{classRoomSchedule[0].coursePeriod}"
+											value="45"/>45分　</label>
+			  <label><input type="radio" th:field="*{classRoomSchedule[0].coursePeriod}"
+											value="60"/>60分　</label>
 
 			</div>
 
@@ -75,11 +84,7 @@
 					<input type="number" th:field="*{courseCapacity.capacity}"
 				         id="formCapacity" onkeydown="return false" class="form-control"/>
 			</div>
-
-				<input type="submit" class="btn btn-primary" value="登録"/>
-	 			<a th:href="@{/menu}" class="btn btn-secondary">メニュー</a>
-				<a th:href="@{/show}" class="btn btn-secondary">一覧</a>
-
+			<input type="submit" class="btn btn-primary" value="登録"/>
 		</ul>
 	</form>
  			<script th:src="@{/js/bootstrap.bundle.min.js}"></script>

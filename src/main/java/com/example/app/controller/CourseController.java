@@ -1,6 +1,7 @@
 package com.example.app.controller;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -40,13 +41,23 @@ public class CourseController {
 
 		@GetMapping("/show")
 		public String contSelectCourseAll(Model model) {
-			model.addAttribute("course",service.servSelectCourseAll());
+			model.addAttribute("courses",service.servSelectCourseAll());
 		//System.out.println(service.servSelectCourseAll());
 			return "courseList";
 		}
 		@GetMapping("/add")
 		public String showInsertCourse(Model model) {
-				model.addAttribute("course",new Course());
+				Course course=new Course();
+
+				List<ClassRoomSchedule> list=new ArrayList<>();
+				ClassRoomSchedule initialSchedule = new ClassRoomSchedule();
+
+		    // 初期値「60」を設定します
+		    initialSchedule.setCoursePeriod(60);
+
+				list.add(initialSchedule);
+				course.setClassRoomSchedule(list);
+				model.addAttribute("course",course);
 				//model.addAttribute("room", classRoomService.servSelectRoomAll());
 				return "insertCourse";
 		}
@@ -59,10 +70,10 @@ public class CourseController {
 				//model.addAttribute("room", classRoomService.servSelectRoomAll());
 					return "insertCourse";
 			}
-			ClassRoomSchedule schedule = course.getClassRoomSchedule();
-			if (schedule != null && schedule.getStartTime() != null && schedule.getCorsePeriod() != null) {
+			ClassRoomSchedule schedule = course.getClassRoomSchedule().get(0);
+			if (schedule != null && schedule.getStartTime() != null && schedule.getCoursePeriod() != null) {
 				LocalTime start = schedule.getStartTime();
-        int period = schedule.getCorsePeriod();
+        int period = schedule.getCoursePeriod();
         LocalTime end = start.plusMinutes(period);
 
         // 計算した終了時間をセットする

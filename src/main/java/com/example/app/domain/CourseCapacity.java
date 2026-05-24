@@ -17,8 +17,8 @@ public class CourseCapacity {
 		private String courseId;
 		@NotNull
 		@Min(1)
-		private Integer capacity;
-		private Integer numberOfApplicant;
+		private Integer capacity;//定員
+		private Integer numberOfApplicant;//申込者数
 		private LocalDateTime registeredAt;
 		private LocalDateTime updatedAt;
 

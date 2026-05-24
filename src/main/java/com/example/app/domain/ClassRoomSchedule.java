@@ -19,7 +19,7 @@ public class ClassRoomSchedule {
 	private LocalDate date;
 	private LocalTime startTime;
 	private LocalTime endTime;
-	private Integer corsePeriod;
+	private Integer coursePeriod;
 
 	private LocalDateTime registeredAt;
 	private LocalDateTime updatedAt;
