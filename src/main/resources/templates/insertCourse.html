@@ -7,12 +7,12 @@
 	<title>Document</title>
 </head>
 <body>
- <h1>登録</h1>
- 	<form th:action="@{/add}" method="post" th:object="${course}" id="courseForm" class="ms-4 mt-3">
+<h1 class="mt-4 mb-4 ms-5">講座登録</h1>
+ 	<form th:action="@{/add}" method="post" th:object="${course}" id="courseForm" class="ms-5 mt-3">
 
 			<div class="mb-3">
-			 	<a th:href="@{/menu}" class="btn btn-secondary">メニュー画面</a>
-			 	<a th:href="@{/show}" class="btn btn-secondary">一覧画面</a>
+			 	<a th:href="@{/menu}" class="btn btn-secondary">メニュー</a>
+			 	<a th:href="@{/show}" class="btn btn-secondary">講座一覧</a>
 			</div>
 
 				<p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="alert alert-danger w-50 py-2 mb-2 rounded"></p>
@@ -113,7 +113,25 @@
 <!--			</script>-->
 <script>
 // 選択された日付を記憶しておく配列（重複チェック用）
-const addedDates = []; // 追加された日付を記録する配列
+let addedDates = []; // 追加された日付を記録する配列
+
+// リストの連番（name属性のインデックス）を上から順に綺麗に詰め直す関数
+function reIndexSchedules() {
+    const listItems = document.querySelectorAll('#selectedDateList .list-group-item');
+    listItems.forEach((li, index) => {
+        // 日付用hiddenのname属性を更新
+        const hiddenDate = li.querySelector('.hidden-date');
+        if (hiddenDate) {
+            hiddenDate.name = `classRoomSchedule[${index}].date`;
+        }
+        // 講座時間用hiddenのname属性を更新
+        const hiddenPeriod = li.querySelector('.hidden-period');
+        if (hiddenPeriod) {
+            hiddenPeriod.name = `classRoomSchedule[${index}].coursePeriod`;
+        }
+    });
+}
+
 
 document.getElementById('addDateBtn').addEventListener('click', function() {
 		const maxCount = parseInt(document.getElementById('courseCount').value, 10);
@@ -155,23 +173,49 @@ document.getElementById('addDateBtn').addEventListener('click', function() {
     // リストアイテム(li)の作成
     const li = document.createElement('li');
     li.className = 'list-group-item d-flex justify-content-between align-items-center';
-    li.textContent = selectedDate;
+  //li.textContent = selectedDate;
 
-    // Javaに送るためのhiddenパラメータ群（連番を綺麗に仕込む）
+		// テキストとボタンを綺麗に配置するための器
+		const textSpan = document.createElement('span');
+	  textSpan.textContent = selectedDate;
+	  li.appendChild(textSpan);
+
+		// 削除ボタンの作成
+	  const deleteBtn = document.createElement('button');
+	  deleteBtn.type = 'button';
+	  deleteBtn.className = 'btn btn-danger btn-sm';
+	  deleteBtn.textContent = '削除';
+
+		// 削除ボタンが押された時の処理
+	    deleteBtn.addEventListener('click', function() {
+	    // 重複チェック用の配列から該当する日付を消去
+	        addedDates = addedDates.filter(date => date !== selectedDate);
+	    // 画面のリスト（行）を消去
+	        li.remove();
+	    // 💡 歯抜けになった連番を上から綺麗に数え直す
+	        reIndexSchedules();
+	    // エラーメッセージがあればクリア
+	        errorElement.textContent = '';
+	    });
+
+    // Javaに送るためのhiddenパラメータ群（連番を綺麗に仕込む 後から探せるようにクラス名を付与）
     const hiddenDate = document.createElement('input');
     hiddenDate.type = 'hidden';
+    hiddenDate.className = 'hidden-date';
     hiddenDate.name = `classRoomSchedule[${index}].date`;
     hiddenDate.value = selectedDate;
 
     // ※もし講座時間(分)も必要なら、画面の入力値をここにセットする
     const hiddenPeriod = document.createElement('input');
     hiddenPeriod.type = 'hidden';
+    hiddenPeriod.className = 'hidden-period';
     hiddenPeriod.name = `classRoomSchedule[${index}].coursePeriod`;
     hiddenPeriod.value = "60"; // 例として60分（画面の入力項目から取得してもOK）
 
     // 要素の組み立て
     li.appendChild(hiddenDate);
     li.appendChild(hiddenPeriod);
+		li.appendChild(deleteBtn); // 削除ボタンを右端に追加
     list.appendChild(li);
 
     // 入力欄をクリア
@@ -181,7 +225,7 @@ document.getElementById('addDateBtn').addEventListener('click', function() {
 		// フォーム送信時のチェック（足りない状態で登録されるのを防ぐ）
 		document.getElementById('courseForm').addEventListener('submit', function(event) {
     	const maxCount = parseInt(document.getElementById('courseCount').value, 10);
-    	const errorElement = document.getElementById('dateError'); // またはフォーム全体のエラー領域
+    //const errorElement = document.getElementById('dateError'); // またはフォーム全体のエラー領域
 
 	    if (addedDates.length !== maxCount) {
   	    alert(`設定された講座回数（${maxCount}回）に対して、開催日が${addedDates.length}日しか選択されていません。`);
