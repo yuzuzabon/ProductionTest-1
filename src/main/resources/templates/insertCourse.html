@@ -8,44 +8,59 @@
 </head>
 <body>
  <h1>登録</h1>
- 	<form th:action="@{/add}" method="post" th:object="${course}">
+ 	<form th:action="@{/add}" method="post" th:object="${course}" id="courseForm" class="ms-4 mt-3">
 
-		<ul>
 			<div class="mb-3">
 			 	<a th:href="@{/menu}" class="btn btn-secondary">メニュー画面</a>
 			 	<a th:href="@{/show}" class="btn btn-secondary">一覧画面</a>
 			</div>
 
 				<p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="alert alert-danger w-50 py-2 mb-2 rounded"></p>
+
 			<div class="mb-3">
-			<label for="formName">タイトル</label>
-         <input type="text"	th:field="*{title}"	id="formName"
-		             	class="form-control"/>
-			</div>
-			<div class="mb-3">
-			<label for="formNote">内容</label>
-			  <textarea th:field="*{detail}" id="formNote" class="form-control"></textarea>
+				<label for="formTitle">タイトル</label>
+         <input type="text"	th:field="*{title}"	id="formTitle"
+		             	class="form-control w-50"/>
 			</div>
 
 			<div class="mb-3">
-				<label for="formName">回数</label>
-			  <input type="number" th:field="*{numberOfDays}"	onkeydown="return false" id="formName"
-			       	class="form-control"/>
+				<label for="formNote">内容</label>
+			  <textarea th:field="*{detail}" id="formNote" class="form-control w-50"></textarea>
 			</div>
 
 			<div class="mb-3">
-				<label for="formName">開催日</label>
-			  <input type="date" th:field="*{classRoomSchedule[0].date}"	id="formName"
+				<label for="courseCount">回数</label>
+			  <input type="number" th:field="*{numberOfDays}"	onkeydown="return false" id="courseCount"
+			       	class="form-control w-50"/>
+			</div>
+
+
+			<div class="mb-3">
+				<label for="datePicker">開催日</label>
+    		<div class="d-flex gap-2">
+        <!-- ここはただの選択欄。nameやth:fieldは一切不要 -->
+        	<input type="date" id="datePicker"
 							min="2026-05-01" max="2026-09-30"
-							onkeydown="return false"
-			       	class="form-control"/>
+              onkeydown="return false"
+              class="form-control" style="width: 200px;"/>
+	        <button type="button" id="addDateBtn" class="btn btn-secondary">追加</button>
+  	  	</div>
+    		<small id="dateError" style="color: red; display: block; margin-top: 0.25rem;"></small>
+			</div>
+
+			<!-- 追加された日付がここに [0], [1], [2]... と並ぶ -->
+			<div class="mb-3 w-50">
+    		<label>選択済みの開催日一覧</label>
+    			<ul id="selectedDateList" class="list-group">
+        <!-- ここにJavaScriptで動的にliとhiddenパラメータが追加される -->
+    			</ul>
 			</div>
 
 			<div class="mb-3">
 				<label for="formName">開始時間</label>
 <!--			  <input type="time" th:field="*{classRoomSchedule.startTime}" min="10:00" max="15:00" step="900"-->
 <!--				onkeydown="return false" id="formStartTime"	class="form-control"/>-->
-				<select th:field="*{classRoomSchedule[0].startTime}" id="formStartTime" class="form-control">
+				<select th:field="*{classRoomSchedule[0].startTime}" id="formStartTime" class="form-control w-50">
 <!-- 💡 10時から14時までループを回し、各時で0分、15分、30分、45分のオプションを生成 -->
 	        <th:block th:each="hour : ${#numbers.sequence(10, 14)}">
 						<th:block th:each="min : ${#numbers.sequence(0, 45, 15)}">
@@ -56,36 +71,33 @@
            	</th:block>
 					</th:block>
  				</select>
-
-
 			</div>
 
 			<div class="mb-3">
 				<label for="formName">講座時間</label><br>
-			  <label><input type="radio" th:field="*{classRoomSchedule[0].coursePeriod}"
+			  <label><input type="radio" name="basePeriod" class="course-period"
 											value="30"/>30分　</label>
-				<label><input type="radio" th:field="*{classRoomSchedule[0].coursePeriod}"
+				<label><input type="radio" name="basePeriod" class="course-period"
 											value="45"/>45分　</label>
-			  <label><input type="radio" th:field="*{classRoomSchedule[0].coursePeriod}"
-											value="60"/>60分　</label>
-
+			  <label><input type="radio" name="basePeriod" class="course-period"
+											value="60" checked/>60分　</label>
 			</div>
 
 			<div class="mb-3">
 			<label for="formLocation">教室</label>
-				<select th:field="*{classRoomId}"  id="formLocation" class="form-control">
+				<select th:field="*{classRoomId}"  id="formLocation" class="form-control w-50">
 				  <option th:each="r : ${classRoomList}" th:value="${r.id}" th:text="${r.classRoom}">
 					</option>
 			  </select>
 			</div>
+
 			<p th:if="${#fields.hasErrors('courseCapacity.capacity')}" th:errors="*{courseCapacity.capacity}" class="alert alert-danger w-50 py-2 mb-2 rounded"></p>
 			<div class="mb-3">
 			<label for="formCapacity">定員</label>
 					<input type="number" th:field="*{courseCapacity.capacity}"
-				         id="formCapacity" onkeydown="return false" class="form-control"/>
+				         id="formCapacity" onkeydown="return false" class="form-control w-50"/>
 			</div>
 			<input type="submit" class="btn btn-primary" value="登録"/>
-		</ul>
 	</form>
  			<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 <!--			<script>-->
@@ -99,6 +111,86 @@
 <!--				}-->
 
 <!--			</script>-->
+<script>
+// 選択された日付を記憶しておく配列（重複チェック用）
+const addedDates = []; // 追加された日付を記録する配列
+
+document.getElementById('addDateBtn').addEventListener('click', function() {
+		const maxCount = parseInt(document.getElementById('courseCount').value, 10);
+		const dateInput = document.getElementById('datePicker');
+    const selectedDate = dateInput.value;
+    const errorElement = document.getElementById('dateError');
+
+		// 1. そもそも講座回数が入力されていない場合はストップ
+	  if (isNaN(maxCount) || maxCount <= 0) {
+	       errorElement.textContent = '講座回数を入力してください。';
+	       return;
+	   }
+
+    // 2. すでに追加された件数が講座回数に達している場合は追加させない
+	  if (addedDates.length >= maxCount) {
+	      errorElement.textContent = `この講座は全 ${maxCount} 回です。これ以上日付を追加できません`;
+	      return;
+	    }
+
+    // 未入力チェック
+    if (!selectedDate) {
+        errorElement.textContent = '日付を選択してください';
+        return;
+    }
+
+    // 全件が対象になる重複チェック
+    if (addedDates.includes(selectedDate)) {
+        errorElement.textContent = 'この日付はすでに選択済みです';
+        return;
+    }
+
+    // エラーをクリアして配列に保存
+    errorElement.textContent = '';
+    addedDates.push(selectedDate);
+
+    const index = addedDates.length - 1; // 0から始まるインデックス
+    const list = document.getElementById('selectedDateList');
+
+    // リストアイテム(li)の作成
+    const li = document.createElement('li');
+    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+    li.textContent = selectedDate;
+
+    // Javaに送るためのhiddenパラメータ群（連番を綺麗に仕込む）
+    const hiddenDate = document.createElement('input');
+    hiddenDate.type = 'hidden';
+    hiddenDate.name = `classRoomSchedule[${index}].date`;
+    hiddenDate.value = selectedDate;
+
+    // ※もし講座時間(分)も必要なら、画面の入力値をここにセットする
+    const hiddenPeriod = document.createElement('input');
+    hiddenPeriod.type = 'hidden';
+    hiddenPeriod.name = `classRoomSchedule[${index}].coursePeriod`;
+    hiddenPeriod.value = "60"; // 例として60分（画面の入力項目から取得してもOK）
+
+    // 要素の組み立て
+    li.appendChild(hiddenDate);
+    li.appendChild(hiddenPeriod);
+    list.appendChild(li);
+
+    // 入力欄をクリア
+    dateInput.value = '';
+});
+
+		// フォーム送信時のチェック（足りない状態で登録されるのを防ぐ）
+		document.getElementById('courseForm').addEventListener('submit', function(event) {
+    	const maxCount = parseInt(document.getElementById('courseCount').value, 10);
+    	const errorElement = document.getElementById('dateError'); // またはフォーム全体のエラー領域
+
+	    if (addedDates.length !== maxCount) {
+  	    alert(`設定された講座回数（${maxCount}回）に対して、開催日が${addedDates.length}日しか選択されていません。`);
+        event.preventDefault(); // 登録処理を中断する
+    }
+});
+</script>
+
+
 </body>
 </html>
 

@@ -70,16 +70,34 @@ public class CourseController {
 				//model.addAttribute("room", classRoomService.servSelectRoomAll());
 					return "insertCourse";
 			}
-			ClassRoomSchedule schedule = course.getClassRoomSchedule().get(0);
-			if (schedule != null && schedule.getStartTime() != null && schedule.getCoursePeriod() != null) {
-				LocalTime start = schedule.getStartTime();
-        int period = schedule.getCoursePeriod();
-        LocalTime end = start.plusMinutes(period);
+			List<ClassRoomSchedule> schedules = course.getClassRoomSchedule();
 
-        // 計算した終了時間をセットする
-        schedule.setEndTime(end);
-        System.out.println(course);
+			if(schedules !=null && !schedules.isEmpty()) {
+			// 1件目（インデックス0）に画面全体の共通情報（開始時間、教室など）が入っているため、これを基準にする
+				ClassRoomSchedule baseSchedule = schedules.get(0);
+
+				// 共通情報を変数に退避
+				LocalTime baseStartTime = baseSchedule.getStartTime();
+
+					for(ClassRoomSchedule schedule :schedules) {
+						if(schedule.getStartTime()==null) {
+								schedule.setStartTime(baseStartTime);
+
+						}
+
+						if (schedule.getStartTime() != null && schedule.getCoursePeriod() != null) {
+							LocalTime start = schedule.getStartTime();
+							int period = schedule.getCoursePeriod();
+							LocalTime end = start.plusMinutes(period);
+
+							// 計算した終了時間をセットする
+							schedule.setEndTime(end);
+
+						}
+					}
 			}
+        System.out.println(course);
+
 				service.servInsertCourse(course);
 
 			model.addAttribute("status","講座を登録しました");

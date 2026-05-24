@@ -27,34 +27,44 @@ public class CourseServiceImpl implements CourseService{
 		@Override
 		@Transactional
 		public void servInsertCourse(Course course) {
-				courseMapper.insertCourse(course);
-				String generatedCode=course.getCourseId();
-				Integer classRoomCode=course.getClassRoomId();
-
+			//null対策
 			if (course.getCourseCapacity() == null) {
-	        course.setCourseCapacity(new CourseCapacity());
-	    }
-	    if (course.getClassRoomSchedule() == null) {
-	        course.setClassRoomSchedule(new ArrayList<>());
-	    }
+					course.setCourseCapacity(new CourseCapacity());
+			}
+			if (course.getClassRoomSchedule() == null) {
+					course.setClassRoomSchedule(new ArrayList<>());
+			}
+			//データ件数チェック
+			Integer expectedCount=course.getNumberOfDays();//講座回数
+			List<ClassRoomSchedule> schedules = course.getClassRoomSchedule();
+			Integer actualCount=schedules.size();
 
-				CourseCapacity courseCapacity=course.getCourseCapacity();
-
-				List<ClassRoomSchedule> classRoomSchedule=course.getClassRoomSchedule();
-
-			//		course.setCourseCapacity(courseCapacity);
-			//		course.setClassRoomSchedule(classRoomSchedule);
+			if(!expectedCount.equals(actualCount)) {
+				throw new IllegalArgumentException("設定された講座回数（" + expectedCount + "回）と、選択された開催日の日数（" + actualCount + "日）が一致しません。");
+			}
+			//親テーブル（Course）の登録
+				courseMapper.insertCourse(course);
+			//自動採番されたコードの取得
+				String generatedCode=course.getCourseId();//講座ID
+				Integer classRoomCode=course.getClassRoomId();//教室ID
+				CourseCapacity courseCapacity=course.getCourseCapacity();//定員
 
 				courseCapacity.setCourseId(generatedCode);//CourseCapacityへのCourseId登録
 
-				for(ClassRoomSchedule schedule : classRoomSchedule) {
-					 schedule.setCourseId(generatedCode);//ClassRoomScheduleへのCourseId登録
-					 schedule.setClassRoomId(classRoomCode);//↑↑へのClassRoomId登録
+				for(ClassRoomSchedule s : schedules) {
+					s.setCourseId(generatedCode);//ClassRoomScheduleへのCourseId登録
+					s.setClassRoomId(classRoomCode);//↑↑へのClassRoomId登録
 
 				}
 
 				courseMapper.insertCourseCapacity(courseCapacity);
-				courseMapper.insertClassRoomSchedule(classRoomSchedule);
+				courseMapper.insertClassRoomSchedule(schedules);
+
+			//	courseMapper.insertCourse(course);
+			//	List<ClassRoomSchedule> classRoomSchedule=course.getClassRoomSchedule();
+			//		course.setCourseCapacity(courseCapacity);
+			//		course.setClassRoomSchedule(classRoomSchedule);
+
 		}
 		@Override
 		public void join(Course course) {

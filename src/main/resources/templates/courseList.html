@@ -49,7 +49,7 @@
 				<td><div th:each="s : ${c.classRoomSchedule}" class="text-center">[[${s.endTime}]]</div></td>
 				<td class="text-center">[[${c.courseCapacity.capacity}]]</td>
 				<td class="text-center">[[${c.courseCapacity.numberOfApplicant}]]</td>
-				<td class="text-center"	th:text="${c.courseCapacity.capacity} - ${c.courseCapacity.numberOfApplicant}"></td>
+				<td class="text-center"	th:text="${c.courseCapacity.capacity - c.courseCapacity.numberOfApplicant}"></td>
 			</tr>
 		</tbody>
 	</table>
