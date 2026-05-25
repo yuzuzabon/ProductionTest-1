@@ -28,8 +28,8 @@ public class Course {
 
 		private Integer classRoomId;
 		@NotNull
-		@Min(1)
 		private Integer numberOfDays;
+		@Min(1)
 
 		private LocalDateTime registeredAt;
 		private LocalDateTime updatedAt;
