@@ -1,5 +1,6 @@
 package com.example.app.service;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,9 +36,34 @@ public class CourseServiceImpl implements CourseService{
 			if (course.getClassRoomSchedule() == null) {
 					course.setClassRoomSchedule(new ArrayList<>());
 			}
+			// スケジュール時間の補完・計算処理（Controllerから移動）
+			List<ClassRoomSchedule> schedules = course.getClassRoomSchedule();
+			// 共通情報を変数に退避
+			LocalTime baseStartTime = null;
+			if(!schedules.isEmpty()) {
+				// 1件目（インデックス0）に画面全体の共通情報（開始時間、教室など）が入っているため、これを基準にする
+					ClassRoomSchedule baseSchedule = schedules.get(0);
+					baseStartTime=baseSchedule.getStartTime();
+			}
+			for(ClassRoomSchedule schedule :schedules) {
+				if(schedule.getStartTime()==null) {
+						schedule.setStartTime(baseStartTime);
+
+				}
+				if (schedule.getStartTime() != null && schedule.getCoursePeriod() != null) {
+					LocalTime start = schedule.getStartTime();
+					int period = schedule.getCoursePeriod();
+					LocalTime end = start.plusMinutes(period);
+
+					// 計算した終了時間をセットする
+					schedule.setEndTime(end);
+
+				}
+			}
+
+
 			//データ件数チェック
 			Integer expectedCount=course.getNumberOfDays();//講座回数
-			List<ClassRoomSchedule> schedules = course.getClassRoomSchedule();
 			Integer actualCount=schedules.size();
 
 			if(!expectedCount.equals(actualCount)) {
@@ -60,13 +86,13 @@ public class CourseServiceImpl implements CourseService{
 
 				courseMapper.insertCourseCapacity(courseCapacity);
 				courseMapper.insertClassRoomSchedule(schedules);
+		}
 
 			//	courseMapper.insertCourse(course);
 			//	List<ClassRoomSchedule> classRoomSchedule=course.getClassRoomSchedule();
 			//		course.setCourseCapacity(courseCapacity);
 			//		course.setClassRoomSchedule(classRoomSchedule);
 
-		}
 		@Override
 		public void join(Course course) {
 			// TODO 自動生成されたメソッド・スタブ
@@ -90,4 +116,6 @@ public class CourseServiceImpl implements CourseService{
 			double totalNum=(double) courseMapper.selectTotalPages();
 			return (int) Math.ceil(totalNum/ numPerPage);
 		}
+
 }
+
