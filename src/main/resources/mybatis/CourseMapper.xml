@@ -40,8 +40,7 @@
 
 
 </resultMap>
-
-<select id="selectCourseAll" resultMap="joinCourse">
+	<sql id="standardSelect">
 			select
 				course.id AS c_id,
         course.course_id AS c_course_id,
@@ -84,8 +83,23 @@
 			join class_room_schedule
       on course.course_id =
       class_room_schedule.course_id
+      
+      order by c_course_id,s_date,s_start_time
+	</sql>
 
+<select id="selectCourseAll" resultMap="joinCourse">
+	<include refid="standardSelect"></include>
 </select>
+
+<select id="selectLimited" resultMap="joinCourse">
+	<include refid="standardSelect"></include>
+	limit #{offset},#{limit}
+</select>
+<select id="count" resultType="long">
+	select count(*) from course
+</select>
+
+
 
 <insert id="insertCourse">
  		<selectKey keyProperty="courseId" resultType="String" order="AFTER">
