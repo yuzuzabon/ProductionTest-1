@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
@@ -26,6 +27,7 @@ public class CourseController {
 
 		private final CourseService service;
 		private final ClassRoomService classRoomService;
+		private final int NUM_PER_PAGE=5;
 		//private final ClassRoomScheduleService classRoomScheduleService;
 
 		@ModelAttribute("classRoomList")
@@ -40,11 +42,20 @@ public class CourseController {
 		}
 
 		@GetMapping("/show")
-		public String contSelectCourseAll(Model model) {
-			model.addAttribute("courses",service.servSelectCourseAll());
-		//System.out.println(service.servSelectCourseAll());
+//		public String contSelectCourseAll(Model model) {
+//			model.addAttribute("courses",service.servSelectCourseAll());
+//			
+			public String contSelectCourseByPage(
+					@RequestParam(name="page",defaultValue = "1")Integer page,
+					Model model) {
+				model.addAttribute("courses",
+						service.servSelectCourseByPage(page, NUM_PER_PAGE));
+				model.addAttribute("page",page);
+				model.addAttribute("totalPages", 
+						service.servTotalPages(NUM_PER_PAGE));
 			return "courseList";
 		}
+
 		@GetMapping("/add")
 		public String showInsertCourse(Model model) {
 				Course course=new Course();

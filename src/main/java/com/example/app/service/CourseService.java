@@ -19,5 +19,7 @@ public interface CourseService {
 		
 	//申し込み	
 		void join(Course course);
-		 
+	//ページ分割
+		List<Course> servSelectCourseByPage(int page, int numPerPage);
+		int servTotalPages(int numPerPage);
 }
