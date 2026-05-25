@@ -21,11 +21,11 @@ public interface CourseMapper {
 		void insertCourseCapacity(CourseCapacity courseCapacity);
 		void insertClassRoomSchedule(@Param("classRoomSchedule")
 					List<ClassRoomSchedule> classRoomSchedule);
-		
+
 	//ページ分割
-		List<Course> selectLimited(
+		List<Course> selectCourseByPage(
 				@Param("offset")int offset,
 				@Param("limit")int limit);
-		Long count();
-		
+		Long selectTotalPages();
+
 }

@@ -41,7 +41,7 @@
 
 </resultMap>
 	<sql id="standardSelect">
-			select
+			select DISTINCT
 				course.id AS c_id,
         course.course_id AS c_course_id,
         course.title AS c_title,
@@ -83,7 +83,7 @@
 			join class_room_schedule
       on course.course_id =
       class_room_schedule.course_id
-      
+
       order by c_course_id,s_date,s_start_time
 	</sql>
 
@@ -91,15 +91,20 @@
 	<include refid="standardSelect"></include>
 </select>
 
-<select id="selectLimited" resultMap="joinCourse">
+<select id="selectCourseByPage" resultMap="joinCourse">
 	<include refid="standardSelect"></include>
 	limit #{offset},#{limit}
 </select>
-<select id="count" resultType="long">
-	select count(*) from course
+
+<select id="selectTotalPages" resultType="long">
+	select count(*) from class_room_schedule
 </select>
 
-
+<select id="selectCourseById" parameterType="int" resultType="course">
+	select
+		 * FROM course
+		 where course.id=#{id}
+</select>
 
 <insert id="insertCourse">
  		<selectKey keyProperty="courseId" resultType="String" order="AFTER">
@@ -131,10 +136,5 @@
  </insert>
 
 
-<select id="selectCourseById" parameterType="int" resultType="course">
-	select
-		 * FROM course
-		 where course.id=#{id}
-</select>
 
 </mapper>

@@ -27,7 +27,7 @@ public class CourseController {
 
 		private final CourseService service;
 		private final ClassRoomService classRoomService;
-		private final int NUM_PER_PAGE=5;
+		private final int NUM_PER_PAGE=10;
 		//private final ClassRoomScheduleService classRoomScheduleService;
 
 		@ModelAttribute("classRoomList")
@@ -44,15 +44,15 @@ public class CourseController {
 		@GetMapping("/show")
 //		public String contSelectCourseAll(Model model) {
 //			model.addAttribute("courses",service.servSelectCourseAll());
-//			
+//
 			public String contSelectCourseByPage(
 					@RequestParam(name="page",defaultValue = "1")Integer page,
 					Model model) {
 				model.addAttribute("courses",
 						service.servSelectCourseByPage(page, NUM_PER_PAGE));
 				model.addAttribute("page",page);
-				model.addAttribute("totalPages", 
-						service.servTotalPages(NUM_PER_PAGE));
+				model.addAttribute("totalPages",
+						service.servSelectTotalPages(NUM_PER_PAGE));
 			return "courseList";
 		}
 

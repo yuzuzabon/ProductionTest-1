@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(rollbackFor = Exception.class) 
+@Transactional(rollbackFor = Exception.class)
 //@NoArgsConstructor
 public class CourseServiceImpl implements CourseService{
 
@@ -82,12 +82,12 @@ public class CourseServiceImpl implements CourseService{
 		public List<Course> servSelectCourseByPage(int page, int numPerPage) {
 			// TODO 自動生成されたメソッド・スタブ
 			int offset=numPerPage*(page-1);
-			return courseMapper.selectLimited(offset,numPerPage);
+			return courseMapper.selectCourseByPage(offset,numPerPage);
 		}
 		@Override
-		public int servTotalPages(int numPerPage) {
+		public int servSelectTotalPages(int numPerPage) {
 			// TODO 自動生成されたメソッド・スタブ
-			double totalNum=(double) courseMapper.count();
+			double totalNum=(double) courseMapper.selectTotalPages();
 			return (int) Math.ceil(totalNum/ numPerPage);
 		}
 }
