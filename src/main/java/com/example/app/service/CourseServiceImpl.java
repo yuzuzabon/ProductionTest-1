@@ -76,8 +76,9 @@ public class CourseServiceImpl implements CourseService{
 			//testここから
 			for(ClassRoomSchedule s: schedules) {
 				System.out.println("testデータ");
-				System.out.print(s.getClassRoomId()+" ");
-				System.out.print(s.getDate()+" ");
+				System.out.println("courseから抽出"+course.getClassRoomId());
+				System.out.print("schedulesから抽出"+s.getClassRoomId()+" ");
+				System.out.print("schedulesから抽出"+s.getDate()+" ");
 				}
 			//テストここまで
 			
@@ -122,12 +123,14 @@ public class CourseServiceImpl implements CourseService{
 		public List<Course> servSelectCourseByPage(int page, int numPerPage) {
 			// TODO 自動生成されたメソッド・スタブ
 			int offset=numPerPage*(page-1);
+			System.out.println("page数"+page+" offset"+offset+" numPerPage"+numPerPage);//test
 			return courseMapper.selectCourseByPage(offset,numPerPage);
 		}
 		@Override
 		public int servSelectTotalPages(int numPerPage) {
 			// TODO 自動生成されたメソッド・スタブ
 			double totalNum=(double) courseMapper.selectTotalPages();
+			System.out.println("総件数"+totalNum);//test
 			return (int) Math.ceil(totalNum/ numPerPage);
 		}
 		@Override
