@@ -32,6 +32,7 @@ public class Course {
 		@NotNull
 		@Min(1)
 		private Integer numberOfDays;
+		//private Integer courseTerm;
 
 		private LocalDateTime registeredAt;
 		private LocalDateTime updatedAt;
