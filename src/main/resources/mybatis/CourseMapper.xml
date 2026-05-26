@@ -9,7 +9,7 @@
 		<result property="title" column="c_title"/>
 		<result property="detail" column="c_detail"/>
 		<result property="classRoomId" column="c_class_room_id"/>
-		<result property="numberOfDays" column="c_number_of_days"/>
+		<result property="courseTerm" column="c_course_term"/>
 		<result property="registeredAt" column="c_registered_at"/>
 		<result property="updatedAt" column="c_updated_at"/>
 
@@ -41,13 +41,12 @@
 
 </resultMap>
 	<sql id="standardSelect">
-			select DISTINCT
 				course.id AS c_id,
         course.course_id AS c_course_id,
         course.title AS c_title,
         course.detail AS c_detail,
         course.class_room_id AS c_class_room_id,
-        course.number_of_days AS c_number_of_days,
+        course.course_term AS c_course_term,
         course.registered_at AS c_registered_at,
         course.updated_at AS c_updated_at,
 
@@ -69,8 +68,15 @@
         class_room_schedule.end_time AS s_end_time,
         class_room_schedule.registered_at AS s_registered_at,
         class_room_schedule.updated_at AS s_updated_at
+	</sql>
 
-			FROM course
+
+<select id="selectCourseAll" resultMap="joinCourse">
+	select DISTINCT
+	
+	<include refid="standardSelect"></include>
+	
+	FROM course
 
 			join  course_capacity
 			on course.course_id=
@@ -85,15 +91,38 @@
       class_room_schedule.course_id
 
       order by c_course_id,s_date,s_start_time
-	</sql>
 
-<select id="selectCourseAll" resultMap="joinCourse">
-	<include refid="standardSelect"></include>
 </select>
 
 <select id="selectCourseByPage" resultMap="joinCourse">
+	select 
+	
 	<include refid="standardSelect"></include>
-	limit #{offset},#{limit}
+	
+	FROM course
+
+			join  course_capacity
+			on course.course_id=
+			course_capacity.course_id
+
+			join class_room
+			on course.class_room_id=
+			class_room.id
+
+			join class_room_schedule
+      on course.course_id =
+      class_room_schedule.course_id
+      
+  	  join(
+	    SELECT course_id
+  	  FROM course
+    	ORDER BY course_id
+    	limit #{offset},#{limit}
+			) as limited_course
+			on course.course_id=limited_course.course_id
+
+			order by c_course_id,s_date,s_start_time
+
 </select>
 
 <select id="selectTotalPages" resultType="long">
@@ -114,9 +143,9 @@
     </selectKey>
 
  insert into course
- 	(title,detail,class_room_id,number_of_days)
+ 	(title,detail,class_room_id,course_term)
  	values
- 	(#{title},#{detail},#{classRoomId},#{numberOfDays})
+ 	(#{title},#{detail},#{classRoomId},#{courseTerm})
  </insert>
 
  <insert id="insertCourseCapacity" >

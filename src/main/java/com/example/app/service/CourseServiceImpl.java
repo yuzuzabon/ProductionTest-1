@@ -63,7 +63,7 @@ public class CourseServiceImpl implements CourseService{
 
 
 			//データ件数チェック
-			Integer expectedCount=course.getNumberOfDays();//講座回数
+			Integer expectedCount=course.getCourseTerm();//講座回数
 			Integer actualCount=schedules.size();
 
 			if(!expectedCount.equals(actualCount)) {

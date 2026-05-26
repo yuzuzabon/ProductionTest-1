@@ -26,7 +26,7 @@ public class CourseController {
 
 		private final CourseService service;
 		private final ClassRoomService classRoomService;
-		private final int NUM_PER_PAGE=10;
+		private final int NUM_PER_PAGE=5;
 		//private final ClassRoomScheduleService classRoomScheduleService;
 
 		@ModelAttribute("classRoomList")
