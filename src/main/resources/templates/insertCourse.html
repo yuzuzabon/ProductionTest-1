@@ -73,7 +73,7 @@
  				</select>
 			</div>
 
-			<div class="mb-3">
+			<div class="mb-3" id="periodContainer">
 				<label for="formName">講座時間</label><br>
 			  <label><input type="radio" name="basePeriod" class="course-period"
 											value="30"/>30分　</label>
@@ -132,6 +132,21 @@ function reIndexSchedules() {
     });
 }
 
+// 💡 【移動】ラジオボタンが切り替わったら、選択された分(30,45,60)ですべての隠しパラメータを上書きする
+// ボタンのクリックとは無関係に、画面表示時に1回だけ登録されるように外側へ配置
+document.querySelectorAll('input[name="basePeriod"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const targetValue = this.value; // 切り替えられた値（例: "30"）
+        
+        // 画面上にあるすべての「hidden-period」をループして値を書き換える
+        const allHiddenPeriods = document.querySelectorAll('.hidden-period');
+        allHiddenPeriods.forEach(hiddenInput => {
+            hiddenInput.value = targetValue;
+        });
+        
+        console.log(`すべての講座時間を ${targetValue} 分に変更しました。`); // 確認用
+    });
+});
 
 document.getElementById('addDateBtn').addEventListener('click', function() {
 		const maxCount = parseInt(document.getElementById('courseCount').value, 10);
@@ -197,7 +212,11 @@ document.getElementById('addDateBtn').addEventListener('click', function() {
 	    // エラーメッセージがあればクリア
 	        errorElement.textContent = '';
 	    });
-
+		// 💡 選択されているラジオボタンのvalue（30, 45, 60など）を取得する
+		const selectedPeriodElement = document.querySelector('input[name="basePeriod"]:checked');
+		const currentPeriod = selectedPeriodElement ? selectedPeriodElement.value : "60"; // 取れなかったら念のため60
+			
+			
     // Javaに送るためのhiddenパラメータ群（連番を綺麗に仕込む 後から探せるようにクラス名を付与）
     const hiddenDate = document.createElement('input');
     hiddenDate.type = 'hidden';
@@ -210,8 +229,9 @@ document.getElementById('addDateBtn').addEventListener('click', function() {
     hiddenPeriod.type = 'hidden';
     hiddenPeriod.className = 'hidden-period';
     hiddenPeriod.name = `classRoomSchedule[${index}].coursePeriod`;
-    hiddenPeriod.value = "60"; // 例として60分（画面の入力項目から取得してもOK）
-
+    //hiddenPeriod.value = "60"; // 例として60分（画面の入力項目から取得してもOK）
+		hiddenPeriod.value = currentPeriod;
+		
     // 要素の組み立て
     li.appendChild(hiddenDate);
     li.appendChild(hiddenPeriod);
@@ -221,6 +241,7 @@ document.getElementById('addDateBtn').addEventListener('click', function() {
     // 入力欄をクリア
     dateInput.value = '';
 });
+
 
 		// フォーム送信時のチェック（足りない状態で登録されるのを防ぐ）
 		document.getElementById('courseForm').addEventListener('submit', function(event) {

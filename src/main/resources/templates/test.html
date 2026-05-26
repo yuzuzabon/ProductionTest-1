@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8" />
+	
+	<title>Document</title>
+</head>
+<body>
+
+<a>講座登録テスト</a>
+
+<form action="/test" method="post" id="courseForm">
+	<div>
+		<a href="/menu">メニュー</a>
+		<a href="/show">講座一覧</a>
+	</div>
+	<div>
+		<label for="formTitle">タイトル</label><br>
+		<input type="text"
+		       name="title"
+					 value="test"
+		       id="formTitle"/>
+	</div>
+	<div>
+		<label for="formNote">内容</label><br>
+		<input name="detail"
+		          
+							value="テスト"
+		          id="formNote">
+		</input>
+	</div>
+	<div>
+		<label for="courseCount">回数</label><br>
+		<input type="number"
+		       name="courseTerm"
+					 value="3"
+		       onkeydown="return false"
+		       id="courseCount"/>
+	</div>
+
+<input type="date" name="classRoomSchedule[0].date" value="2026-05-26">
+<input type="date" name="classRoomSchedule[1].date" value="2026-05-27">
+<input type="date" name="classRoomSchedule[2].date" value="2026-05-28">
+
+	<div>
+		</ul>
+	</div>
+	<div>
+		<label for="formStartTime">開始時間</label><br>
+		<select name="classRoomSchedule[0].startTime"
+		        id="formStartTime">
+			<option value="10:00">10:00</option>
+		</select>
+	</div>
+	<div>
+			<input type="hidden" name="classRoomSchedule[0].endTime" value="10:30">終了時間</input><br>
+			<input type="hidden" name="classRoomSchedule[1].endTime" value="10:30">終了時間</input><br>
+			<input type="hidden" name="classRoomSchedule[2].endTime" value="10:30">終了時間</input><br>
+						       
+			
+		</div>
+	<div>
+		<label>講座時間</label><br>
+		<label>
+			<input type="hidden" name="classRoomSchedule[0].basePeriod" value="30"/>
+			<input type="hidden" name="classRoomSchedule[1].basePeriod" value="30"/>
+			<input type="hidden" name="classRoomSchedule[2].basePeriod" value="30"/>
+						 
+						 
+						 
+<!-- name="basePeriod" -->
+			
+		</label>
+	</div>
+	<div>
+		<label for="formLocation">教室</label><br>
+		<select name="classRoomId"
+		        id="formLocation">
+			<option value="1">A教室</option>
+		</select>
+	</div>
+	<div>
+		<label for="formCapacity">定員</label><br>
+		<input type="number"
+		       name="courseCapacity.capacity"
+					 value="1"
+		       id="formCapacity"
+		       onkeydown="return false"/>
+	</div>
+	<input type="submit" value="登録"/>
+</form>
+</body>
+</html>

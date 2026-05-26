@@ -1,5 +1,7 @@
 package com.example.app.controller;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,7 +28,7 @@ public class CourseController {
 
 		private final CourseService service;
 		private final ClassRoomService classRoomService;
-		private final int NUM_PER_PAGE=5;
+		private final int NUM_PER_PAGE=5;//1ページに表示される件数
 		//private final ClassRoomScheduleService classRoomScheduleService;
 
 		@ModelAttribute("classRoomList")
@@ -41,9 +43,11 @@ public class CourseController {
 		}
 
 		@GetMapping("/show")
+		//講座全件取得
 //		public String contSelectCourseAll(Model model) {
 //			model.addAttribute("courses",service.servSelectCourseAll());
-//
+		
+		//ページ分割対応
 			public String contSelectCourseByPage(
 					@RequestParam(name="page",defaultValue = "1")Integer page,
 					Model model) {
@@ -91,4 +95,67 @@ public class CourseController {
 				return "insertCourse";
 			}
 		}
+//		/////////////////test////////////////////////
+		@GetMapping("/test")
+		public String showAddForm(Model model) {
+
+		    Course course = new Course();
+
+		    List<ClassRoomSchedule> schedules = new ArrayList<>();
+
+		    ClassRoomSchedule s1 = new ClassRoomSchedule();
+		    //s1.setCourseId("2026050007");
+		    s1.setClassRoomId(1);
+		    s1.setDate(LocalDate.of(2026, 5, 26));
+		    s1.setStartTime(LocalTime.of(11, 30));
+		    s1.setEndTime(LocalTime.of(12, 00));
+		    s1.setCoursePeriod(30);
+
+		    ClassRoomSchedule s2 = new ClassRoomSchedule();
+		    //s2.setCourseId("2026050007");
+		    s2.setClassRoomId(1);
+		    s2.setDate(LocalDate.of(2026, 5, 27));
+		    s2.setStartTime(LocalTime.of(11, 30));
+		    s2.setEndTime(LocalTime.of(12, 00));
+		    s2.setCoursePeriod(30);
+
+		    ClassRoomSchedule s3 = new ClassRoomSchedule();
+		   // s3.setCourseId("2026050007");
+		    s3.setClassRoomId(1);
+		    s3.setDate(LocalDate.of(2026, 5, 28));
+		    s3.setStartTime(LocalTime.of(11, 30));
+		    s3.setEndTime(LocalTime.of(12, 00));
+		    s3.setCoursePeriod(30);
+
+		    schedules.add(s1);
+		    schedules.add(s2);
+		    schedules.add(s3);
+
+		    course.setClassRoomSchedule(schedules);
+
+		    model.addAttribute("course", course);
+		    System.out.println(schedules);
+		    return "test";
+		}
+		@PostMapping("/test")
+		public String testcontInsertCourse(
+				@Validated Course course,
+								Errors errors,
+								Model model) {
+			if(errors.hasErrors()) {
+				//model.addAttribute("room", classRoomService.servSelectRoomAll());
+					return "test";
+			}
+
+			try {
+				service.servInsertCourse(course);
+				model.addAttribute("status","講座を登録しました");
+				return "/menu";
+
+			}catch(IllegalArgumentException e) {
+				model.addAttribute("errorMessage",e.getMessage());
+				return "test";
+			}
+		}
+		
 }

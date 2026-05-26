@@ -126,7 +126,7 @@
 </select>
 
 <select id="selectTotalPages" resultType="long">
-	select count(*) from class_room_schedule
+	select count(*) from course
 </select>
 
 <select id="selectCourseById" parameterType="int" resultType="course">
@@ -134,6 +134,13 @@
 		 * FROM course
 		 where course.id=#{id}
 </select>
+
+<select id="selectscheduleAll">
+	select
+			* from class_room_schedule
+
+</select>
+
 
 <insert id="insertCourse">
  		<selectKey keyProperty="courseId" resultType="String" order="AFTER">

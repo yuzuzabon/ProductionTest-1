@@ -29,6 +29,7 @@ public class CourseServiceImpl implements CourseService{
 		@Override
 		@Transactional
 		public void servInsertCourse(Course course) {
+			//チェック処理
 			//null対策
 			if (course.getCourseCapacity() == null) {
 					course.setCourseCapacity(new CourseCapacity());
@@ -46,14 +47,15 @@ public class CourseServiceImpl implements CourseService{
 					baseStartTime=baseSchedule.getStartTime();
 			}
 			for(ClassRoomSchedule schedule :schedules) {
+				System.out.println("画面から届いた期間(分): " + schedule.getCoursePeriod());
 				if(schedule.getStartTime()==null) {
 						schedule.setStartTime(baseStartTime);
 
 				}
 				if (schedule.getStartTime() != null && schedule.getCoursePeriod() != null) {
-					LocalTime start = schedule.getStartTime();
-					int period = schedule.getCoursePeriod();
-					LocalTime end = start.plusMinutes(period);
+					LocalTime start = schedule.getStartTime();//開始時間
+					int period = schedule.getCoursePeriod();//講座時間（分）
+					LocalTime end = start.plusMinutes(period);//開始時間＋講座時間で終了時間を計算
 
 					// 計算した終了時間をセットする
 					schedule.setEndTime(end);
@@ -69,11 +71,23 @@ public class CourseServiceImpl implements CourseService{
 			if(!expectedCount.equals(actualCount)) {
 				throw new IllegalArgumentException("設定された講座回数（" + expectedCount + "回）と、選択された開催日の日数（" + actualCount + "日）が一致しません。");
 			}
+			Integer classRoomCode=course.getClassRoomId();//教室ID実行位置移動
+			
+			//testここから
+			for(ClassRoomSchedule s: schedules) {
+				System.out.println("testデータ");
+				System.out.print(s.getClassRoomId()+" ");
+				System.out.print(s.getDate()+" ");
+				}
+			//テストここまで
+			
+			
+			//以降登録処理
 			//親テーブル（Course）の登録
 				courseMapper.insertCourse(course);
 			//自動採番されたコードの取得
 				String generatedCode=course.getCourseId();//講座ID
-				Integer classRoomCode=course.getClassRoomId();//教室ID
+				//Integer classRoomCode=course.getClassRoomId();//教室ID
 				CourseCapacity courseCapacity=course.getCourseCapacity();//定員
 
 				courseCapacity.setCourseId(generatedCode);//CourseCapacityへのCourseId登録
@@ -83,7 +97,7 @@ public class CourseServiceImpl implements CourseService{
 					s.setClassRoomId(classRoomCode);//↑↑へのClassRoomId登録
 
 				}
-
+				System.out.println(schedules);//test用
 				courseMapper.insertCourseCapacity(courseCapacity);
 				courseMapper.insertClassRoomSchedule(schedules);
 		}
@@ -116,6 +130,15 @@ public class CourseServiceImpl implements CourseService{
 			double totalNum=(double) courseMapper.selectTotalPages();
 			return (int) Math.ceil(totalNum/ numPerPage);
 		}
+		@Override
+		public void servselectscheduleAll(Course course) {
+			// TODO 自動生成されたメソッド・スタブ
+			List<ClassRoomSchedule> schedules = course.getClassRoomSchedule();
+			
+			
+			
+		}
+		
 
 }
 

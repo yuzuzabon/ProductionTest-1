@@ -22,4 +22,7 @@ public interface CourseService {
 	//ページ分割
 		List<Course> servSelectCourseByPage(int page, int numPerPage);
 		int servSelectTotalPages(int numPerPage);
+	//登録重複チェック	
+		void servselectscheduleAll(Course course);
+		
 }
