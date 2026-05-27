@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 
 public class CourseController {
 
-		private final CourseService service;
+		private final CourseService courseService;
 		private final ClassRoomService classRoomService;
 		private final int NUM_PER_PAGE=5;//1ページに表示される件数
 		//private final ClassRoomScheduleService classRoomScheduleService;
@@ -52,10 +52,10 @@ public class CourseController {
 					@RequestParam(name="page",defaultValue = "1")Integer page,
 					Model model) {
 				model.addAttribute("courses",
-						service.servSelectCourseByPage(page, NUM_PER_PAGE));
+						courseService.servSelectCourseByPage(page, NUM_PER_PAGE));
 				model.addAttribute("page",page);
 				model.addAttribute("totalPages",
-						service.servSelectTotalPages(NUM_PER_PAGE));
+						courseService.servSelectTotalPages(NUM_PER_PAGE));
 			return "courseList";
 		}
 
@@ -86,7 +86,8 @@ public class CourseController {
 			}
 
 			try {
-				service.servInsertCourse(course);
+				
+				courseService.servInsertCourse(course);
 				model.addAttribute("status","講座を登録しました");
 				return "/menu";
 
@@ -148,7 +149,7 @@ public class CourseController {
 			}
 
 			try {
-				service.servInsertCourse(course);
+				courseService.servInsertCourse(course);
 				model.addAttribute("status","講座を登録しました");
 				return "/menu";
 
@@ -158,4 +159,28 @@ public class CourseController {
 			}
 		}
 		
+		/*@PostMapping("/test2") // 現在お使いのURL（マッピングアノテーション）に合わせてください
+		public String testcontInsertCourse(
+				@Validated Course course,Model model) {
+						
+				
+		    // 1. schedules(3件) から [2026-05-26, 2026-05-27, 2026-05-28] という日付のリストを作る
+		    List<LocalDate> dateList = schedules.stream()
+		        .map(ClassRoomSchedule::getDate)
+		        .filter(Objects::nonNull)
+		        .collect(Collectors.toList());
+		        
+		    // 2. 1発目のデータから教室IDを取得（どれも同じ教室IDが入っているため、0番目から取得）
+		    Integer classRoomId = schedules.get(0).getClassRoomId();
+
+		    // 3. Serviceを呼び出して、DBから該当する既存データを一括取得
+		    List<ClassRoomSchedule> existingSchedules = 
+		        courseService.servSelectRegisteredSchedule(classRoomId, dateList);
+
+		    // 4. HTML側で表示するために、取得した「既存データ」をModelに登録
+		    model.addAttribute("testSchedules", existingSchedules);
+
+		    // 5. 確認画面、または現在の入力画面などのHTML名（例: "register_confirm"）
+		    return null;
+		}*/
 }

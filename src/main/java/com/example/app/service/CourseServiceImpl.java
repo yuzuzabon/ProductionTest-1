@@ -1,5 +1,6 @@
 package com.example.app.service;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,7 @@ public class CourseServiceImpl implements CourseService{
 					baseStartTime=baseSchedule.getStartTime();
 			}
 			for(ClassRoomSchedule schedule :schedules) {
-				System.out.println("画面から届いた期間(分): " + schedule.getCoursePeriod());
+				//System.out.println("画面から届いた期間(分): " + schedule.getCoursePeriod());
 				if(schedule.getStartTime()==null) {
 						schedule.setStartTime(baseStartTime);
 
@@ -71,15 +72,30 @@ public class CourseServiceImpl implements CourseService{
 			if(!expectedCount.equals(actualCount)) {
 				throw new IllegalArgumentException("設定された講座回数（" + expectedCount + "回）と、選択された開催日の日数（" + actualCount + "日）が一致しません。");
 			}
-			Integer classRoomCode=course.getClassRoomId();//教室ID実行位置移動
+			//Integer classRoomCode=course.getClassRoomId();//教室ID実行位置移動
 			
 			//testここから
+			
+			System.out.println("****testデータ****");
+			
+			//登録前データと同一日、同一部屋の開始時間、終了時間取得
 			for(ClassRoomSchedule s: schedules) {
-				System.out.println("testデータ");
-				System.out.println("courseから抽出"+course.getClassRoomId());
-				System.out.print("schedulesから抽出"+s.getClassRoomId()+" ");
-				System.out.print("schedulesから抽出"+s.getDate()+" ");
+				//System.out.println("course⇒classroomid="+course.getClassRoomId());
+				s.setClassRoomId(course.getClassRoomId());
+				//System.out.println("schedules⇒classroomid="+s.getClassRoomId());
+				//System.out.println("schedules⇒date="+s.getDate());
+				
 				}
+			System.out.println(schedules);
+			
+			List<LocalDate> dateList=schedules.stream()
+					.map(ClassRoomSchedule::getDate)
+					.filter(java.util.Objects::nonNull)
+					.collect(java.util.stream.Collectors.toList());
+			List<ClassRoomSchedule>testSchedules=courseMapper.selectByRoomAndDateList(course.getClassRoomId(), dateList);
+			System.out.println("DBから一括取得した結果: " + testSchedules);
+			//courseMapper.selectByRoomAndDateList(course.getClassRoomId(), dateList);
+			
 			//テストここまで
 			
 			
@@ -88,7 +104,7 @@ public class CourseServiceImpl implements CourseService{
 				courseMapper.insertCourse(course);
 			//自動採番されたコードの取得
 				String generatedCode=course.getCourseId();//講座ID
-				//Integer classRoomCode=course.getClassRoomId();//教室ID
+				Integer classRoomCode=course.getClassRoomId();//教室ID
 				CourseCapacity courseCapacity=course.getCourseCapacity();//定員
 
 				courseCapacity.setCourseId(generatedCode);//CourseCapacityへのCourseId登録
@@ -134,10 +150,10 @@ public class CourseServiceImpl implements CourseService{
 			return (int) Math.ceil(totalNum/ numPerPage);
 		}
 		@Override
-		public void servselectscheduleAll(Course course) {
+		public List<ClassRoomSchedule> selectByRoomAndDateList(Integer classRoomId,List<LocalDate> date) {
 			// TODO 自動生成されたメソッド・スタブ
-			List<ClassRoomSchedule> schedules = course.getClassRoomSchedule();
-			
+			//List<ClassRoomSchedule> schedules = course.getClassRoomSchedule();
+			return courseMapper.selectByRoomAndDateList(classRoomId,date);
 			
 			
 		}

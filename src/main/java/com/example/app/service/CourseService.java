@@ -1,7 +1,9 @@
 package com.example.app.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
 
 public interface CourseService {
@@ -22,7 +24,7 @@ public interface CourseService {
 	//ページ分割
 		List<Course> servSelectCourseByPage(int page, int numPerPage);
 		int servSelectTotalPages(int numPerPage);
-	//登録重複チェック	
-		void servselectscheduleAll(Course course);
+	//登録重複チェック	用(登録前のclassRoomIdとdateを取り出す)
+		public List<ClassRoomSchedule> selectByRoomAndDateList(Integer classRoomId,List<LocalDate> date);
 		
 }

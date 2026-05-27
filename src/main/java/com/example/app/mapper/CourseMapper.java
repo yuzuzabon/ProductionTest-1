@@ -1,5 +1,6 @@
 package com.example.app.mapper;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -27,5 +28,11 @@ public interface CourseMapper {
 				@Param("offset")int offset,
 				@Param("limit")int limit);
 		Long selectTotalPages();
+		
+	//重複チェック
+		List<ClassRoomSchedule> selectByRoomAndDateList(
+        @Param("classRoomId") Integer classRoomId,
+        @Param("date") List<LocalDate> dateList);
+		
 
 }

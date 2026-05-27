@@ -135,12 +135,22 @@
 		 where course.id=#{id}
 </select>
 
-<select id="selectscheduleAll">
-	select
-			* from class_room_schedule
+<select id="selectByRoomAndDateList" resultType="com.example.app.domain.ClassRoomSchedule">
+SELECT * FROM class_room_schedule
+WHERE class_room_id = #{classRoomId}
+AND date IN
+<foreach item="date" collection="dateList" open="(" separator="," close=")">
+#{date}
+</foreach>
+order by date,start_time
+</select> 
 
-</select>
-
+<!--<select id="selectRegisteredSchedule">-->
+<!--	select id,class_room_id,date,start_time,end_time-->
+<!--	from class_room_schedule-->
+<!--	where class_room_id=#{classRoomId}-->
+<!--	and date=#{date} order by start_time-->
+<!--</select>-->
 
 <insert id="insertCourse">
  		<selectKey keyProperty="courseId" resultType="String" order="AFTER">
