@@ -46,7 +46,7 @@ public class CourseController {
 		//講座全件取得
 //		public String contSelectCourseAll(Model model) {
 //			model.addAttribute("courses",service.servSelectCourseAll());
-		
+
 		//ページ分割対応
 			public String contSelectCourseByPage(
 					@RequestParam(name="page",defaultValue = "1")Integer page,
@@ -86,7 +86,7 @@ public class CourseController {
 			}
 
 			try {
-				
+
 				courseService.servInsertCourse(course);
 				model.addAttribute("status","講座を登録しました");
 				return "/menu";
@@ -158,29 +158,42 @@ public class CourseController {
 				return "test";
 			}
 		}
-		
-		/*@PostMapping("/test2") // 現在お使いのURL（マッピングアノテーション）に合わせてください
-		public String testcontInsertCourse(
-				@Validated Course course,Model model) {
-						
-				
-		    // 1. schedules(3件) から [2026-05-26, 2026-05-27, 2026-05-28] という日付のリストを作る
-		    List<LocalDate> dateList = schedules.stream()
-		        .map(ClassRoomSchedule::getDate)
-		        .filter(Objects::nonNull)
-		        .collect(Collectors.toList());
-		        
-		    // 2. 1発目のデータから教室IDを取得（どれも同じ教室IDが入っているため、0番目から取得）
-		    Integer classRoomId = schedules.get(0).getClassRoomId();
+		@GetMapping("/test2")
+		public String showAddFormTest2(Model model) {
+		    Course course = new Course();
+		    List<ClassRoomSchedule> schedules = new ArrayList<>();
 
-		    // 3. Serviceを呼び出して、DBから該当する既存データを一括取得
-		    List<ClassRoomSchedule> existingSchedules = 
-		        courseService.servSelectRegisteredSchedule(classRoomId, dateList);
+		    // 3日分の初期データを詰める
+		    for (int i = 0; i < 3; i++) {
+		        ClassRoomSchedule s = new ClassRoomSchedule();
+		        s.setClassRoomId(1);
+		        s.setCoursePeriod(30);
+		        schedules.add(s);
+		    }
+		    course.setClassRoomSchedule(schedules);
+		    model.addAttribute("course", course);
 
-		    // 4. HTML側で表示するために、取得した「既存データ」をModelに登録
-		    model.addAttribute("testSchedules", existingSchedules);
+		    return "test2"; // test2.html を呼び出す
+		}
+		@PostMapping("/test2")
+		public String test2contInsertCourse(
+		        @Validated Course course,
+		        Errors errors,
+		        Model model) {
 
-		    // 5. 確認画面、または現在の入力画面などのHTML名（例: "register_confirm"）
-		    return null;
-		}*/
+		    if (errors.hasErrors()) {
+		        return "test2";
+		    }
+
+		    try {
+		        // ここからServiceのロジックが走り、コンソールにDB取得結果が出力されます
+		        courseService.servInsertCourse(course);
+		        model.addAttribute("status", "講座を登録しました");
+		        return "/menu";
+
+		    } catch (IllegalArgumentException e) {
+		        model.addAttribute("errorMessage", e.getMessage());
+		        return "test2";
+		    }
+		}
 }

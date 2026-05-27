@@ -28,11 +28,11 @@ public interface CourseMapper {
 				@Param("offset")int offset,
 				@Param("limit")int limit);
 		Long selectTotalPages();
-		
+
 	//重複チェック
 		List<ClassRoomSchedule> selectByRoomAndDateList(
         @Param("classRoomId") Integer classRoomId,
-        @Param("date") List<LocalDate> dateList);
-		
+        @Param("dateList") List<LocalDate> dateList);
+
 
 }
