@@ -29,7 +29,7 @@ public class CourseServiceImpl implements CourseService{
 		}
 		@Override
 		@Transactional
-		public void servInsertCourse(Course course) {
+		public boolean servInsertCourse(Course course) {
 			//チェック処理
 			//null対策
 			if (course.getCourseCapacity() == null) {
@@ -73,60 +73,91 @@ public class CourseServiceImpl implements CourseService{
 				throw new IllegalArgumentException("設定された講座回数（" + expectedCount + "回）と、選択された開催日の日数（" + actualCount + "日）が一致しません。");
 			}
 			//Integer classRoomCode=course.getClassRoomId();//教室ID実行位置移動
-			
-			//testここから
-			
+
+		
+
 			System.out.println("****検証用データ****");
-			
+
 			//登録前データと同一日、同一部屋の開始時間、終了時間取得
 			for(ClassRoomSchedule s: schedules) {
-				s.setClassRoomId(course.getClassRoomId());
-				
+				s.setClassRoomId(course.getClassRoomId());//schedulesへのclassRoomId書き込み
+
 				}
 			System.out.println("db登録前パラメータ："+schedules);
-			
+
 			List<LocalDate> dateList=schedules.stream()
 					.map(ClassRoomSchedule::getDate)
 					.filter(java.util.Objects::nonNull)
 					.collect(java.util.stream.Collectors.toList());
+			//schedulesのclassRoomIdとstartTimeとendTimeをもとにDB内のデータをregisteredSchedulesに格納
 			List<ClassRoomSchedule>registeredSchedules=courseMapper.selectRegisteredSchedule(course.getClassRoomId(), dateList);
 			System.out.println("DBから一括取得した結果: " + registeredSchedules);
-	
+
 			//System.out.println("テスト比較1入力された情報"+schedules);
 			//System.out.println("テスト比較2データベース情報"+registeredSchedules);
-			
+
 			//courseMapper.selectByRoomAndDateList(course.getClassRoomId(), dateList);
 					// schedules: 登録したい入力データのリスト（複数日分）
 					// registeredSchedules: DBから取得した既存データのリスト（複数日分）
-			int test=0;//test用カウント
-			for(ClassRoomSchedule i:schedules) {
+
+			boolean isOverlap=false;
+			for(ClassRoomSchedule n:schedules) {
 					// 入力データ1件ごとに、重複フラグをリセット
-				boolean isOverlap=false;
-				for(ClassRoomSchedule existing : registeredSchedules) {
-					// 「同じ日付」「同じ教室」のデータ同士かチェック
+					if(servIsScheduleOverlapped(n,registeredSchedules)) {
+						isOverlap=true;
+						break;
+						// 1つでも重複があれば、この既存データのループは抜ける
+				/*	// 「同じ日付」「同じ教室」のデータ同士かチェック
+					//以下判定部分をservIsScheduleOverlappedメソッドに移行
+						for(ClassRoomSchedule existing : registeredSchedules) {
 					if(i.getClassRoomId().equals(existing.getClassRoomId()) &&
-							i.getDate().equals(existing.getDate())) 
+							i.getDate().equals(existing.getDate()))
 							{
 					// 条件に一致するか（時間が重複するか）チェック
 						if(i.getStartTime().compareTo(existing.getEndTime())<0&&
 								i.getEndTime().compareTo(existing.getStartTime())>0) {
-							test++;//test用カウント
-							isOverlap=true;
-							break;// 1つでも重複があれば、この既存データのループは抜ける
 						}
+					} */
 					}
 				}
-			System.out.println("test 一致数"+test);
-//				if(!isOverlap) {
-//					
-//				}
-		
+				return isOverlap;
 			}
-			
-				//テストここまで
-			
-			
-			//以降登録処理
+			@Override
+			@Transactional
+			// チェック終了後のデータをサーバーに登録
+			public void executeDbInsert(Course course, List<ClassRoomSchedule> schedules) {
+					//以降登録処理
+					//親テーブル（Course）の登録
+					courseMapper.insertCourse(course);
+					//自動採番されたコードの取得
+					String generatedCode=course.getCourseId();//講座ID
+					//登録前データ取得の時点で書き込み済みのため影響の検証のためコメントアウト
+					//Integer classRoomCode=course.getClassRoomId();//教室ID
+					CourseCapacity courseCapacity=course.getCourseCapacity();//定員
+
+					courseCapacity.setCourseId(generatedCode);//CourseCapacityへのCourseId登録
+
+				for(ClassRoomSchedule s : schedules) {
+					s.setCourseId(generatedCode);//ClassRoomScheduleへのCourseId登録
+						//↑↑へのClassRoomId登録
+			//登録前データ取得の時点で書き込み済みのため影響の検証のためコメントアウト
+			//	s.setClassRoomId(classRoomCode);
+
+				}
+				System.out.println("db登録後パラメータ："+schedules);//test用
+				courseMapper.insertCourseCapacity(courseCapacity);
+				courseMapper.insertClassRoomSchedule(schedules);
+			}
+
+//				if(!isOverlap) {
+//				return "redirect:/menu";//仮の戻り場所
+//				}else {
+//					model.addAttribute("errorMessage", "指定された時間帯は既に他の予約と重複しています。");
+//					return null;
+//				}
+
+
+	/*		//以降登録処理
 			//親テーブル（Course）の登録
 				courseMapper.insertCourse(course);
 			//自動採番されたコードの取得
@@ -139,15 +170,15 @@ public class CourseServiceImpl implements CourseService{
 
 				for(ClassRoomSchedule s : schedules) {
 					s.setCourseId(generatedCode);//ClassRoomScheduleへのCourseId登録
-						//↑↑へのClassRoomId登録 
-			//登録前データ取得の時点で書き込み済みのため影響の検証のためコメントアウト			
+						//↑↑へのClassRoomId登録
+			//登録前データ取得の時点で書き込み済みのため影響の検証のためコメントアウト
 			//	s.setClassRoomId(classRoomCode);
 
 				}
 				System.out.println("db登録後パラメータ："+schedules);//test用
 				courseMapper.insertCourseCapacity(courseCapacity);
-				courseMapper.insertClassRoomSchedule(schedules);
-		}
+				courseMapper.insertClassRoomSchedule(schedules);*/
+
 
 			//	courseMapper.insertCourse(course);
 			//	List<ClassRoomSchedule> classRoomSchedule=course.getClassRoomSchedule();
@@ -168,24 +199,24 @@ public class CourseServiceImpl implements CourseService{
 		 */
 		public boolean servIsScheduleOverlapped(ClassRoomSchedule newSchedule,
 				List<ClassRoomSchedule>registeredSchedules) {
-				
+
 				for(ClassRoomSchedule existing : registeredSchedules) {
 					// 「同じ日付」「同じ教室」のデータ同士かチェック
 					if(newSchedule.getClassRoomId().equals(existing.getClassRoomId()) &&
-							newSchedule.getDate().equals(existing.getDate())) 
+							newSchedule.getDate().equals(existing.getDate()))
 							{
 					// 条件に一致するか（時間が重複するか）チェック
 						if(newSchedule.getStartTime().compareTo(existing.getEndTime())<0&&
 								newSchedule.getEndTime().compareTo(existing.getStartTime())>0) {
-							
+
 							return true;// 1つでも重複があれば、この既存データのループは抜ける
 						}
 					}
 				}
 				return false;// すべての既存データをチェックして、どれとも重ならなければ false を返す
-					
+
 				}
-		
+
 //			for(ClassRoomSchedule exist:existingSchedules) {
 //				LocalTime existStart=exist.getStartTime();
 //				LocalTime existEnd=exist.getEndTime();
@@ -193,13 +224,13 @@ public class CourseServiceImpl implements CourseService{
 //					return true;
 //				}
 //					return false;
-//			} 	
+//			}
 //			List<ClassRoomSchedule>existingSchedules=courseMapper.selectRegisteredSchedule(
-//					newSchedule.getClassRoomId(),newSchedule.getDate());			
-//			
+//					newSchedule.getClassRoomId(),newSchedule.getDate());
+//
 //			LocalTime newStart=newSchedule.getStartTime();
 //			LocalTime newEnd=newSchedule.getEndTime();
-			
+
 		@Override
 		public void join(Course course) {
 			// TODO 自動生成されたメソッド・スタブ
@@ -230,10 +261,10 @@ public class CourseServiceImpl implements CourseService{
 			// TODO 自動生成されたメソッド・スタブ
 			//List<ClassRoomSchedule> schedules = course.getClassRoomSchedule();
 			return courseMapper.selectRegisteredSchedule(classRoomId,date);
-			
-			
+
+
 		}
-		
+
 
 }
 

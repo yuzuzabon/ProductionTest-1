@@ -15,7 +15,7 @@ public interface CourseService {
 	//検索
 
 	//登録
-		void servInsertCourse(Course course);
+		public boolean servInsertCourse(Course course);
 
 	//修正
 
@@ -26,7 +26,9 @@ public interface CourseService {
 		int servSelectTotalPages(int numPerPage);
 	//登録重複チェック	用(登録前のclassRoomIdとdateを取り出す)
 		public List<ClassRoomSchedule>servSelectRegisteredSchedule(Integer classRoomId,List<LocalDate> date);
-	//登録重複チェック用（取り出したデータと入力データを比較する）	
+	//登録重複チェック用（取り出したデータと入力データを比較する）
 		public boolean servIsScheduleOverlapped(ClassRoomSchedule newSchedule,
-				List<ClassRoomSchedule>registeredSchedules); 
+				List<ClassRoomSchedule>registeredSchedules);
+	//チェック後のデータをサーバに登録する
+		public void executeDbInsert(Course course, List<ClassRoomSchedule> schedules) ;
 }

@@ -76,7 +76,7 @@ public class CourseController {
 				return "insertCourse";
 		}
 		@PostMapping("/add")
-		public String contInsertCourse(
+		public String contInsertCourse(@ModelAttribute("course")
 				@Validated Course course,
 								Errors errors,
 								Model model) {
@@ -86,11 +86,18 @@ public class CourseController {
 			}
 
 			try {
+				boolean isOverlap=courseService.servInsertCourse(course);//nullチェック 重複チェック
 
-				courseService.servInsertCourse(course);
+			if (!isOverlap) {
+				List<ClassRoomSchedule> schedules = course.getClassRoomSchedule();
+				courseService.executeDbInsert(course, schedules);
 				model.addAttribute("status","講座を登録しました");
-				return "/menu";
+				return "redirect:/menu";
+			}else{
+				model.addAttribute("errorMessage", "重複があります");
+		    return "insertCourse"; // 入力画面へ
 
+			}
 			}catch(IllegalArgumentException e) {
 				model.addAttribute("errorMessage",e.getMessage());
 				return "insertCourse";
