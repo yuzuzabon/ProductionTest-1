@@ -30,7 +30,7 @@ public interface CourseMapper {
 		Long selectTotalPages();
 
 	//重複チェック
-		List<ClassRoomSchedule> selectByRoomAndDateList(
+		List<ClassRoomSchedule> selectRegisteredSchedule(
         @Param("classRoomId") Integer classRoomId,
         @Param("dateList") List<LocalDate> dateList);
 

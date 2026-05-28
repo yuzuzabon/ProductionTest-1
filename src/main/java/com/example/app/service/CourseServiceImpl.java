@@ -76,27 +76,54 @@ public class CourseServiceImpl implements CourseService{
 			
 			//testここから
 			
-			System.out.println("****testデータ****");
+			System.out.println("****検証用データ****");
 			
 			//登録前データと同一日、同一部屋の開始時間、終了時間取得
 			for(ClassRoomSchedule s: schedules) {
-				//System.out.println("course⇒classroomid="+course.getClassRoomId());
 				s.setClassRoomId(course.getClassRoomId());
-				//System.out.println("schedules⇒classroomid="+s.getClassRoomId());
-				//System.out.println("schedules⇒date="+s.getDate());
 				
 				}
-			System.out.println(schedules);
+			System.out.println("db登録前パラメータ："+schedules);
 			
 			List<LocalDate> dateList=schedules.stream()
 					.map(ClassRoomSchedule::getDate)
 					.filter(java.util.Objects::nonNull)
 					.collect(java.util.stream.Collectors.toList());
-			List<ClassRoomSchedule>testSchedules=courseMapper.selectByRoomAndDateList(course.getClassRoomId(), dateList);
-			System.out.println("DBから一括取得した結果: " + testSchedules);
-			//courseMapper.selectByRoomAndDateList(course.getClassRoomId(), dateList);
+			List<ClassRoomSchedule>registeredSchedules=courseMapper.selectRegisteredSchedule(course.getClassRoomId(), dateList);
+			System.out.println("DBから一括取得した結果: " + registeredSchedules);
+	
+			//System.out.println("テスト比較1入力された情報"+schedules);
+			//System.out.println("テスト比較2データベース情報"+registeredSchedules);
 			
-			//テストここまで
+			//courseMapper.selectByRoomAndDateList(course.getClassRoomId(), dateList);
+					// schedules: 登録したい入力データのリスト（複数日分）
+					// registeredSchedules: DBから取得した既存データのリスト（複数日分）
+			int test=0;//test用カウント
+			for(ClassRoomSchedule i:schedules) {
+					// 入力データ1件ごとに、重複フラグをリセット
+				boolean isOverlap=false;
+				for(ClassRoomSchedule existing : registeredSchedules) {
+					// 「同じ日付」「同じ教室」のデータ同士かチェック
+					if(i.getClassRoomId().equals(existing.getClassRoomId()) &&
+							i.getDate().equals(existing.getDate())) 
+							{
+					// 条件に一致するか（時間が重複するか）チェック
+						if(i.getStartTime().compareTo(existing.getEndTime())<0&&
+								i.getEndTime().compareTo(existing.getStartTime())>0) {
+							test++;//test用カウント
+							isOverlap=true;
+							break;// 1つでも重複があれば、この既存データのループは抜ける
+						}
+					}
+				}
+			System.out.println("test 一致数"+test);
+//				if(!isOverlap) {
+//					
+//				}
+		
+			}
+			
+				//テストここまで
 			
 			
 			//以降登録処理
@@ -104,17 +131,20 @@ public class CourseServiceImpl implements CourseService{
 				courseMapper.insertCourse(course);
 			//自動採番されたコードの取得
 				String generatedCode=course.getCourseId();//講座ID
-				Integer classRoomCode=course.getClassRoomId();//教室ID
+			//登録前データ取得の時点で書き込み済みのため影響の検証のためコメントアウト
+				//Integer classRoomCode=course.getClassRoomId();//教室ID
 				CourseCapacity courseCapacity=course.getCourseCapacity();//定員
 
 				courseCapacity.setCourseId(generatedCode);//CourseCapacityへのCourseId登録
 
 				for(ClassRoomSchedule s : schedules) {
 					s.setCourseId(generatedCode);//ClassRoomScheduleへのCourseId登録
-					s.setClassRoomId(classRoomCode);//↑↑へのClassRoomId登録
+						//↑↑へのClassRoomId登録 
+			//登録前データ取得の時点で書き込み済みのため影響の検証のためコメントアウト			
+			//	s.setClassRoomId(classRoomCode);
 
 				}
-				System.out.println(schedules);//test用
+				System.out.println("db登録後パラメータ："+schedules);//test用
 				courseMapper.insertCourseCapacity(courseCapacity);
 				courseMapper.insertClassRoomSchedule(schedules);
 		}
@@ -124,6 +154,52 @@ public class CourseServiceImpl implements CourseService{
 			//		course.setCourseCapacity(courseCapacity);
 			//		course.setClassRoomSchedule(classRoomSchedule);
 
+		/*		boolean isMatched=registeredSchedules.stream()
+					.anyMatch(existing ->
+						exising.getStartTime().equals(schedules.getStartTime())&&
+						exising.getEndTime().equals(schedules.getEndTime());
+							)*/
+		@Override
+	/* *
+		 * 入力されたスケジュールが、既存のスケジュールリストと重複しているかを判定する
+		 * @param newSchedule 新しく登録・修正しようとしている入力データ
+		 * @param registeredSchedules DBから取得した既存データのリスト
+		 * @return 重複があれば true、なければ false
+		 */
+		public boolean servIsScheduleOverlapped(ClassRoomSchedule newSchedule,
+				List<ClassRoomSchedule>registeredSchedules) {
+				
+				for(ClassRoomSchedule existing : registeredSchedules) {
+					// 「同じ日付」「同じ教室」のデータ同士かチェック
+					if(newSchedule.getClassRoomId().equals(existing.getClassRoomId()) &&
+							newSchedule.getDate().equals(existing.getDate())) 
+							{
+					// 条件に一致するか（時間が重複するか）チェック
+						if(newSchedule.getStartTime().compareTo(existing.getEndTime())<0&&
+								newSchedule.getEndTime().compareTo(existing.getStartTime())>0) {
+							
+							return true;// 1つでも重複があれば、この既存データのループは抜ける
+						}
+					}
+				}
+				return false;// すべての既存データをチェックして、どれとも重ならなければ false を返す
+					
+				}
+		
+//			for(ClassRoomSchedule exist:existingSchedules) {
+//				LocalTime existStart=exist.getStartTime();
+//				LocalTime existEnd=exist.getEndTime();
+//				if(newStart.isBefore(existEnd)&&newEnd.isAfter(existStart)) {
+//					return true;
+//				}
+//					return false;
+//			} 	
+//			List<ClassRoomSchedule>existingSchedules=courseMapper.selectRegisteredSchedule(
+//					newSchedule.getClassRoomId(),newSchedule.getDate());			
+//			
+//			LocalTime newStart=newSchedule.getStartTime();
+//			LocalTime newEnd=newSchedule.getEndTime();
+			
 		@Override
 		public void join(Course course) {
 			// TODO 自動生成されたメソッド・スタブ
@@ -139,21 +215,21 @@ public class CourseServiceImpl implements CourseService{
 		public List<Course> servSelectCourseByPage(int page, int numPerPage) {
 			// TODO 自動生成されたメソッド・スタブ
 			int offset=numPerPage*(page-1);
-			System.out.println("page数"+page+" offset"+offset+" numPerPage"+numPerPage);//test
+			//System.out.println("page数"+page+" offset"+offset+" numPerPage"+numPerPage);//test
 			return courseMapper.selectCourseByPage(offset,numPerPage);
 		}
 		@Override
 		public int servSelectTotalPages(int numPerPage) {
 			// TODO 自動生成されたメソッド・スタブ
 			double totalNum=(double) courseMapper.selectTotalPages();
-			System.out.println("総件数"+totalNum);//test
+			//System.out.println("総件数"+totalNum);//test
 			return (int) Math.ceil(totalNum/ numPerPage);
 		}
 		@Override
-		public List<ClassRoomSchedule> selectByRoomAndDateList(Integer classRoomId,List<LocalDate> date) {
+		public List<ClassRoomSchedule>servSelectRegisteredSchedule(Integer classRoomId,List<LocalDate> date) {
 			// TODO 自動生成されたメソッド・スタブ
 			//List<ClassRoomSchedule> schedules = course.getClassRoomSchedule();
-			return courseMapper.selectByRoomAndDateList(classRoomId,date);
+			return courseMapper.selectRegisteredSchedule(classRoomId,date);
 			
 			
 		}

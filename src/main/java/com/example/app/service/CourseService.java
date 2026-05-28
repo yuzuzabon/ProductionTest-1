@@ -25,6 +25,8 @@ public interface CourseService {
 		List<Course> servSelectCourseByPage(int page, int numPerPage);
 		int servSelectTotalPages(int numPerPage);
 	//登録重複チェック	用(登録前のclassRoomIdとdateを取り出す)
-		public List<ClassRoomSchedule> selectByRoomAndDateList(Integer classRoomId,List<LocalDate> date);
-		
+		public List<ClassRoomSchedule>servSelectRegisteredSchedule(Integer classRoomId,List<LocalDate> date);
+	//登録重複チェック用（取り出したデータと入力データを比較する）	
+		public boolean servIsScheduleOverlapped(ClassRoomSchedule newSchedule,
+				List<ClassRoomSchedule>registeredSchedules); 
 }

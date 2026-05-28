@@ -135,7 +135,7 @@ public class CourseController {
 		    course.setClassRoomSchedule(schedules);
 
 		    model.addAttribute("course", course);
-		    System.out.println(schedules);
+		    System.out.println("test1用controller-get側："+schedules);
 		    return "test";
 		}
 		@PostMapping("/test")
@@ -164,15 +164,16 @@ public class CourseController {
 		    List<ClassRoomSchedule> schedules = new ArrayList<>();
 
 		    // 3日分の初期データを詰める
-		    for (int i = 0; i < 3; i++) {
-		        ClassRoomSchedule s = new ClassRoomSchedule();
-		        s.setClassRoomId(1);
-		        s.setCoursePeriod(30);
-		        schedules.add(s);
-		    }
+//		    for (int i = 0; i < 3; i++) {
+//		        ClassRoomSchedule s = new ClassRoomSchedule();
+//		        s.setClassRoomId(1);
+//		        s.setCoursePeriod(30);
+//		        schedules.add(s);
+//		    }
 		    course.setClassRoomSchedule(schedules);
 		    model.addAttribute("course", course);
 
+		    System.out.println("test2用controller-get側："+schedules);
 		    return "test2"; // test2.html を呼び出す
 		}
 		@PostMapping("/test2")

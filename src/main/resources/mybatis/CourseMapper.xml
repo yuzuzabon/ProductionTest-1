@@ -135,7 +135,7 @@
 		 where course.id=#{id}
 </select>
 
-<select id="selectByRoomAndDateList" resultType="com.example.app.domain.ClassRoomSchedule">
+<select id="selectRegisteredSchedule" resultType="com.example.app.domain.ClassRoomSchedule">
 SELECT * FROM class_room_schedule
 WHERE class_room_id = #{classRoomId}
 AND date IN
