@@ -28,7 +28,7 @@
 	</association>
 
 	<collection property="classRoomSchedule" ofType="ClassRoomSchedule">
-		<id property="id" column="id"/>
+		<id property="id" column="s_id"/>
 		<result property="courseId" column="s_course_id"/>
 		<result property="classRoomId" column="s_class_room_id"/>
 		<result property="date" column="s_date"/>
@@ -129,10 +129,28 @@
 	select count(*) from course
 </select>
 
-<select id="selectCourseById" parameterType="int" resultType="course">
-	select
-		 * FROM course
-		 where course.id=#{id}
+<select id="selectCourseById" parameterType="String" resultMap="joinCourse">
+		 select DISTINCT
+	
+	<include refid="standardSelect"></include>
+	
+	FROM course
+
+			join  course_capacity
+			on course.course_id=
+			course_capacity.course_id
+
+			join class_room
+			on course.class_room_id=
+			class_room.id
+
+			join class_room_schedule
+      on course.course_id =
+      class_room_schedule.course_id
+
+			where course.course_id=#{id}
+      order by c_course_id,s_date,s_start_time
+
 </select>
 
 <select id="selectRegisteredSchedule" resultType="com.example.app.domain.ClassRoomSchedule">

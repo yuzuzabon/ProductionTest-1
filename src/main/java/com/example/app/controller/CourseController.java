@@ -11,6 +11,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -58,7 +59,19 @@ public class CourseController {
 						courseService.servSelectTotalPages(NUM_PER_PAGE));
 			return "courseList";
 		}
-
+		@GetMapping("/show/{id}")
+			public String contSelectCourseById(
+					@PathVariable String id,
+					Model model		) {
+					List<Course> course=courseService.servSellectCourseById(id);
+					model.addAttribute("course",course);
+					System.out.println("******"+course);
+					return "courseInfo";
+			
+		}
+		
+		
+		
 		@GetMapping("/add")
 		public String showInsertCourse(Model model) {
 				Course course=new Course();

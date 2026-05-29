@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8" />
+
+	<link th:href="@{/css/style.css}" rel="stylesheet" />
+	<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+
+	<title>講座一覧</title>
+</head>
+<body>
+	<div class="container">
+	<div class="mb-3">
+			<a th:href="@{/menu}" class="btn btn-secondary">メニュー</a>
+			<a th:href="@{/show}" class="btn btn-secondary">一覧</a>
+			<a th:href="@{/add}" class="btn btn-secondary">講座登録</a>
+	</div>
+	<table>
+		<tr>
+			<th>講座番号</th>
+			<th>タイトル</th>
+			<th>回数</th>
+			<th>教室</th>
+			<th>開催日</th>
+			<th>開始時間</th>
+			<th>終了時間</th>
+			<th>定員</th>
+			<th>申込数</th>
+			<th>空き</th>
+	 	</tr>
+		<tr th:each="c : ${course}">
+			<td th:text="${c.courseId}"></td>
+			<td th:text="${c.title}"></td>
+			<td th:text="${c.courseTerm}"></td>
+			<td th:text="${c.classRoom.classRoom}"></td>
+			
+		</tr>	
+	</table>
+			
+	</div>
+	
+</body>
+</html>

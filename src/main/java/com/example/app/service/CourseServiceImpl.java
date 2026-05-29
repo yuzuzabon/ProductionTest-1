@@ -27,6 +27,7 @@ public class CourseServiceImpl implements CourseService{
 		public List<Course> servSelectCourseAll(){
 				return courseMapper.selectCourseAll();
 		}
+						
 		@Override
 		@Transactional
 		public boolean servInsertCourse(Course course) {
@@ -237,7 +238,7 @@ public class CourseServiceImpl implements CourseService{
 
 		}
 		@Override
-		public Course servSellectCourseById(Integer id) {
+		public List<Course> servSellectCourseById(String id) {
 			// TODO 自動生成されたメソッド・スタブ
 			return courseMapper.selectCourseById(id);
 		}

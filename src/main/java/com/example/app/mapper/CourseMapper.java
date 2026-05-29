@@ -16,7 +16,7 @@ public interface CourseMapper {
 	//全件
 		List<Course> selectCourseAll();
 	//１件
-		Course selectCourseById(Integer id);
+		List<Course> selectCourseById(String id);
 	//登録
 		void insertCourse(Course course);
 		void insertCourseCapacity(CourseCapacity courseCapacity);

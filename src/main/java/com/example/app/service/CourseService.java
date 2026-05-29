@@ -11,7 +11,7 @@ public interface CourseService {
 	//全件
 		List<Course> servSelectCourseAll();
 	//１件
-		Course servSellectCourseById(Integer id);
+		List<Course> servSellectCourseById(String id);
 	//検索
 
 	//登録

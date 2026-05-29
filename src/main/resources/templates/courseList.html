@@ -34,6 +34,7 @@
 				<th>定員</th>
 				<th>申込数</th>
 				<th>空き</th>
+				<th>詳細</th>
 			</tr>
 		</thead>
 
@@ -50,6 +51,7 @@
 				<td class="text-center">[[${c.courseCapacity.capacity}]]</td>
 				<td class="text-center">[[${c.courseCapacity.numberOfApplicant}]]</td>
 				<td class="text-center"	th:text="${c.courseCapacity.capacity - c.courseCapacity.numberOfApplicant}"></td>
+				<td> <a th:href="@{/show/{id}(id=${c.courseId})}" class="btn btn-secondary">詳細</a></td>
 			</tr>
 		</tbody>
 	</table>
