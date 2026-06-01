@@ -27,7 +27,7 @@ public class CourseServiceImpl implements CourseService{
 		public List<Course> servSelectCourseAll(){
 				return courseMapper.selectCourseAll();
 		}
-						
+
 		@Override
 		@Transactional
 		public boolean servInsertCourse(Course course) {
@@ -75,7 +75,7 @@ public class CourseServiceImpl implements CourseService{
 			}
 			//Integer classRoomCode=course.getClassRoomId();//教室ID実行位置移動
 
-		
+
 
 			System.out.println("****検証用データ****");
 
@@ -126,7 +126,7 @@ public class CourseServiceImpl implements CourseService{
 			@Override
 			@Transactional
 			// チェック終了後のデータをサーバーに登録
-			public void executeDbInsert(Course course, List<ClassRoomSchedule> schedules) {
+			public String executeDbInsert(Course course, List<ClassRoomSchedule> schedules) {
 					//以降登録処理
 					//親テーブル（Course）の登録
 					courseMapper.insertCourse(course);
@@ -148,6 +148,7 @@ public class CourseServiceImpl implements CourseService{
 				System.out.println("db登録後パラメータ："+schedules);//test用
 				courseMapper.insertCourseCapacity(courseCapacity);
 				courseMapper.insertClassRoomSchedule(schedules);
+				return generatedCode;
 			}
 
 //				if(!isOverlap) {

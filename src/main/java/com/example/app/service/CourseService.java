@@ -29,6 +29,6 @@ public interface CourseService {
 	//登録重複チェック用（取り出したデータと入力データを比較する）
 		public boolean servIsScheduleOverlapped(ClassRoomSchedule newSchedule,
 				List<ClassRoomSchedule>registeredSchedules);
-	//チェック後のデータをサーバに登録する
-		public void executeDbInsert(Course course, List<ClassRoomSchedule> schedules) ;
+	//チェック後のデータをサーバに登録する 戻り値にcourseIDをreturnする
+		public String executeDbInsert(Course course, List<ClassRoomSchedule> schedules) ;
 }

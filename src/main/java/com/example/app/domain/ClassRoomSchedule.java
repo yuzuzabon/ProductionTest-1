@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import jakarta.validation.Valid;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,5 +25,8 @@ public class ClassRoomSchedule {
 
 	private LocalDateTime registeredAt;
 	private LocalDateTime updatedAt;
+
+	@Valid
+	private ClassRoom classRoom;
 
 }

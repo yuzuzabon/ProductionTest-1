@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
@@ -36,7 +37,7 @@ public class CourseController {
 		public List<ClassRoomService> populateClassRooms() {
 		return classRoomService.servSelectRoomAll();
 
-	}
+		}
 
 		@GetMapping("/menu")
 		public String showMenu() {
@@ -59,6 +60,7 @@ public class CourseController {
 						courseService.servSelectTotalPages(NUM_PER_PAGE));
 			return "courseList";
 		}
+
 		@GetMapping("/show/{id}")
 			public String contSelectCourseById(
 					@PathVariable String id,
@@ -67,11 +69,8 @@ public class CourseController {
 					model.addAttribute("course",course);
 					System.out.println("******"+course);
 					return "courseInfo";
-			
 		}
-		
-		
-		
+
 		@GetMapping("/add")
 		public String showInsertCourse(Model model) {
 				Course course=new Course();
@@ -92,7 +91,8 @@ public class CourseController {
 		public String contInsertCourse(@ModelAttribute("course")
 				@Validated Course course,
 								Errors errors,
-								Model model) {
+								Model model,
+								RedirectAttributes redirectAttributes) {
 			if(errors.hasErrors()) {
 				//model.addAttribute("room", classRoomService.servSelectRoomAll());
 					return "insertCourse";
@@ -103,9 +103,11 @@ public class CourseController {
 
 			if (!isOverlap) {
 				List<ClassRoomSchedule> schedules = course.getClassRoomSchedule();
-				courseService.executeDbInsert(course, schedules);
-				model.addAttribute("status","講座を登録しました");
-				return "redirect:/menu";
+				String courseId = courseService.executeDbInsert(course, schedules);
+				//courseService.executeDbInsert(course, schedules);
+				//model.addAttribute("status","講座を登録しました");
+				redirectAttributes.addFlashAttribute("statusMessage", "講座を登録しました");
+				return "redirect:/show/"+courseId;
 			}else{
 				model.addAttribute("errorMessage", "重複があります");
 		    return "insertCourse"; // 入力画面へ

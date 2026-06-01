@@ -34,12 +34,50 @@
 		<result property="date" column="s_date"/>
 		<result property="startTime" column="s_start_time"/>
 		<result property="endTime" column="s_end_time"/>
+		<result property="coursePeriod" column="s_course_period"/>
 		<result property="registeredAt" column="s_registered_at"/>
 		<result property="updatedAt" column="s_updated_at"/>
 	</collection>
+</resultMap>
 
+<resultMap type="CourseWithClassRoom" id="joinCourseWithClassRoom">
+		<id property="id" column="c_id"/>
+		<result property="courseId" column="c_course_id"/>
+		<result property="title" column="c_title"/>
+		<result property="detail" column="c_detail"/>
+		<result property="classRoomId" column="c_class_room_id"/>
+		<result property="courseTerm" column="c_course_term"/>
+		<result property="registeredAt" column="c_registered_at"/>
+		<result property="updatedAt" column="c_updated_at"/>
+
+	<association property="courseCapacity" javaType="CourseCapacity">
+		<result property="capacity" column="p_capacity"/>
+		<result property="numberOfApplicant" column="p_number_of_applicant"/>
+		<result property="registeredAt" column="p_registered_at"/>
+		<result property="updatedAt" column="p_updated_at"/>
+	</association>
+
+	<collection property="classRoomSchedule" ofType="ClassRoomSchedule">
+		<id property="id" column="s_id"/>
+		<result property="courseId" column="s_course_id"/>
+		<result property="classRoomId" column="s_class_room_id"/>
+		<result property="date" column="s_date"/>
+		<result property="startTime" column="s_start_time"/>
+		<result property="endTime" column="s_end_time"/>
+		<result property="coursePeriod" column="s_course_period"/>
+		<result property="registeredAt" column="s_registered_at"/>
+		<result property="updatedAt" column="s_updated_at"/>
+
+		<association property="classRoom" javaType="ClassRoom">
+			<id property="id" column="r_id"/>
+			<result property="classRoom" column="r_class_room"/>
+			<result property="registeredAt" column="r_registered_at"/>
+			<result property="updatedAt" column="r_updated_at"/>
+		</association>
+	</collection>
 
 </resultMap>
+
 	<sql id="standardSelect">
 				course.id AS c_id,
         course.course_id AS c_course_id,
@@ -66,6 +104,7 @@
         class_room_schedule.date AS s_date,
         class_room_schedule.start_time AS s_start_time,
         class_room_schedule.end_time AS s_end_time,
+        class_room_schedule.course_period AS s_course_period,
         class_room_schedule.registered_at AS s_registered_at,
         class_room_schedule.updated_at AS s_updated_at
 	</sql>
@@ -73,9 +112,9 @@
 
 <select id="selectCourseAll" resultMap="joinCourse">
 	select DISTINCT
-	
+
 	<include refid="standardSelect"></include>
-	
+
 	FROM course
 
 			join  course_capacity
@@ -95,10 +134,10 @@
 </select>
 
 <select id="selectCourseByPage" resultMap="joinCourse">
-	select 
-	
+	select
+
 	<include refid="standardSelect"></include>
-	
+
 	FROM course
 
 			join  course_capacity
@@ -112,7 +151,7 @@
 			join class_room_schedule
       on course.course_id =
       class_room_schedule.course_id
-      
+
   	  join(
 	    SELECT course_id
   	  FROM course
@@ -129,24 +168,24 @@
 	select count(*) from course
 </select>
 
-<select id="selectCourseById" parameterType="String" resultMap="joinCourse">
+<select id="selectCourseById" parameterType="String" resultMap="joinCourseWithClassRoom">
 		 select DISTINCT
-	
+
 	<include refid="standardSelect"></include>
-	
+
 	FROM course
 
 			join  course_capacity
 			on course.course_id=
 			course_capacity.course_id
 
-			join class_room
-			on course.class_room_id=
-			class_room.id
-
 			join class_room_schedule
       on course.course_id =
       class_room_schedule.course_id
+
+			join class_room
+			on class_room_schedule.class_room_id=
+			class_room.id
 
 			where course.course_id=#{id}
       order by c_course_id,s_date,s_start_time
@@ -161,7 +200,7 @@ AND date IN
 #{date}
 </foreach>
 order by date,start_time
-</select> 
+</select>
 
 <!--<select id="selectRegisteredSchedule">-->
 <!--	select id,class_room_id,date,start_time,end_time-->
@@ -192,10 +231,10 @@ order by date,start_time
 
  <insert id="insertClassRoomSchedule" >
  insert into class_room_schedule
- 	(course_id,class_room_id,date,start_time,end_time)
+ 	(course_id,class_room_id,date,start_time,end_time,course_period)
  	values
  	<foreach collection="classRoomSchedule" item="item" separator=",">
- 	(#{item.courseId},#{item.classRoomId},#{item.date},#{item.startTime},#{item.endTime})
+ 	(#{item.courseId},#{item.classRoomId},#{item.date},#{item.startTime},#{item.endTime},#{item.coursePeriod})
  	</foreach>
  </insert>
 

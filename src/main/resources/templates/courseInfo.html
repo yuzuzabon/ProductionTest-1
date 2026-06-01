@@ -6,38 +6,75 @@
 	<link th:href="@{/css/style.css}" rel="stylesheet" />
 	<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
 
-	<title>講座一覧</title>
+	<title>講座詳細</title>
 </head>
 <body>
-	<div class="container">
+	<div class="container mt-4">
 	<div class="mb-3">
 			<a th:href="@{/menu}" class="btn btn-secondary">メニュー</a>
 			<a th:href="@{/show}" class="btn btn-secondary">一覧</a>
 			<a th:href="@{/add}" class="btn btn-secondary">講座登録</a>
 	</div>
-	<table>
-		<tr>
-			<th>講座番号</th>
-			<th>タイトル</th>
-			<th>回数</th>
-			<th>教室</th>
-			<th>開催日</th>
-			<th>開始時間</th>
-			<th>終了時間</th>
-			<th>定員</th>
-			<th>申込数</th>
-			<th>空き</th>
-	 	</tr>
-		<tr th:each="c : ${course}">
-			<td th:text="${c.courseId}"></td>
-			<td th:text="${c.title}"></td>
-			<td th:text="${c.courseTerm}"></td>
-			<td th:text="${c.classRoom.classRoom}"></td>
-			
-		</tr>	
-	</table>
-			
+			<div th:if="${statusMessage}" class="alert alert-success mt-4">
+				[[${statusMessage}]]
+			</div>
+		<table class="table table-bordered" th:each="c : ${course}">
+			<tr>
+				<th>講座番号</th>
+				<td th:text="${c.courseId}"></td>
+			</tr>
+			<tr>
+				<th>タイトル</th>
+				<td th:text="${c.title}"></td>
+			</tr>
+			<tr>
+				<th>内容</th>
+				<td th:text="${c.detail}"></td>
+			</tr>
+			<tr>
+				<th>空き</th>
+					<td th:text="${c.courseCapacity.capacity - c.courseCapacity.numberOfApplicant}"></td>
+
+				<th>定員</th>
+					<td th:text="${c.courseCapacity.capacity}"></td>
+
+
+				<th>申し込み数</th>
+					<td th:text="${c.courseCapacity.numberOfApplicant}"></td>
+
+			</tr>
+
+			<tr>
+				<th>回数</th>
+				<td th:text="${c.courseTerm}"></td>
+			</tr>
+
+			<th:block th:each="r ,stat : ${c.classRoomSchedule}">
+
+				<tr class="table-light">
+					<th colspan="2" th:text="${stat.count} + '回目スケジュール'"></th>
+				</tr>
+
+				<tr>
+					<th>開催日</th>
+					<td th:text="${r.date}"></td>
+				</tr>
+				<tr>
+					<th>開始時間</th>
+					<td th:text="${r.startTime}"></td>
+				</tr>
+				<tr>
+					<th>終了時間</th>
+					<td th:text="${r.endTime}"></td>
+				</tr>
+				<tr>
+					<th>教室</th>
+					<td th:text="${r.classRoom.classRoom}"></td>
+				</tr>
+			</th:block>
+
+
+		</table>
 	</div>
-	
 </body>
 </html>
