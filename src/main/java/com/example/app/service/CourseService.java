@@ -19,16 +19,19 @@ public interface CourseService {
 
 	//修正
 
+	//利用状況一覧
+		public List<ClassRoomSchedule> servSelectClassRoomScheduleAll();
+
 	//申し込み
 		void join(Course course);
 	//ページ分割
 		List<Course> servSelectCourseByPage(int page, int numPerPage);
 		int servSelectTotalPages(int numPerPage);
-	//登録重複チェック	用(登録前のclassRoomIdとdateを取り出す)
+	//登録 重複チェック	用(登録前のclassRoomIdとdateを取り出す)
 		public List<ClassRoomSchedule>servSelectRegisteredSchedule(Integer classRoomId,List<LocalDate> date);
-	//登録重複チェック用（取り出したデータと入力データを比較する）
+	//登録 重複チェック用（取り出したデータと入力データを比較する）
 		public boolean servIsScheduleOverlapped(ClassRoomSchedule newSchedule,
 				List<ClassRoomSchedule>registeredSchedules);
-	//チェック後のデータをサーバに登録する 戻り値にcourseIDをreturnする
+	//登録 チェック後のデータをサーバに登録する 戻り値にcourseIDをreturnする
 		public String executeDbInsert(Course course, List<ClassRoomSchedule> schedules) ;
 }

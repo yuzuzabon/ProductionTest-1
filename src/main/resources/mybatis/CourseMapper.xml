@@ -78,6 +78,24 @@
 
 </resultMap>
 
+<resultMap type="ClassRoomSchedule" id="classRoomScheduleMap">
+    <id property="id" column="s_id"/>
+		<result property="courseId" column="s_course_id"/>
+		<result property="classRoomId" column="s_class_room_id"/>
+		<result property="date" column="s_date"/>
+		<result property="startTime" column="s_start_time"/>
+		<result property="endTime" column="s_end_time"/>
+		<result property="coursePeriod" column="s_course_period"/>
+		<result property="registeredAt" column="s_registered_at"/>
+		<result property="updatedAt" column="s_updated_at"/>
+    <association property="classRoom" javaType="ClassRoom">
+    	<id property="id" column="r_id"/>
+			<result property="classRoom" column="r_class_room"/>
+			<result property="registeredAt" column="r_registered_at"/>
+			<result property="updatedAt" column="r_updated_at"/>
+    </association>
+</resultMap>
+
 	<sql id="standardSelect">
 				course.id AS c_id,
         course.course_id AS c_course_id,
@@ -200,6 +218,26 @@ AND date IN
 #{date}
 </foreach>
 order by date,start_time
+</select>
+
+<select id="selectClassRoomScheduleAll" resultMap="classRoomScheduleMap">
+	SELECT
+
+        class_room_schedule.id AS s_id,
+        class_room_schedule.course_id AS s_course_id,
+        class_room_schedule.class_room_id AS s_class_room_id,
+        class_room_schedule.date AS s_date,
+        class_room_schedule.start_time AS s_start_time,
+        class_room_schedule.end_time AS s_end_time,
+        class_room_schedule.course_period AS s_course_period,
+
+				class_room.id AS r_id,
+        class_room.class_room AS r_class_room
+
+	FROM class_room_schedule
+	join class_room
+	on class_room_schedule.class_room_id=class_room.id
+	order by s_date,s_start_time
 </select>
 
 <!--<select id="selectRegisteredSchedule">-->

@@ -267,6 +267,14 @@ public class CourseServiceImpl implements CourseService{
 
 		}
 
+		@Override
+		public List<ClassRoomSchedule> servSelectClassRoomScheduleAll() {
+			// TODO 自動生成されたメソッド・スタブ
+			return courseMapper.selectClassRoomScheduleAll();
+		}
+
+
+
 
 }
 

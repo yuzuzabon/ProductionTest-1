@@ -34,5 +34,9 @@ public interface CourseMapper {
         @Param("classRoomId") Integer classRoomId,
         @Param("dateList") List<LocalDate> dateList);
 
+		//利用状況一覧
+		List<ClassRoomSchedule> selectClassRoomScheduleAll();
+
+
 
 }

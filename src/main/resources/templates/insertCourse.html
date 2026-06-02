@@ -63,7 +63,7 @@
 				<select th:field="*{classRoomSchedule[0].startTime}" id="formStartTime" class="form-control w-50">
 <!-- 💡 10時から14時までループを回し、各時で0分、15分、30分、45分のオプションを生成 -->
 	        <th:block th:each="hour : ${#numbers.sequence(10, 14)}">
-						<th:block th:each="min : ${#numbers.sequence(0, 45, 15)}">
+						<th:block th:each="min : ${#numbers.sequence(0, 30, 30)}">
 							<option th:with="hStr=${#numbers.formatInteger(hour, 2)}, mStr=${#numbers.formatInteger(min, 2)}"
 							        th:value="${hStr + ':' + mStr}"
 							        th:text="${hStr + ':' + mStr}">
@@ -76,11 +76,11 @@
 			<div class="mb-3" id="periodContainer">
 				<label for="formName">講座時間</label><br>
 			  <label><input type="radio" name="basePeriod" class="course-period"
-											value="30"/>30分　</label>
-				<label><input type="radio" name="basePeriod" class="course-period"
-											value="45"/>45分　</label>
-			  <label><input type="radio" name="basePeriod" class="course-period"
 											value="60" checked/>60分　</label>
+				<label><input type="radio" name="basePeriod" class="course-period"
+											value="90"/>90分　</label>
+			  <label><input type="radio" name="basePeriod" class="course-period"
+											value="120"/>120分　</label>
 			</div>
 
 			<div class="mb-3">
@@ -137,13 +137,13 @@ function reIndexSchedules() {
 document.querySelectorAll('input[name="basePeriod"]').forEach(radio => {
     radio.addEventListener('change', function() {
         const targetValue = this.value; // 切り替えられた値（例: "30"）
-        
+
         // 画面上にあるすべての「hidden-period」をループして値を書き換える
         const allHiddenPeriods = document.querySelectorAll('.hidden-period');
         allHiddenPeriods.forEach(hiddenInput => {
             hiddenInput.value = targetValue;
         });
-        
+
         console.log(`すべての講座時間を ${targetValue} 分に変更しました。`); // 確認用
     });
 });
@@ -215,8 +215,8 @@ document.getElementById('addDateBtn').addEventListener('click', function() {
 		// 💡 選択されているラジオボタンのvalue（30, 45, 60など）を取得する
 		const selectedPeriodElement = document.querySelector('input[name="basePeriod"]:checked');
 		const currentPeriod = selectedPeriodElement ? selectedPeriodElement.value : "60"; // 取れなかったら念のため60
-			
-			
+
+
     // Javaに送るためのhiddenパラメータ群（連番を綺麗に仕込む 後から探せるようにクラス名を付与）
     const hiddenDate = document.createElement('input');
     hiddenDate.type = 'hidden';
@@ -231,7 +231,7 @@ document.getElementById('addDateBtn').addEventListener('click', function() {
     hiddenPeriod.name = `classRoomSchedule[${index}].coursePeriod`;
     //hiddenPeriod.value = "60"; // 例として60分（画面の入力項目から取得してもOK）
 		hiddenPeriod.value = currentPeriod;
-		
+
     // 要素の組み立て
     li.appendChild(hiddenDate);
     li.appendChild(hiddenPeriod);

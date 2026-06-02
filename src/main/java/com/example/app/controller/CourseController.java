@@ -3,7 +3,11 @@ package com.example.app.controller;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.app.domain.ClassRoomSchedule;
@@ -219,4 +224,31 @@ public class CourseController {
 		        return "test2";
 		    }
 		}
+	// ///////////////////////////////////////////////////
+		@GetMapping("/roomschedules")
+		@ResponseBody
+				public List<ClassRoomSchedule>contSelectClassRoomScheduleAll(Model model){
+
+				List<ClassRoomSchedule> roomSchedules = courseService.servSelectClassRoomScheduleAll();
+
+				Map<String,Set<String>>scheduleMap=new HashMap<>();
+
+				for(ClassRoomSchedule rs:roomSchedules) {
+				String classRoom=rs.getClassRoom().getClassRoom();
+				String key=rs.getDate()+"_"+rs.getStartTime();
+				scheduleMap.computeIfAbsent(classRoom, k -> new HashSet<>())
+				.add(key);
+				}
+				/*
+				Map<String,String>scheduleMap=new HashMap<>();
+				for(ClassRoomSchedule rs:roomSchedules) {
+				String key=rs.getDate()+"_"+rs.getStartTime();
+				String classRoom=rs.getClassRoom().getClassRoom();
+				scheduleMap.put(key,classRoom);
+				}*/
+				System.out.println(scheduleMap);
+				return roomSchedules;
+
+		}
+
 }
