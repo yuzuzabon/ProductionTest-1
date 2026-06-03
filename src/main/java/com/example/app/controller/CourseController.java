@@ -228,17 +228,30 @@ public class CourseController {
 		@GetMapping("/roomschedules")
 		@ResponseBody
 				public List<ClassRoomSchedule>contSelectClassRoomScheduleAll(Model model){
-
+			//スケジュールマトリクス作成用メソッド
 				List<ClassRoomSchedule> roomSchedules = courseService.servSelectClassRoomScheduleAll();
-
+			//登録済みスケジュールデータ抽出	
 				Map<String,Set<String>>scheduleMap=new HashMap<>();
-
+			//占有情報作成用の箱作成	
 				for(ClassRoomSchedule rs:roomSchedules) {
-				String classRoom=rs.getClassRoom().getClassRoom();
-				String key=rs.getDate()+"_"+rs.getStartTime();
-				scheduleMap.computeIfAbsent(classRoom, k -> new HashSet<>())
-				.add(key);
+				LocalTime current=rs.getStartTime();//開始時間
+				String classRoom=rs.getClassRoom().getClassRoom();//部屋名
+					while(current.isBefore(rs.getEndTime())) {//スケジュールがあるところに
+						String key=rs.getDate()+"_"+current;		//終了時間まで30分単位に日付_時間のデータを作る
+																										//60分->2コマ 90分->3コマ 120分->4コマ	
+						scheduleMap.computeIfAbsent(classRoom, k -> new HashSet<>())
+						.add(key);
+						current=current.plusMinutes(30);
+					}
 				}
+				
+				/*
+				for(ClassRoomSchedule rs:roomSchedules) {
+					String classRoom=rs.getClassRoom().getClassRoom();
+					String key=rs.getDate()+"_"+rs.getStartTime();
+					scheduleMap.computeIfAbsent(classRoom, k -> new HashSet<>())
+					.add(key);
+				}*/
 				/*
 				Map<String,String>scheduleMap=new HashMap<>();
 				for(ClassRoomSchedule rs:roomSchedules) {

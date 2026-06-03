@@ -14,8 +14,6 @@ public interface CourseService {
 		List<Course> servSellectCourseById(String id);
 	//検索
 
-	//登録
-		public boolean servInsertCourse(Course course);
 
 	//修正
 
@@ -27,6 +25,9 @@ public interface CourseService {
 	//ページ分割
 		List<Course> servSelectCourseByPage(int page, int numPerPage);
 		int servSelectTotalPages(int numPerPage);
+		
+	//登録 重複チェック用
+		public boolean servInsertCourse(Course course);
 	//登録 重複チェック	用(登録前のclassRoomIdとdateを取り出す)
 		public List<ClassRoomSchedule>servSelectRegisteredSchedule(Integer classRoomId,List<LocalDate> date);
 	//登録 重複チェック用（取り出したデータと入力データを比較する）
