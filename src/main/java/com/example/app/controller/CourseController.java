@@ -3,11 +3,7 @@ package com.example.app.controller;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,11 +14,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
+import com.example.app.domain.OccupiedRoomSchedule;
 import com.example.app.service.ClassRoomService;
 import com.example.app.service.CourseService;
 
@@ -225,27 +221,24 @@ public class CourseController {
 		    }
 		}
 	// ///////////////////////////////////////////////////
-		@GetMapping("/roomschedules")
-		@ResponseBody
-				public List<ClassRoomSchedule>contSelectClassRoomScheduleAll(Model model){
-			//スケジュールマトリクス作成用メソッド
-				List<ClassRoomSchedule> roomSchedules = courseService.servSelectClassRoomScheduleAll();
-			//登録済みスケジュールデータ抽出	
-				Map<String,Set<String>>scheduleMap=new HashMap<>();
-			//占有情報作成用の箱作成	
-				for(ClassRoomSchedule rs:roomSchedules) {
-				LocalTime current=rs.getStartTime();//開始時間
-				String classRoom=rs.getClassRoom().getClassRoom();//部屋名
-					while(current.isBefore(rs.getEndTime())) {//スケジュールがあるところに
-						String key=rs.getDate()+"_"+current;		//終了時間まで30分単位に日付_時間のデータを作る
-																										//60分->2コマ 90分->3コマ 120分->4コマ	
-						scheduleMap.computeIfAbsent(classRoom, k -> new HashSet<>())
-						.add(key);
-						current=current.plusMinutes(30);
-					}
-				}
-				
+		@GetMapping("/roomSchedules")
+//	@ResponseBody
+//		public Map<String,Set<String>>constScheduleMap(Model model){
+			public String constScheduleMap(
+					@RequestParam(name="baseDate",required = false)String baseDateStr,
+					Model model){//@RequestParam(required = false) で基準日を受け取れるようになる
+			
+			LocalDate baseDate=(baseDateStr==null)?LocalDate.now():LocalDate.parse(baseDateStr);
+			OccupiedRoomSchedule occupiedMap=courseService.servSelectClassRoomScheduleAll(baseDate);		
+			
+			model.addAttribute("occupiedMap",occupiedMap);
+			model.addAttribute("baseDate",baseDate);
+			
+			
+			
+//		Map<String,Set<String>>scheduleMap=courseService.servSelectClassRoomScheduleAll();
 				/*
+				public List<ClassRoomSchedule>contSelectClassRoomScheduleAll(Model model){
 				for(ClassRoomSchedule rs:roomSchedules) {
 					String classRoom=rs.getClassRoom().getClassRoom();
 					String key=rs.getDate()+"_"+rs.getStartTime();
@@ -259,8 +252,9 @@ public class CourseController {
 				String classRoom=rs.getClassRoom().getClassRoom();
 				scheduleMap.put(key,classRoom);
 				}*/
-				System.out.println(scheduleMap);
-				return roomSchedules;
+				System.out.println(occupiedMap);
+			
+				return "roomSchedules";
 
 		}
 

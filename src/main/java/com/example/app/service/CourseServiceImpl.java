@@ -1,9 +1,16 @@
 package com.example.app.service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
 import com.example.app.domain.CourseCapacity;
+import com.example.app.domain.OccupiedRoomSchedule;
 import com.example.app.mapper.CourseMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -265,16 +273,78 @@ public class CourseServiceImpl implements CourseService{
 			return courseMapper.selectRegisteredSchedule(classRoomId,date);
 
 
-		}
+		} 
 
 		@Override
-		public List<ClassRoomSchedule> servSelectClassRoomScheduleAll() {
-			// TODO 自動生成されたメソッド・スタブ
-			return courseMapper.selectClassRoomScheduleAll();
+		public OccupiedRoomSchedule servSelectClassRoomScheduleAll(LocalDate baseDate) {
+			// TODO 自動生成されたメソッド・スタブ LocalDate baseDateはcontrollerから新しい基準日付受け取り用
+			List<LocalDate>dateList=generateDateList();
+			List<LocalTime>timeList=generateTimeList();
+			
+			System.out.println("------1週間分の日付------"+dateList);
+			System.out.println("------1日分の時刻------"+timeList);
+			
+			List<ClassRoomSchedule> roomSchedules=courseMapper.selectClassRoomScheduleAll();
+			Map<String,Set<String>>scheduleMap=new HashMap<>();
+			//占有情報作成用の箱作成	
+			for(ClassRoomSchedule rs:roomSchedules) {
+				LocalTime current=rs.getStartTime();//開始時間
+				String classRoom=rs.getClassRoom().getClassRoom();//部屋名
+					while(current.isBefore(rs.getEndTime())) {//スケジュールがあるところに
+						String key=rs.getDate()+"_"+current;		//終了時間まで30分単位に日付_時間のデータを作る
+																										//60分->2コマ 90分->3コマ 120分->4コマ	
+						scheduleMap.computeIfAbsent(classRoom, k -> new HashSet<>())
+						.add(key);
+						current=current.plusMinutes(30);
+					}
+				}
+		// ガワ（dateList × timeList）と使用済みデータを組み合わせたマトリクスを作成
+			Map<String,Map<String,Boolean>>occupiedMap=new LinkedHashMap<String, Map<String,Boolean>>();
+		// 部屋ごとにマトリクスを埋めていく
+			for(String cr : scheduleMap.keySet()) {
+				Map<String,Boolean>occupied=new LinkedHashMap<>();
+				for(LocalDate date:dateList) {
+					for(LocalTime time:timeList) {
+						String key=date+"_"+time;
+		// 使用済みマップにキーが存在すれば true (予約あり), なければ false (空き)
+						Boolean isReserved=scheduleMap.get(cr).contains(key);
+						occupied.put(key, isReserved);
+					}
+				}
+				occupiedMap.put(cr, occupied);
+			}
+			System.out.println("------利用状況--------"+occupiedMap);
+			
+			
+			return new OccupiedRoomSchedule(dateList,timeList,occupiedMap);
 		}
-
-
-
-
+			//Map<LocalDate,List<LocalTime>>scheduleTemp=new HashMap<>();
+			//mapよりも縦軸横軸別のlistを渡した方がthymeleaf上の処理が簡単になる
+		private List<LocalDate>generateDateList(){
+			LocalDate day=LocalDate.of(2026, 5, 25);
+		//	LocalDate sunday=LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+			LocalDate sunday=day.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+			//today.minusDays(today.getDayOfWeek().getValue() % 7	);			
+			List<LocalDate>dateList=new ArrayList<>();
+		
+				for(int i=0;i<7;i++) {
+			//scheduleTemp.put(sunday.plusDays(i), timeList);
+					dateList.add(sunday.plusDays(i));
+		}
+				return dateList;
+		}
+				
+		private	List<LocalTime>generateTimeList(){
+			List<LocalTime>timeList=new ArrayList<>();
+			LocalTime start=LocalTime.of(10, 0);
+			LocalTime end=LocalTime.of(16, 0);
+			
+				while (!start.isAfter(end)) {
+					timeList.add(start);
+					start=start.plusMinutes(30);
+			}
+					return timeList;
+		}
+			
 }
 

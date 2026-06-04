@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
+import com.example.app.domain.OccupiedRoomSchedule;
 
 public interface CourseService {
 
@@ -17,9 +18,13 @@ public interface CourseService {
 
 	//修正
 
-	//利用状況一覧
-		public List<ClassRoomSchedule> servSelectClassRoomScheduleAll();
-
+	//スケジュール利用状況一覧
+	//public List<ClassRoomSchedule> servSelectClassRoomScheduleAll();
+	//public Map<String,Set<String>> servSelectClassRoomScheduleAll();
+		public OccupiedRoomSchedule servSelectClassRoomScheduleAll(LocalDate baseDate);
+	//スケジュールマトリクスのガワ作成 
+		
+		
 	//申し込み
 		void join(Course course);
 	//ページ分割
