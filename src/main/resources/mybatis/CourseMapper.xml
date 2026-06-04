@@ -217,7 +217,7 @@ AND date IN
 <foreach item="date" collection="dateList" open="(" separator="," close=")">
 #{date}
 </foreach>
-order by date,start_time
+order by class_room_id,date,start_time
 </select>
 
 <select id="selectClassRoomScheduleAll" resultMap="classRoomScheduleMap">
@@ -237,7 +237,7 @@ order by date,start_time
 	FROM class_room_schedule
 	join class_room
 	on class_room_schedule.class_room_id=class_room.id
-	order by s_date,s_start_time
+	order by r_id,s_date,s_start_time
 </select>
 
 <!--<select id="selectRegisteredSchedule">-->

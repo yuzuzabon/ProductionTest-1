@@ -9,17 +9,41 @@
 <body>
 	<div class="container mt-4">
 		<div class="mb-3">
-				<a th:href="@{/menu}" class="btn btn-secondary">メニュー</a>
-				<a th:href="@{/show}" class="btn btn-secondary">一覧</a>
-				<a th:href="@{/add}" class="btn btn-secondary">講座登録</a>
+					<a th:href="@{/menu}" class="btn btn-secondary">メニュー</a>
+					<a th:href="@{/show}" class="btn btn-secondary">一覧</a>
+					<a th:href="@{/add}" class="btn btn-secondary">講座登録</a>
 		</div>
-		<tr>
-			<th th:each="m:${occupiedMap.dateList}">
-				<th th:text>[[${m.dateList}]]</th>
-			</th>
-			
-		</tr>
-		
-		
+
+		<div th:each="roomEntry : ${occupiedMap.occupiedMap}" class="mb-5">
+
+			<h2 th:text="${roomEntry.key}" class="text-primary mb-3">教室名</h2>
+
+			<table class="table table-bordered text-center align-middle">
+				<thead class="table-light">
+					<tr>
+						<th>時間 / 日付</th>
+						<th th:each="date : ${occupiedMap.dateList}" th:text="${date}" style="width: 12%;">日付</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="time : ${occupiedMap.timeList}">
+						<td th:text="${time}" class="fw-bold table-light">10:00</td>
+
+						<td th:each="date : ${occupiedMap.dateList}">
+
+							<th:block th:with="mapKey=${date.toString() + '_' + time.toString()}">
+
+								<span th:if="${roomEntry.value.get(mapKey)}" class="badge bg-danger">登録済み</span>
+								<span th:if="${!roomEntry.value.get(mapKey)}" class="text-muted">　</span>
+
+							</th:block>
+
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+	</div>
 </body>
 </html>
