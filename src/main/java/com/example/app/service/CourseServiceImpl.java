@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -278,14 +277,14 @@ public class CourseServiceImpl implements CourseService{
 		@Override
 		public OccupiedRoomSchedule servSelectClassRoomScheduleAll(LocalDate baseDate) {
 			// TODO 自動生成されたメソッド・スタブ LocalDate baseDateはcontrollerから新しい基準日付受け取り用
-			List<LocalDate>dateList=generateDateList();
+			List<LocalDate>dateList=generateDateList(baseDate);
 			List<LocalTime>timeList=generateTimeList();
 
 			System.out.println("------1週間分の日付------"+dateList);
 			System.out.println("------1日分の時刻------"+timeList);
-
+			
 			List<ClassRoomSchedule> roomSchedules=courseMapper.selectClassRoomScheduleAll();
-			Map<String,Set<String>>scheduleMap=new HashMap<>();
+			Map<String,Set<String>>scheduleMap=new LinkedHashMap<>();
 			//占有情報作成用の箱作成
 			for(ClassRoomSchedule rs:roomSchedules) {
 				LocalTime current=rs.getStartTime();//開始時間
@@ -296,6 +295,7 @@ public class CourseServiceImpl implements CourseService{
 						scheduleMap.computeIfAbsent(classRoom, k -> new HashSet<>())
 						.add(key);
 						current=current.plusMinutes(30);
+					
 					}
 				}
 		// ガワ（dateList × timeList）と使用済みデータを組み合わせたマトリクスを作成
@@ -320,11 +320,12 @@ public class CourseServiceImpl implements CourseService{
 		}
 			//Map<LocalDate,List<LocalTime>>scheduleTemp=new HashMap<>();
 			//mapよりも縦軸横軸別のlistを渡した方がthymeleaf上の処理が簡単になる
-		private List<LocalDate>generateDateList(){
-			LocalDate day=LocalDate.of(2026, 5, 25);
-		//	LocalDate sunday=LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-			LocalDate sunday=day.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-			//today.minusDays(today.getDayOfWeek().getValue() % 7	);
+		private List<LocalDate>generateDateList(LocalDate baseDate){
+			LocalDate sunday=baseDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+		//LocalDate sunday=LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+
+		//LocalDate sunday=day.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+		//today.minusDays(today.getDayOfWeek().getValue() % 7	);
 			List<LocalDate>dateList=new ArrayList<>();
 
 				for(int i=0;i<7;i++) {

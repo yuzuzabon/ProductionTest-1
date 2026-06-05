@@ -237,7 +237,7 @@ order by class_room_id,date,start_time
 	FROM class_room_schedule
 	join class_room
 	on class_room_schedule.class_room_id=class_room.id
-	order by r_id,s_date,s_start_time
+	order by s_date,s_start_time
 </select>
 
 <!--<select id="selectRegisteredSchedule">-->

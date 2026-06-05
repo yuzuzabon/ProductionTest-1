@@ -221,19 +221,30 @@ public class CourseController {
 		    }
 		}
 	// ///////////////////////////////////////////////////
-		@GetMapping("/roomSchedules")
+		@GetMapping("/roomSchedules2")
 //	@ResponseBody
 //		public Map<String,Set<String>>constScheduleMap(Model model){
 			public String constScheduleMap(
 					@RequestParam(name="baseDate",required = false)String baseDateStr,
+					@RequestParam(name="week",required = false)Integer week,
 					Model model){//@RequestParam(required = false) で基準日を受け取れるようになる
+		
+			LocalDate baseDate=(baseDateStr==null||baseDateStr.isEmpty())
+					?LocalDate.now():LocalDate.parse(baseDateStr);
 			
-			LocalDate baseDate=(baseDateStr==null)?LocalDate.now():LocalDate.parse(baseDateStr);
+			if(week !=null) {
+				if(week==1) {
+					baseDate = baseDate.minusWeeks(1);
+				}else if(week==2) {
+					baseDate = baseDate.plusWeeks(1);
+					}
+			}
+			
+			
 			OccupiedRoomSchedule occupiedMap=courseService.servSelectClassRoomScheduleAll(baseDate);		
 			
 			model.addAttribute("occupiedMap",occupiedMap);
 			model.addAttribute("baseDate",baseDate);
-			
 			
 			
 //		Map<String,Set<String>>scheduleMap=courseService.servSelectClassRoomScheduleAll();
@@ -254,7 +265,7 @@ public class CourseController {
 				}*/
 				System.out.println(occupiedMap);
 			
-				return "roomSchedules";
+				return "roomSchedules2";
 
 		}
 
