@@ -43,9 +43,14 @@
 					</tr>
 				</tbody>
 			</table>
-			<a th:href="@{roomSchedules2(baseDate=${baseDate},week=1)}">前週</a>
-			<a th:href="@{roomSchedules2}">今週</a>
-			<a th:href="@{roomSchedules2(baseDate=${baseDate},week=2)}">来週</a>
+			<div class="mb-3">
+				<a th:href="@{roomSchedules(baseDate=${prevDate})}">前週</a>
+				<a th:href="@{roomSchedules}">今週</a>
+				<a th:href="@{roomSchedules(baseDate=${nextDate})}">翌週</a>
+			</div>
+			<label for="datePicker">日付を指定：</label>
+			<input type="date" id="datePicker" value="${baseDate}" onchange="location.href='/roomSchedules?baseDate='+this.value"/>
+			
 		</div>
 
 	</div>

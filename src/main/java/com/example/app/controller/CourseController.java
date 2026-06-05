@@ -224,27 +224,21 @@ public class CourseController {
 		@GetMapping("/roomSchedules2")
 //	@ResponseBody
 //		public Map<String,Set<String>>constScheduleMap(Model model){
-			public String constScheduleMap(
+			public String contSelectClassRoomScheduleAll(
 					@RequestParam(name="baseDate",required = false)String baseDateStr,
-					@RequestParam(name="week",required = false)Integer week,
+				//@RequestParam(name="week",required = false)Integer week,
 					Model model){//@RequestParam(required = false) で基準日を受け取れるようになる
 		
 			LocalDate baseDate=(baseDateStr==null||baseDateStr.isEmpty())
 					?LocalDate.now():LocalDate.parse(baseDateStr);
-			
-			if(week !=null) {
-				if(week==1) {
-					baseDate = baseDate.minusWeeks(1);
-				}else if(week==2) {
-					baseDate = baseDate.plusWeeks(1);
-					}
-			}
-			
-			
+
 			OccupiedRoomSchedule occupiedMap=courseService.servSelectClassRoomScheduleAll(baseDate);		
 			
 			model.addAttribute("occupiedMap",occupiedMap);
 			model.addAttribute("baseDate",baseDate);
+			//前週来週のデータを渡しておくことで返ってくるフラグのif()判定が必要なくなる
+			model.addAttribute("prevDate",baseDate.minusWeeks(1).toString());
+			model.addAttribute("nextDate",baseDate.plusWeeks(1).toString());
 			
 			
 //		Map<String,Set<String>>scheduleMap=courseService.servSelectClassRoomScheduleAll();

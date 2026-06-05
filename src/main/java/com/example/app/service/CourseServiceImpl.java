@@ -277,8 +277,8 @@ public class CourseServiceImpl implements CourseService{
 		@Override
 		public OccupiedRoomSchedule servSelectClassRoomScheduleAll(LocalDate baseDate) {
 			// TODO 自動生成されたメソッド・スタブ LocalDate baseDateはcontrollerから新しい基準日付受け取り用
-			List<LocalDate>dateList=generateDateList(baseDate);
-			List<LocalTime>timeList=generateTimeList();
+			List<LocalDate>dateList=servGenerateDateList(baseDate);
+			List<LocalTime>timeList=servGenerateTimeList();
 
 			System.out.println("------1週間分の日付------"+dateList);
 			System.out.println("------1日分の時刻------"+timeList);
@@ -320,7 +320,7 @@ public class CourseServiceImpl implements CourseService{
 		}
 			//Map<LocalDate,List<LocalTime>>scheduleTemp=new HashMap<>();
 			//mapよりも縦軸横軸別のlistを渡した方がthymeleaf上の処理が簡単になる
-		private List<LocalDate>generateDateList(LocalDate baseDate){
+		private List<LocalDate>servGenerateDateList(LocalDate baseDate){
 			LocalDate sunday=baseDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
 		//LocalDate sunday=LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
 
@@ -335,7 +335,7 @@ public class CourseServiceImpl implements CourseService{
 				return dateList;
 		}
 
-		private	List<LocalTime>generateTimeList(){
+		private	List<LocalTime>servGenerateTimeList(){
 			List<LocalTime>timeList=new ArrayList<>();
 			LocalTime start=LocalTime.of(10, 0);
 			LocalTime end=LocalTime.of(16, 0);

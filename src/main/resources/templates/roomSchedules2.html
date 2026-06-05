@@ -16,9 +16,13 @@
 			<ul>
 				<li th:each="date : ${occupiedMap.dateList}" th:text="${date}"></li>
 		  </ul>
-		<a th:href="@{roomSchedules2(baseDate=${baseDate},week=1)}">前週</a>
+		<a th:href="@{roomSchedules2(baseDate=${prevDate})}">前週</a>
 		<a th:href="@{roomSchedules2}">今週</a>
-		<a th:href="@{roomSchedules2(baseDate=${baseDate},week=2)}">来週</a>
+		<a th:href="@{roomSchedules2(baseDate=${nextDate})}">翌週</a>
+		<br />
+		<label for="datePicker">日付を指定：</label>
+		<input type="date" id="datePicker" value="${baseDate}" onchange="location.href='/roomSchedules2?baseDate='+this.value"/>
+		
 		
 	</div>
 </body>
