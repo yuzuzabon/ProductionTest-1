@@ -186,7 +186,7 @@
 	select count(*) from course
 </select>
 
-<select id="selectCourseById" parameterType="String" resultMap="joinCourseWithClassRoom">
+<select id="selectCourseByCourseId" parameterType="String" resultMap="joinCourseWithClassRoom">
 		 select DISTINCT
 
 	<include refid="standardSelect"></include>
@@ -205,7 +205,7 @@
 			on class_room_schedule.class_room_id=
 			class_room.id
 
-			where course.course_id=#{id}
+			where course.course_id=#{courseId}
       order by c_course_id,s_date,s_start_time
 
 </select>
@@ -239,6 +239,28 @@ order by class_room_id,date,start_time
 	on class_room_schedule.class_room_id=class_room.id
 	order by s_date,s_start_time
 </select>
+
+<select id="countOverlappedSchedule">
+	SELECT COUNT(*)
+	FROM class_room_schedule
+	WHERE class_room_id = #{classRoomId}
+  	AND date = #{date}
+	 	AND id != #{id}
+ 		AND start_time &lt; #{endTime}
+ 		AND #{startTime} &lt; end_time;
+
+</select>
+
+<select id="selectCheckSingleScheduleById" resultType="com.example.app.domain.ClassRoomSchedule">
+	SELECT
+	id,
+	class_room_id AS classRoomId,
+  date,
+  start_time AS startTime
+	FROM class_room_schedule
+	where id=#{id}
+</select>
+
 
 <!--<select id="selectRegisteredSchedule">-->
 <!--	select id,class_room_id,date,start_time,end_time-->
@@ -276,6 +298,17 @@ order by class_room_id,date,start_time
  	</foreach>
  </insert>
 
+	<update id="updateSingleSchedule">
+	update class_room_schedule
+	set class_room_id=#{classRoomId},
+			date=#{date},
+			start_time=#{startTime},
+			end_time=#{endTime},
+			updated_at=now()
+
+	where id=#{id}
+
+	</update>
 
 
 </mapper>

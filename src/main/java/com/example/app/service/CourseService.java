@@ -6,13 +6,14 @@ import java.util.List;
 import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
 import com.example.app.domain.OccupiedRoomSchedule;
+import com.example.app.domain.ScheduleUpdateRequest;
 
 public interface CourseService {
 
 	//全件
 		List<Course> servSelectCourseAll();
 	//１件
-		List<Course> servSellectCourseById(String id);
+		List<Course> servSellectCourseByCourseId(String courseId);
 	//検索
 
 
@@ -22,15 +23,15 @@ public interface CourseService {
 	//public List<ClassRoomSchedule> servSelectClassRoomScheduleAll();
 	//public Map<String,Set<String>> servSelectClassRoomScheduleAll();
 		public OccupiedRoomSchedule servSelectClassRoomScheduleAll(LocalDate baseDate);
-	//スケジュールマトリクスのガワ作成 
-		
-		
+	//スケジュールマトリクスのガワ作成
+
+
 	//申し込み
 		void join(Course course);
 	//ページ分割
 		List<Course> servSelectCourseByPage(int page, int numPerPage);
 		int servSelectTotalPages(int numPerPage);
-		
+
 	//登録 重複チェック用
 		public boolean servInsertCourse(Course course);
 	//登録 重複チェック	用(登録前のclassRoomIdとdateを取り出す)
@@ -40,4 +41,7 @@ public interface CourseService {
 				List<ClassRoomSchedule>registeredSchedules);
 	//登録 チェック後のデータをサーバに登録する 戻り値にcourseIDをreturnする
 		public String executeDbInsert(Course course, List<ClassRoomSchedule> schedules) ;
+	//変更　重複チェック用
+		public String servCheckScheduleUpdateRequest(ScheduleUpdateRequest updateRequest);
+
 }

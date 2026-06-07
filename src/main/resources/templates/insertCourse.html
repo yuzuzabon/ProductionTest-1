@@ -13,17 +13,26 @@
 			<div class="mb-3">
 			 	<a th:href="@{/menu}" class="btn btn-secondary">メニュー</a>
 			 	<a th:href="@{/show}" class="btn btn-secondary">講座一覧</a>
-				<a th:href="@{/roomSchedules2}" class="btn btn-secondary">空き教室確認</a>
+				<a th:href="@{/roomSchedules}" class="btn btn-secondary">空き教室確認</a>
 			</div>
 
-				<p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="alert alert-danger w-50 py-2 mb-2 rounded"></p>
 
+				<div th:if="${statusMessage}" class="alert alert-success mt-4 w-50 py-2 mb-2 rounded">
+				    <span th:text="${statusMessage}"></span>
+				</div>
+
+				<div th:if="${errorMessage}" class="alert alert-danger mt-4 w-50 py-2 mb-2 rounded">
+				    <span th:text="${errorMessage}"></span>
+				</div>
+
+			<p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="alert alert-danger mt-4 w-50 py-2 mb-2 rounded"></p>
 			<div class="mb-3">
 				<label for="formTitle">タイトル</label>
          <input type="text"	th:field="*{title}"	id="formTitle"
 		             	class="form-control w-50"/>
 			</div>
 
+			<p th:if="${#fields.hasErrors('detail')}" th:errors="*{detail}" class="alert alert-danger mt-4 w-50 py-2 mb-2 rounded"></p>
 			<div class="mb-3">
 				<label for="formNote">内容</label>
 			  <textarea th:field="*{detail}" maxlength="2000" id="formNote" class="form-control w-50"></textarea>
@@ -63,14 +72,16 @@
 <!--				onkeydown="return false" id="formStartTime"	class="form-control"/>-->
 				<select th:field="*{classRoomSchedule[0].startTime}" id="formStartTime" class="form-control w-50">
 <!-- 💡 10時から14時までループを回し、各時で0分、15分、30分、45分のオプションを生成 -->
-	        <th:block th:each="hour : ${#numbers.sequence(10, 14)}">
+	        <th:block th:each="hour : ${#numbers.sequence(10, 16)}">
 						<th:block th:each="min : ${#numbers.sequence(0, 30, 30)}">
-							<option th:with="hStr=${#numbers.formatInteger(hour, 2)}, mStr=${#numbers.formatInteger(min, 2)}"
-							        th:value="${hStr + ':' + mStr}"
-							        th:text="${hStr + ':' + mStr}">
-             	</option>
+							<th:block th:if="${!(hour == 16 && min == 30)}">
+								<option th:with="hStr=${#numbers.formatInteger(hour, 2)}, mStr=${#numbers.formatInteger(min, 2)}"
+							  	      th:value="${hStr + ':' + mStr}"
+							    	    th:text="${hStr + ':' + mStr}">
+             		</option>
+							</th:block>
            	</th:block>
-					</th:block>
+    			</th:block>
  				</select>
 			</div>
 
@@ -92,7 +103,7 @@
 			  </select>
 			</div>
 
-			<p th:if="${#fields.hasErrors('courseCapacity.capacity')}" th:errors="*{courseCapacity.capacity}" class="alert alert-danger w-50 py-2 mb-2 rounded"></p>
+			<p th:if="${#fields.hasErrors('courseCapacity.capacity')}" th:errors="*{courseCapacity.capacity}" class="alert alert-danger mt-4 w-50 py-2 mb-2 rounded"></p>
 			<div class="mb-3">
 			<label for="formCapacity">定員</label>
 					<input type="number" th:field="*{courseCapacity.capacity}"
@@ -113,19 +124,16 @@
 
 <!--			</script>-->
 <script>
-// 選択された日付を記憶しておく配列（重複チェック用）
 let addedDates = []; // 追加された日付を記録する配列
 
 // リストの連番（name属性のインデックス）を上から順に綺麗に詰め直す関数
 function reIndexSchedules() {
     const listItems = document.querySelectorAll('#selectedDateList .list-group-item');
     listItems.forEach((li, index) => {
-        // 日付用hiddenのname属性を更新
         const hiddenDate = li.querySelector('.hidden-date');
         if (hiddenDate) {
             hiddenDate.name = `classRoomSchedule[${index}].date`;
         }
-        // 講座時間用hiddenのname属性を更新
         const hiddenPeriod = li.querySelector('.hidden-period');
         if (hiddenPeriod) {
             hiddenPeriod.name = `classRoomSchedule[${index}].coursePeriod`;
@@ -133,21 +141,64 @@ function reIndexSchedules() {
     });
 }
 
-// 💡 【移動】ラジオボタンが切り替わったら、選択された分(30,45,60)ですべての隠しパラメータを上書きする
-// ボタンのクリックとは無関係に、画面表示時に1回だけ登録されるように外側へ配置
+// 💡 【新規】開始時間と講座時間から、17:00を超えるかチェックしてラジオボタンの有効/無効を切り替える関数
+function validatePeriods() {
+    const startTimeVal = document.getElementById('formStartTime').value; // "15:30" など
+    if (!startTimeVal) return;
+
+    const [hour, min] = startTimeVal.split(':').map(Number);
+    const startTotalMinutes = hour * 60 + min;
+    const maxTotalMinutes = 17 * 60; // 17:00 は 1020分
+
+    const radios = document.querySelectorAll('input[name="basePeriod"]');
+    let currentCheckedValid = false;
+    let firstAvailableRadio = null;
+
+    radios.forEach(radio => {
+        const periodMin = parseInt(radio.value, 10);
+        // 終了時間（分）を計算
+        if (startTotalMinutes + periodMin > maxTotalMinutes) {
+            radio.disabled = true;
+            radio.parentElement.style.opacity = "0.5"; // 見た目を選択不可に
+        } else {
+            radio.disabled = false;
+            radio.parentElement.style.opacity = "1.0";
+            if (!firstAvailableRadio) firstAvailableRadio = radio;
+            if (radio.checked) currentCheckedValid = true;
+        }
+    });
+
+    // 💡 もし「現在選択されているラジオボタン」が無効化されてしまった場合、選択可能な一番短い時間に強制切り替え
+    if (!currentCheckedValid && firstAvailableRadio) {
+        firstAvailableRadio.checked = true;
+        // 隠しパラメータも同期させる
+        updateAllHiddenPeriods(firstAvailableRadio.value);
+    }
+}
+
+// 全ての隠しパラメータの講座時間を一括更新する共通関数
+function updateAllHiddenPeriods(value) {
+    const allHiddenPeriods = document.querySelectorAll('.hidden-period');
+    allHiddenPeriods.forEach(hiddenInput => {
+        hiddenInput.value = value;
+    });
+}
+
+// 開始時間が変更されたらチェックを走らせる
+document.getElementById('formStartTime').addEventListener('change', validatePeriods);
+
+// ラジオボタンが切り替わったら、選択された分ですべての隠しパラメータを上書きする
 document.querySelectorAll('input[name="basePeriod"]').forEach(radio => {
     radio.addEventListener('change', function() {
-        const targetValue = this.value; // 切り替えられた値（例: "30"）
-
-        // 画面上にあるすべての「hidden-period」をループして値を書き換える
-        const allHiddenPeriods = document.querySelectorAll('.hidden-period');
-        allHiddenPeriods.forEach(hiddenInput => {
-            hiddenInput.value = targetValue;
-        });
-
-        console.log(`すべての講座時間を ${targetValue} 分に変更しました。`); // 確認用
+        if (!this.disabled) {
+            updateAllHiddenPeriods(this.value);
+        }
     });
 });
+
+// 初期表示時にも一度チェックを実行して17時超えを防ぐ
+document.addEventListener('DOMContentLoaded', validatePeriods);
+
 
 document.getElementById('addDateBtn').addEventListener('click', function() {
 		const maxCount = parseInt(document.getElementById('courseCount').value, 10);
@@ -155,107 +206,102 @@ document.getElementById('addDateBtn').addEventListener('click', function() {
     const selectedDate = dateInput.value;
     const errorElement = document.getElementById('dateError');
 
-		// 1. そもそも講座回数が入力されていない場合はストップ
 	  if (isNaN(maxCount) || maxCount <= 0) {
 	       errorElement.textContent = '講座回数を入力してください。';
 	       return;
 	   }
 
-    // 2. すでに追加された件数が講座回数に達している場合は追加させない
 	  if (addedDates.length >= maxCount) {
 	      errorElement.textContent = `この講座は全 ${maxCount} 回です。これ以上日付を追加できません`;
 	      return;
 	    }
 
-    // 未入力チェック
     if (!selectedDate) {
         errorElement.textContent = '日付を選択してください';
         return;
     }
 
-    // 全件が対象になる重複チェック
     if (addedDates.includes(selectedDate)) {
         errorElement.textContent = 'この日付はすでに選択済みです';
         return;
     }
 
-    // エラーをクリアして配列に保存
     errorElement.textContent = '';
     addedDates.push(selectedDate);
 
-    const index = addedDates.length - 1; // 0から始まるインデックス
+    const index = addedDates.length - 1;
     const list = document.getElementById('selectedDateList');
 
-    // リストアイテム(li)の作成
     const li = document.createElement('li');
     li.className = 'list-group-item d-flex justify-content-between align-items-center';
-  //li.textContent = selectedDate;
 
-		// テキストとボタンを綺麗に配置するための器
 		const textSpan = document.createElement('span');
 	  textSpan.textContent = selectedDate;
 	  li.appendChild(textSpan);
 
-		// 削除ボタンの作成
 	  const deleteBtn = document.createElement('button');
 	  deleteBtn.type = 'button';
 	  deleteBtn.className = 'btn btn-danger btn-sm';
 	  deleteBtn.textContent = '削除';
 
-		// 削除ボタンが押された時の処理
 	    deleteBtn.addEventListener('click', function() {
-	    // 重複チェック用の配列から該当する日付を消去
 	        addedDates = addedDates.filter(date => date !== selectedDate);
-	    // 画面のリスト（行）を消去
 	        li.remove();
-	    // 💡 歯抜けになった連番を上から綺麗に数え直す
 	        reIndexSchedules();
-	    // エラーメッセージがあればクリア
 	        errorElement.textContent = '';
 	    });
-		// 💡 選択されているラジオボタンのvalue（30, 45, 60など）を取得する
+
 		const selectedPeriodElement = document.querySelector('input[name="basePeriod"]:checked');
-		const currentPeriod = selectedPeriodElement ? selectedPeriodElement.value : "60"; // 取れなかったら念のため60
+		const currentPeriod = selectedPeriodElement ? selectedPeriodElement.value : "60";
 
 
-    // Javaに送るためのhiddenパラメータ群（連番を綺麗に仕込む 後から探せるようにクラス名を付与）
     const hiddenDate = document.createElement('input');
     hiddenDate.type = 'hidden';
     hiddenDate.className = 'hidden-date';
     hiddenDate.name = `classRoomSchedule[${index}].date`;
     hiddenDate.value = selectedDate;
 
-    // ※もし講座時間(分)も必要なら、画面の入力値をここにセットする
     const hiddenPeriod = document.createElement('input');
     hiddenPeriod.type = 'hidden';
     hiddenPeriod.className = 'hidden-period';
     hiddenPeriod.name = `classRoomSchedule[${index}].coursePeriod`;
-    //hiddenPeriod.value = "60"; // 例として60分（画面の入力項目から取得してもOK）
 		hiddenPeriod.value = currentPeriod;
 
-    // 要素の組み立て
     li.appendChild(hiddenDate);
     li.appendChild(hiddenPeriod);
-		li.appendChild(deleteBtn); // 削除ボタンを右端に追加
+		li.appendChild(deleteBtn);
     list.appendChild(li);
 
-    // 入力欄をクリア
     dateInput.value = '';
 });
 
 
-		// フォーム送信時のチェック（足りない状態で登録されるのを防ぐ）
+		// フォーム送信時のチェック
 		document.getElementById('courseForm').addEventListener('submit', function(event) {
     	const maxCount = parseInt(document.getElementById('courseCount').value, 10);
-    //const errorElement = document.getElementById('dateError'); // またはフォーム全体のエラー領域
+			const startTimeVal = document.getElementById('formStartTime').value;
+			const selectedPeriodElement = document.querySelector('input[name="basePeriod"]:checked');
+			const periodError = document.getElementById('periodError');
+
+			// 1. 17時を超えていないか最終バリデーション
+			if (startTimeVal && selectedPeriodElement) {
+				const [hour, min] = startTimeVal.split(':').map(Number);
+				const startTotalMinutes = hour * 60 + min;
+				const periodMin = parseInt(selectedPeriodElement.value, 10);
+
+				if (startTotalMinutes + periodMin > 1020) { // 17:00超え 17:00 は 1020分
+					periodError.textContent = '終了時間が17:00を超えるため、この組み合わせでは登録できません。';
+					event.preventDefault();
+					return;
+				}
+			}
 
 	    if (addedDates.length !== maxCount) {
   	    alert(`設定された講座回数（${maxCount}回）に対して、開催日が${addedDates.length}日しか選択されていません。`);
-        event.preventDefault(); // 登録処理を中断する
+        event.preventDefault();
     }
 });
 </script>
-
 
 </body>
 </html>

@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
 import com.example.app.domain.CourseCapacity;
 import com.example.app.domain.OccupiedRoomSchedule;
+import com.example.app.domain.ScheduleUpdateRequest;
 import com.example.app.mapper.CourseMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -130,6 +132,50 @@ public class CourseServiceImpl implements CourseService{
 				}
 				return isOverlap;
 			}
+		@Override
+		@Transactional
+		public String servCheckScheduleUpdateRequest(ScheduleUpdateRequest updateRequest) {
+		// 1. 終了時間の再計算（新規登録時のロジックを流用）
+				LocalTime start = updateRequest.getStartTime();//開始時間
+				int period = updateRequest.getCoursePeriod();//講座時間（分）
+				LocalTime end = start.plusMinutes(period);//開始時間＋講座時間で終了時間を計算
+
+		// 2. 重複チェックの実行（自分自身のIDを除外してカウント）
+		    int overlapCount = courseMapper.countOverlappedSchedule(
+		    		updateRequest.getId(),// 判定から除外する自分のID
+		    		updateRequest.getClassRoomId(),// 調べたい教室
+		    		updateRequest.getDate(),// 調べたい日付
+		        start,// 新しい開始時間
+		        end// 新しい終了時間
+		    );
+
+		    // 重複がある（カウントが1以上）場合は、更新せずにfalseを返して処理を中断
+		    if (overlapCount > 0) {
+		    	System.out.println("overlapCount="+overlapCount);
+		        return "duplicate";// 重複エラーの目印を返す
+		    }
+		  /*  // 重複チェックで使っている id を活用して、DBから現在の1件を直接取得
+		    ClassRoomSchedule current = courseMapper.selectCheckSingleScheduleById(updateRequest.getId());
+
+		    if(current != null) {
+		    	boolean isClassRoomSame=current.getClassRoomId().equals(updateRequest.getClassRoomId());
+		    	boolean isDateSame=current.getDate().equals(updateRequest.getDate());
+		    	boolean isStartTimeSame =current.getStartTime().equals(updateRequest.getStartTime());
+		   // 3つの項目がすべて変更前と同じなら
+		    	if(isClassRoomSame && isDateSame && isStartTimeSame) {
+		    		System.out.println("****** 変更箇所なし");
+						return "no_change"; // 変更なしエラーの目印を返す
+		    	}
+		    } */
+
+		    // 重複がなければMapperを呼び出してUPDATEを実行
+		    // ※引数の渡し方は既存のMapperの仕様（オブジェクトに詰め直すか、個別で渡すか）に合わせて調整してください
+
+		    courseMapper.updateSingleSchedule(updateRequest.getId(), updateRequest.getClassRoomId(), updateRequest.getDate(), start, end);
+
+		    return "success"; // 成功の目印
+		}
+
 			@Override
 			@Transactional
 			// チェック終了後のデータをサーバーに登録
@@ -246,9 +292,9 @@ public class CourseServiceImpl implements CourseService{
 
 		}
 		@Override
-		public List<Course> servSellectCourseById(String id) {
+		public List<Course> servSellectCourseByCourseId(String courseId) {
 			// TODO 自動生成されたメソッド・スタブ
-			return courseMapper.selectCourseById(id);
+			return courseMapper.selectCourseByCourseId(courseId);
 		}
 		//ページ分割
 		@Override
@@ -282,9 +328,9 @@ public class CourseServiceImpl implements CourseService{
 
 			System.out.println("------1週間分の日付------"+dateList);
 			System.out.println("------1日分の時刻------"+timeList);
-			
+
 			List<ClassRoomSchedule> roomSchedules=courseMapper.selectClassRoomScheduleAll();
-			Map<String,Set<String>>scheduleMap=new LinkedHashMap<>();
+			Map<String,Set<String>>scheduleMap=new TreeMap<>();
 			//占有情報作成用の箱作成
 			for(ClassRoomSchedule rs:roomSchedules) {
 				LocalTime current=rs.getStartTime();//開始時間
@@ -295,7 +341,7 @@ public class CourseServiceImpl implements CourseService{
 						scheduleMap.computeIfAbsent(classRoom, k -> new HashSet<>())
 						.add(key);
 						current=current.plusMinutes(30);
-					
+
 					}
 				}
 		// ガワ（dateList × timeList）と使用済みデータを組み合わせたマトリクスを作成
@@ -313,7 +359,7 @@ public class CourseServiceImpl implements CourseService{
 				}
 				occupiedMap.put(cr, occupied);
 			}
-			System.out.println("------利用状況--------"+occupiedMap);
+			System.out.println("---利用状況---service側取得---"+occupiedMap);
 
 
 			return new OccupiedRoomSchedule(dateList,timeList,occupiedMap);
@@ -338,7 +384,7 @@ public class CourseServiceImpl implements CourseService{
 		private	List<LocalTime>servGenerateTimeList(){
 			List<LocalTime>timeList=new ArrayList<>();
 			LocalTime start=LocalTime.of(10, 0);
-			LocalTime end=LocalTime.of(16, 0);
+			LocalTime end=LocalTime.of(16, 30);
 
 				while (!start.isAfter(end)) {
 					timeList.add(start);

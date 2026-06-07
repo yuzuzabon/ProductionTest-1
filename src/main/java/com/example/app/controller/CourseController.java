@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
 import com.example.app.domain.OccupiedRoomSchedule;
+import com.example.app.domain.ScheduleUpdateRequest;
 import com.example.app.service.ClassRoomService;
 import com.example.app.service.CourseService;
 
@@ -33,6 +34,11 @@ public class CourseController {
 		private final ClassRoomService classRoomService;
 		private final int NUM_PER_PAGE=5;//1ページに表示される件数
 		//private final ClassRoomScheduleService classRoomScheduleService;
+
+		public String messageDuplicate="選択した教室は使用されています";
+		public String messageRegistrationComplete="講座を登録しました";
+		public String messageRegistrationChange="スケジュールを変更しました";
+
 
 		@ModelAttribute("classRoomList")
 		public List<ClassRoomService> populateClassRooms() {
@@ -62,15 +68,43 @@ public class CourseController {
 			return "courseList";
 		}
 
-		@GetMapping("/show/{id}")
-			public String contSelectCourseById(
-					@PathVariable String id,
-					Model model		) {
-					List<Course> course=courseService.servSellectCourseById(id);
+		@GetMapping("/show/{courseId}")
+			public String contSelectCourseByCourseId(
+					@PathVariable String courseId,
+					Model model	) {
+
+					List<Course> course=courseService.servSellectCourseByCourseId(courseId);
 					model.addAttribute("course",course);
-					System.out.println("******"+course);
+				//System.out.println("******"+course);
 					return "courseInfo";
 		}
+
+		@PostMapping("/updateSchedule")
+		//@ResponseBody
+		public String contCheckScheduleUpdateRequest(//(@ModelAttribute("classRoomSchedule")
+				@Validated ScheduleUpdateRequest scheduleUpdateRequest,
+				Errors errors,
+				RedirectAttributes rd,
+				Model model) {
+
+			if (errors.hasErrors()) {
+        rd.addFlashAttribute("errorMessage", "入力内容に不備があります。正しい値を入力してください");
+        return "redirect:/show/" + scheduleUpdateRequest.getCourseId();
+    }
+
+			String result = courseService.servCheckScheduleUpdateRequest(scheduleUpdateRequest);
+
+	    if ("success".equals(result)) {
+	        rd.addFlashAttribute("statusMessage", messageRegistrationChange);
+	    } else if("duplicate".equals(result)){
+	        rd.addFlashAttribute("errorMessage", messageDuplicate);
+	    } else if("no_change".equals(result)) {
+	    // 💡 変更なしの場合のメッセージを設定
+	    		rd.addFlashAttribute("errorMessage", "変更箇所がありません。");
+	    }
+
+				return "redirect:/show/" + scheduleUpdateRequest.getCourseId();
+	}
 
 		@GetMapping("/add")
 		public String showInsertCourse(Model model) {
@@ -107,10 +141,10 @@ public class CourseController {
 				String courseId = courseService.executeDbInsert(course, schedules);
 				//courseService.executeDbInsert(course, schedules);
 				//model.addAttribute("status","講座を登録しました");
-				redirectAttributes.addFlashAttribute("statusMessage", "講座を登録しました");
+				redirectAttributes.addFlashAttribute("statusMessage", messageRegistrationComplete);
 				return "redirect:/show/"+courseId;
 			}else{
-				model.addAttribute("errorMessage", "重複があります");
+				model.addAttribute("errorMessage", messageDuplicate);
 		    return "insertCourse"; // 入力画面へ
 
 			}
@@ -173,7 +207,7 @@ public class CourseController {
 
 			try {
 				courseService.servInsertCourse(course);
-				model.addAttribute("status","講座を登録しました");
+				model.addAttribute("statusMessage","講座を登録しました");
 				return "/menu";
 
 			}catch(IllegalArgumentException e) {
@@ -212,7 +246,7 @@ public class CourseController {
 		    try {
 		        // ここからServiceのロジックが走り、コンソールにDB取得結果が出力されます
 		        courseService.servInsertCourse(course);
-		        model.addAttribute("status", "講座を登録しました");
+		        model.addAttribute("statusMessage", "講座を登録しました");
 		        return "/menu";
 
 		    } catch (IllegalArgumentException e) {
@@ -221,26 +255,26 @@ public class CourseController {
 		    }
 		}
 	// ///////////////////////////////////////////////////
-		@GetMapping("/roomSchedules2")
+		@GetMapping("/roomSchedules4")
 //	@ResponseBody
 //		public Map<String,Set<String>>constScheduleMap(Model model){
 			public String contSelectClassRoomScheduleAll(
 					@RequestParam(name="baseDate",required = false)String baseDateStr,
 				//@RequestParam(name="week",required = false)Integer week,
 					Model model){//@RequestParam(required = false) で基準日を受け取れるようになる
-		
+
 			LocalDate baseDate=(baseDateStr==null||baseDateStr.isEmpty())
 					?LocalDate.now():LocalDate.parse(baseDateStr);
 
-			OccupiedRoomSchedule occupiedMap=courseService.servSelectClassRoomScheduleAll(baseDate);		
-			
-			model.addAttribute("occupiedMap",occupiedMap);
-			model.addAttribute("baseDate",baseDate);
-			//前週来週のデータを渡しておくことで返ってくるフラグのif()判定が必要なくなる
+			OccupiedRoomSchedule occupiedMap=courseService.servSelectClassRoomScheduleAll(baseDate);
+
+			model.addAttribute("occupiedMap",occupiedMap);//7日分の部屋占有データ
+			model.addAttribute("baseDate",baseDate);//基準日を含む7日分の日付データ
+			//前週来週のデータを事前に渡しておくと戻り値のif()判定が必要なくなる
 			model.addAttribute("prevDate",baseDate.minusWeeks(1).toString());
 			model.addAttribute("nextDate",baseDate.plusWeeks(1).toString());
-			
-			
+
+
 //		Map<String,Set<String>>scheduleMap=courseService.servSelectClassRoomScheduleAll();
 				/*
 				public List<ClassRoomSchedule>contSelectClassRoomScheduleAll(Model model){
@@ -257,9 +291,9 @@ public class CourseController {
 				String classRoom=rs.getClassRoom().getClassRoom();
 				scheduleMap.put(key,classRoom);
 				}*/
-				System.out.println(occupiedMap);
-			
-				return "roomSchedules2";
+				System.out.println("--利用状況--controller側取得--"+occupiedMap);
+
+				return "roomSchedules4";
 
 		}
 
