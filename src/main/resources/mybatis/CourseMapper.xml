@@ -88,6 +88,7 @@
 		<result property="coursePeriod" column="s_course_period"/>
 		<result property="registeredAt" column="s_registered_at"/>
 		<result property="updatedAt" column="s_updated_at"/>
+		
     <association property="classRoom" javaType="ClassRoom">
     	<id property="id" column="r_id"/>
 			<result property="classRoom" column="r_class_room"/>

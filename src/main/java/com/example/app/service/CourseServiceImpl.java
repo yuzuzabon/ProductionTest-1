@@ -154,7 +154,8 @@ public class CourseServiceImpl implements CourseService{
 		    	System.out.println("overlapCount="+overlapCount);
 		        return "duplicate";// 重複エラーの目印を返す
 		    }
-		  /*  // 重複チェックで使っている id を活用して、DBから現在の1件を直接取得
+		  //test環境時は変更箇所なしチェック処理部分をコメントアウト  
+		  /*  // 重複チェックで使っている id を活用して、DBから現在の1件を直接取得 
 		    ClassRoomSchedule current = courseMapper.selectCheckSingleScheduleById(updateRequest.getId());
 
 		    if(current != null) {
