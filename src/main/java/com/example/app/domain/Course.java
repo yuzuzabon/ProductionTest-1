@@ -33,7 +33,10 @@ public class Course {
 		@Min(1)
 		//private Integer numberOfDays;
 		private Integer courseTerm;
-
+		
+		private Integer tuituonFee;
+		private Integer materialFee;
+		
 		private LocalDateTime registeredAt;
 		private LocalDateTime updatedAt;
 		@Valid
