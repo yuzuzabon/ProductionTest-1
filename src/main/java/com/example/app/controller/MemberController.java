@@ -6,7 +6,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.app.domain.Course;
 import com.example.app.domain.Member;
@@ -73,5 +75,21 @@ public class MemberController {
 		
 					return "memberWithCourseInfo";
 	}
-		
+		@PostMapping("/apply")
+	//@ResponseBody
+			public String contApplication(
+					@RequestParam(name="id")Integer id,
+					@RequestParam(name="courseId")String courseId,
+					RedirectAttributes rd) {
+			boolean isSuccess=memberService.servApplyCourse(id,courseId);
+			 
+			if(isSuccess) {
+				rd.addFlashAttribute("statusMessage","お申し込みを承りました");
+					return "redirect:/number1/"+id+"?courseId="+courseId;
+			}else {
+					rd.addFlashAttribute("errorMessage","定員に達しているのでお申し込みできません");
+					return "redirect:/number1/"+id+"?courseId="+courseId;
+			}
+			
+		}
 }

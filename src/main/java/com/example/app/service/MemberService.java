@@ -12,5 +12,7 @@ public interface MemberService {
 		List<Member>servSelectMemberByWord(Integer id,String name);
 	//id
 		public Member servSelectMemberById(Integer id);
+	//講座申し込み　
+		public boolean servApplyCourse(Integer id,String courseId);
 		
 }

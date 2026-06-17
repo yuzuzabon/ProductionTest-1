@@ -1,14 +1,23 @@
 package com.example.app.domain;
 
+import java.time.LocalDateTime;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-//@AllArgsConstructor
-//@NoArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 public class CourseSales {
 //売上マスタ
-//id
-//course_id
-//target_month	
-//total_tuition_fee
+	private Integer id;
+	private String courseId;
+	private String targetMonth;
+	private Integer monthlyTuitionFee;
+	private Integer materialFee;
+	
+	private LocalDateTime registeredAt;
+	private LocalDateTime updatedAt;
+
 }

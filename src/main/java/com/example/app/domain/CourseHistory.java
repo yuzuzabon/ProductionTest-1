@@ -12,9 +12,13 @@ import lombok.NoArgsConstructor;
 public class CourseHistory {
 //受講履歴マスタ
 		private Integer id;
-		private Integer members_id;
-		private String course_id;
-		
+		private Integer memberId;
+		private String courseId;
+		private Integer paidTuituonFee;
+		private Integer paidMaterialFee;
+		private Integer refoundsTuituonFee;
+		private Integer refoundsMaterialFee;
+				
 		private LocalDateTime registeredAt;
 		private LocalDateTime updatedAt;
 }

@@ -33,7 +33,15 @@ public class CourseWithClassRoom {
 		@Min(1)
 		//private Integer numberOfDays;
 		private Integer courseTerm;
-
+		
+		@NotNull
+		@Min(0)
+		private Integer tuitionFee;
+		
+		@NotNull
+		@Min(0)
+		private Integer materialFee;
+		
 		private LocalDateTime registeredAt;
 		private LocalDateTime updatedAt;
 		@Valid

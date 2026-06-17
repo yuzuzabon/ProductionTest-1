@@ -5,11 +5,11 @@
 <select id="selectMemberAll" >
 	SELECT * FROM members
 	 
- </select> 
+</select> 
  
- <select id="selectMemberByWord">
+<select id="selectMemberByWord">
  SELECT * FROM members
- <where>
+	<where>
 <!-- もしデータがあればSQLをくっつける -->
 		<if test="name != null">
 				and name like concat('%',#{name},'%')
@@ -17,15 +17,38 @@
 		<if test="id !=null">
 				and id like concat(#{id},'%')
 		</if>
-</where>
+	</where>
  
-	</select>
-	<select id="selectMemberById">
+</select>
+
+<select id="selectMemberById">
 	SELECT * FROM members
 	where id=#{id}
 	
-	</select>
+</select>
  
+<select id="selectByCourseIdForUpdate">
+	select
+		course_id,
+		capacity,
+		number_of_applicant 
+	from 
+		course_capacity
+	where
+		course_id=#{courseId}
+	for update	
+</select> 
+
+
+
+<update id="updateApplyedCount">
+	update
+		course_capacity
+	set
+		number_of_applicant=#{na}
+	where
+		course_id=#{courseId}
+</update>
  
 
 </mapper>

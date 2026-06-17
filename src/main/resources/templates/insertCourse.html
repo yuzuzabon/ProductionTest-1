@@ -109,6 +109,22 @@
 					<input type="number" th:field="*{courseCapacity.capacity}"
 				         id="formCapacity" onkeydown="return false" class="form-control w-50"/>
 			</div>
+			
+			
+			<div class="mb-3">
+			<label for="formCapacity">受講料単価</label>
+					<input type="number" th:field="*{tuitionFee}"
+				          class="form-control w-50"/>
+			</div>
+			
+			
+			<div class="mb-3">
+			<label for="formCapacity">教材費</label>
+					<input type="number" th:field="*{materialFee}"
+				          class="form-control w-50"/>
+			</div>
+			
+			
 			<input type="submit" class="btn btn-primary" value="登録"/>
 	</form>
  			<script th:src="@{/js/bootstrap.bundle.min.js}"></script>

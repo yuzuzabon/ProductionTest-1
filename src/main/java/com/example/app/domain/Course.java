@@ -34,7 +34,12 @@ public class Course {
 		//private Integer numberOfDays;
 		private Integer courseTerm;
 		
-		private Integer tuituonFee;
+		@NotNull
+		@Min(0)
+		private Integer tuitionFee;
+		
+		@NotNull
+		@Min(0)
 		private Integer materialFee;
 		
 		private LocalDateTime registeredAt;

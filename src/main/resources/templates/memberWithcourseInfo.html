@@ -40,6 +40,8 @@
 		    <span th:text="${errorMessage}"></span>
 		</div>
 		
+		<h4 class="mb-3">受講生</h4>
+		
 		<table class="table table-bordered table-striped mb-4">
 			<thead class="table-dark">
 				<tr>
@@ -59,6 +61,7 @@
 			</tbody>
 		</table>
 		
+		<h4 class="mb-3">講座</h4>
 		
 		<table class="table table-bordered mb-4" th:each="c : ${course}">
 			<tr>
@@ -78,16 +81,32 @@
 				<td th:text="${c.courseTerm}"></td>
 			</tr>
 			<tr>
+				<th>受講料等(消費税等込み)</th>
+				<td>
+					<span th:text="${#numbers.formatInteger(c.courseTerm * c.tuitionFee + c.materialFee,3,'COMMA')}"></span>円 
+					（受講料：<span th:text="${#numbers.formatInteger(c.tuitionFee,3,'COMMA')}"></span>円 ×
+					<span th:text="${c.courseTerm}"></span>回 /
+					教材費：<span th:text="${#numbers.formatInteger(c.materialFee,3,'COMMA')}"></span>円 ）
+				</td>
+			</tr>
+			<tr>
 				<th>定員情報</th>
 				<td>
 					定員: <span th:text="${c.courseCapacity.capacity}"></span> /
 					申込数: <span th:text="${c.courseCapacity.numberOfApplicant}"></span> /
 					空き: <span th:text="${c.courseCapacity.capacity - c.courseCapacity.numberOfApplicant}"></span>
+					<form th:action="@{/apply}" method="post">
+						<input type="hidden" name="id" th:value="${member.id}"/>
+						<input type="hidden" name="courseId" th:value="${c.courseId}"/>
+						<button type="submit" class="btn btn-secondary">受講申し込み</button>
+					</form>
+					
+					<!-- <a th:href="@{/apply/{id}(id=${member.id},courseId=${c.courseId})}" class="btn btn-secondary">受講</a> -->
 				</td>
 			</tr>
 		</table>
 
-		<h4 class="mb-3">講座詳細</h4>
+		<h4 class="mb-3">詳細</h4>
 
 		<div th:each="c : ${course}">
 			<div class="row">

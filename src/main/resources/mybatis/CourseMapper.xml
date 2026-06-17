@@ -10,6 +10,8 @@
 		<result property="detail" column="c_detail"/>
 		<result property="classRoomId" column="c_class_room_id"/>
 		<result property="courseTerm" column="c_course_term"/>
+		<result property="tuitionFee" column="c_tuition_fee"/>
+		<result property="materialFee" column="c_material_fee"/>
 		<result property="registeredAt" column="c_registered_at"/>
 		<result property="updatedAt" column="c_updated_at"/>
 
@@ -47,6 +49,8 @@
 		<result property="detail" column="c_detail"/>
 		<result property="classRoomId" column="c_class_room_id"/>
 		<result property="courseTerm" column="c_course_term"/>
+		<result property="tuitionFee" column="c_tuition_fee"/>
+		<result property="materialFee" column="c_material_fee"/>
 		<result property="registeredAt" column="c_registered_at"/>
 		<result property="updatedAt" column="c_updated_at"/>
 
@@ -104,6 +108,8 @@
         course.detail AS c_detail,
         course.class_room_id AS c_class_room_id,
         course.course_term AS c_course_term,
+        course.tuition_fee AS c_tuition_fee,
+        course.material_fee AS c_material_fee,
         course.registered_at AS c_registered_at,
         course.updated_at AS c_updated_at,
 
@@ -278,9 +284,9 @@ order by class_room_id,date,start_time
     </selectKey>
 
  insert into course
- 	(title,detail,class_room_id,course_term)
+ 	(title,detail,class_room_id,course_term,tuition_fee,material_fee)
  	values
- 	(#{title},#{detail},#{classRoomId},#{courseTerm})
+ 	(#{title},#{detail},#{classRoomId},#{courseTerm},#{tuitionFee},#{materialFee})
  </insert>
 
  <insert id="insertCourseCapacity" >
