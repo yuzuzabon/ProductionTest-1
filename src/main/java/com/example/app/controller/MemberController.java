@@ -82,13 +82,13 @@ public class MemberController {
 					@RequestParam(name="courseId")String courseId,
 					RedirectAttributes rd) {
 			boolean isSuccess=memberService.servApplyCourse(id,courseId);
-			 
+			
 			if(isSuccess) {
 				rd.addFlashAttribute("statusMessage","お申し込みを承りました");
-					return "redirect:/number1/"+id+"?courseId="+courseId;
+					return "redirect:/member1/"+id+"?courseId="+courseId;
 			}else {
 					rd.addFlashAttribute("errorMessage","定員に達しているのでお申し込みできません");
-					return "redirect:/number1/"+id+"?courseId="+courseId;
+					return "redirect:/member1/"+id+"?courseId="+courseId;
 			}
 			
 		}

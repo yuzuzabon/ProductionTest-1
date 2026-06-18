@@ -39,16 +39,65 @@
 	for update	
 </select> 
 
+<select id="selectMonthlyCount">
+	select 
+		course_id,
+		date_format(date,'%Y%m') AS salesMonth,
+		count(*) AS count
+	from
+		class_room_schedule
+	where
+		course_id=#{courseId}	
+	group by
+		date_format(date,'%Y%m')
+	ORDER BY 
+		salesMonth ASC
+</select>
 
+<select id="selectCourseFee">
+	select 
+		course_id,
+		course_term,
+		tuition_fee,
+		material_fee
+	from
+		course
+	where
+		course_id=#{courseId}	
+
+</select>
 
 <update id="updateApplyedCount">
 	update
 		course_capacity
 	set
-		number_of_applicant=#{na}
+		number_of_applicant=#{numberOfApplicant},
+		updated_at=now()
 	where
 		course_id=#{courseId}
 </update>
+ 
+<insert id="upsertCourseSales">
+	insert into 
+		course_sales(
+			course_id,
+			target_month,
+			monthly_tuition_fee,
+			material_fee)
+		values(
+			#{courseId},
+			#{targetMonth},
+			#{monthlyTuitionFee},
+			#{materialFee})
+	on duplicate key update
+			monthly_tuition_fee=
+			monthly_tuition_fee + #{monthlyTuitionFee},	
+			material_fee=
+			material_fee + #{materialFee},
+			updated_at=now()			
+	
+</insert> 
+ 
  
 
 </mapper>

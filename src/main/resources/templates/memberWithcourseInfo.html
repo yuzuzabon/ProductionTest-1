@@ -4,7 +4,7 @@
 	<meta charset="UTF-8" />
 	<link th:href="@{/css/style.css}" rel="stylesheet" />
 	<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
-	<title>講座詳細・変更</title>
+	<title>受講申し込み</title>
 	<style>
 		/* スケジュールごとの外枠スタイル */
 		.schedule-container {
@@ -26,10 +26,10 @@
 	<div class="container mt-4">
 		<div class="mb-3">
 			<a th:href="@{/menu}" class="btn btn-secondary">メニュー</a>
-			<a th:href="@{/show}" class="btn btn-secondary">一覧</a>
+			<a th:href="@{/show}" class="btn btn-secondary">講座一覧</a>
 			<a th:href="@{/add}" class="btn btn-primary">講座登録</a>
-			<a th:href="@{/roomSchedules}" class="btn btn-secondary">空き教室確認</a>
-			<a th:href="@{/member/{id}(id=${member.id})}" class="btn btn-secondary">講座一覧</a>
+			<a th:href="@{/roomSchedules4}" class="btn btn-secondary">空き教室確認</a>
+			<a th:href="@{/member/{id}(id=${member.id})}" class="btn btn-secondary">講座選択にもどる</a>
 		</div>
 
 		<div th:if="${statusMessage}" class="alert alert-success mt-4">
