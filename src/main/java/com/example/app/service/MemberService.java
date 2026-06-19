@@ -3,6 +3,7 @@ package com.example.app.service;
 import java.util.List;
 
 import com.example.app.domain.Course;
+import com.example.app.domain.CourseHistory;
 import com.example.app.domain.Member;
 import com.example.app.domain.MonthlyCount;
 
@@ -20,4 +21,6 @@ public interface MemberService {
 		public List<MonthlyCount> selectMonthlyCount(String courseId);
 		public Course selectCourseFee(String courseId);
 	//	
+		public List<CourseHistory>servSellectCourseHistoryById(Integer id);
+		
 }

@@ -58,6 +58,13 @@
 					<td>[[${member.age}]]</td>
 					<td>[[${member.address}]]</td>
 				</tr>
+					<th>申し込み履歴</th>
+						<td colspan="3">
+						<span class="badge bg-primary me-1"
+						 th:each="h : ${history}"									
+						 th:text="${h.courseId}"></span>	
+			<!--	<span th:text="${h.memberStatus}"></span> -->
+						</td>
 			</tbody>
 		</table>
 		
@@ -84,9 +91,9 @@
 				<th>受講料等(消費税等込み)</th>
 				<td>
 					<span th:text="${#numbers.formatInteger(c.courseTerm * c.tuitionFee + c.materialFee,3,'COMMA')}"></span>円 
-					（受講料：<span th:text="${#numbers.formatInteger(c.tuitionFee,3,'COMMA')}"></span>円 ×
+					（受講料：<span th:text="${#numbers.formatInteger(c.tuitionFee,1,'COMMA')}"></span>円 ×
 					<span th:text="${c.courseTerm}"></span>回 /
-					教材費：<span th:text="${#numbers.formatInteger(c.materialFee,3,'COMMA')}"></span>円 ）
+					教材費：<span th:text="${#numbers.formatInteger(c.materialFee,1,'COMMA')}"></span>円 ）
 				</td>
 			</tr>
 			<tr>
@@ -95,15 +102,21 @@
 					定員: <span th:text="${c.courseCapacity.capacity}"></span> /
 					申込数: <span th:text="${c.courseCapacity.numberOfApplicant}"></span> /
 					空き: <span th:text="${c.courseCapacity.capacity - c.courseCapacity.numberOfApplicant}"></span>
-					<form th:action="@{/apply}" method="post">
+					<form th:action="@{/apply}" method="post"  th:unless="${isApplied}">
 						<input type="hidden" name="id" th:value="${member.id}"/>
 						<input type="hidden" name="courseId" th:value="${c.courseId}"/>
-						<button type="submit" class="btn btn-secondary">受講申し込み</button>
+						<button type="submit" class="btn btn-secondary"
+						th:disabled="${c.courseCapacity.capacity <= c.courseCapacity.numberOfApplicant}"
+						>受講申し込み</button>
+					<span th:if="${c.courseCapacity.capacity <= c.courseCapacity.numberOfApplicant}"
+						class="text-danger">
+						空きがありません
+					</span>		
 					</form>
-					
 					<!-- <a th:href="@{/apply/{id}(id=${member.id},courseId=${c.courseId})}" class="btn btn-secondary">受講</a> -->
 				</td>
 			</tr>
+
 		</table>
 
 		<h4 class="mb-3">詳細</h4>

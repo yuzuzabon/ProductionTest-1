@@ -38,6 +38,13 @@
 				<td>[[${member.age}]]</td>
 				<td>[[${member.address}]]</td>
 			</tr>
+				<th>申し込み履歴</th>
+					<td colspan="3">
+					<span class="badge bg-primary me-1"
+					 th:each="h : ${history}"									
+					 th:text="${h.courseId}"></span>	
+				<!--<span th:text="${h.memberStatus}"></span> -->
+					</td>
 		</tbody>
 	</table>
 	

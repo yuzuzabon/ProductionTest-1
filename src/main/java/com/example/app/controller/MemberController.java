@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.app.domain.Course;
+import com.example.app.domain.CourseHistory;
 import com.example.app.domain.Member;
 import com.example.app.service.CourseService;
 import com.example.app.service.MemberService;
@@ -25,6 +26,17 @@ public class MemberController {
 		private final MemberService memberService;
 		private final CourseService courseService;
 		private final int NUM_PER_PAGE=5;
+		
+		private List<CourseHistory> setMemberInfo(Integer id,Model model) {
+			Member member= memberService.servSelectMemberById(id);
+			model.addAttribute("member",member);
+			
+			List<CourseHistory>history=
+					memberService.servSellectCourseHistoryById(id);
+			model.addAttribute("history",history);
+			
+				return history;
+		}
 
 		@GetMapping("/members")
 			public String contSelectMemberAll(Model model) {
@@ -45,12 +57,17 @@ public class MemberController {
 			public String contSelectMemberById(
 					@PathVariable Integer id,
 					@RequestParam(name="page",defaultValue = "1")Integer page,
-				
 					Model model) {
 			
-					Member member= memberService.servSelectMemberById(id);
-					model.addAttribute("member",member);
-												
+					setMemberInfo(id,model);
+					// 以下をメソッド化
+//					Member member= memberService.servSelectMemberById(id);
+//					model.addAttribute("member",member);
+//					
+//					List<CourseHistory>history=
+//							memberService.servSellectCourseHistoryById(id);
+//					model.addAttribute("history",history);
+					
 					model.addAttribute("courses",
 							courseService.servSelectCourseByPage(page, NUM_PER_PAGE));
 					model.addAttribute("page",page);
@@ -66,12 +83,18 @@ public class MemberController {
 				@PathVariable Integer id,
 				@RequestParam(name="courseId")String courseId,
 				Model model	) {
+				
+				setMemberInfo(id,model);
 			
-				Member member= memberService.servSelectMemberById(id);
-				model.addAttribute("member",member);
-
 				List<Course> course=courseService.servSellectCourseByCourseId(courseId);
 				model.addAttribute("course",course);
+				
+				List<CourseHistory>history=setMemberInfo(id,model);
+				
+				boolean isApplied=history.stream()
+						.map(CourseHistory::getCourseId)
+						.anyMatch(courseIdStr -> courseIdStr.equals(courseId));
+				model.addAttribute("isApplied",isApplied);
 		
 					return "memberWithCourseInfo";
 	}
@@ -85,10 +108,13 @@ public class MemberController {
 			
 			if(isSuccess) {
 				rd.addFlashAttribute("statusMessage","お申し込みを承りました");
-					return "redirect:/member1/"+id+"?courseId="+courseId;
+				rd.addAttribute("courseId",courseId);
+					return "redirect:/member1/"+id;
 			}else {
-					rd.addFlashAttribute("errorMessage","定員に達しているのでお申し込みできません");
-					return "redirect:/member1/"+id+"?courseId="+courseId;
+				rd.addFlashAttribute("errorMessage","同じ講座にお申し込み済みです");
+				rd.addAttribute("courseId",courseId);
+				//return "redirect:/member1/"+id+"?courseId="+courseId;
+					return "redirect:/member1/"+id;
 			}
 			
 		}

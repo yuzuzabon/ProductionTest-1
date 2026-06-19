@@ -13,6 +13,7 @@ public class CourseHistory {
 //受講履歴マスタ
 		private Integer id;
 		private Integer memberId;
+		private Integer memberStatus;
 		private String courseId;
 		private Integer paidTuituonFee;
 		private Integer paidMaterialFee;
