@@ -1,58 +1,88 @@
 <!doctype html>
+
 <html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
 <head>
 	<meta charset="UTF-8" />
-	<link th:href="@{/css/style.css}" rel="stylesheet" />
-	<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
-	<title>Document</title>
+
+<link th:href="@{/css/style.css}" rel="stylesheet" />
+<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+<title>空き教室確認</title>
 </head>
 <body>
-	<div class="container mt-4">
-		<div class="mb-3">
-					<a th:href="@{/menu}" class="btn btn-secondary">メニュー</a>
-					<a th:href="@{/show}" class="btn btn-secondary">一覧</a>
-					<a th:href="@{/add}" class="btn btn-secondary">講座登録</a>
-		</div>
+<div class="container">
+<h1 class="mt-4 mb-4">空き教室確認</h1>
+<div class="mb-3">
+	<a th:href="@{/menu}" class="btn btn-secondary">メニュー</a>
+	<a th:href="@{/show}" class="btn btn-secondary">講座一覧</a>
+	<a th:href="@{/add}" class="btn btn-primary">講座登録</a>
+</div>
 
-		<div th:each="roomEntry : ${occupiedMap.occupiedMap}" class="mb-5">
+<div class="mb-4">
+	<a th:href="@{roomSchedules(baseDate=${prevDate})}"
+	   class="btn btn-secondary">
+		前週
+	</a>
 
-			<h3 th:text="${roomEntry.key}" class="text-primary mb-3">教室名</h3 >
+	<a th:href="@{roomSchedules}"
+	   class="btn btn-secondary">
+		今週
+	</a>
 
-			<table class="table table-bordered text-center align-middle">
-				<thead class="table-light">
-					<tr>
-						<th>時間 / 日付</th>
-						<th th:each="date : ${occupiedMap.dateList}" th:text="${date}" style="width: 12%;">日付</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr th:each="time : ${occupiedMap.timeList}">
-						<td th:text="${time}" class="fw-bold table-light">10:00</td>
+	<a th:href="@{roomSchedules(baseDate=${nextDate})}"
+	   class="btn btn-secondary">
+		翌週
+	</a>
+</div>
 
-						<td th:each="date : ${occupiedMap.dateList}">
+<div class="mb-4">
+	<label for="datePicker" class="form-label">
+		表示開始日
+	</label>
 
-							<th:block th:with="mapKey=${date.toString() + '_' + time.toString()}">
+	<input type="date"
+		   id="datePicker"
+		   class="form-control"
+		   th:value="${baseDate}"
+		   onchange="location.href='/roomSchedules?baseDate='+this.value">
+</div>
 
-<!--						<span th:if="${roomEntry.value.get(mapKey)}" class="badge bg-danger">登録済み</span>-->
-								<span th:if="${roomEntry.value.get(mapKey)}" >登録済み</span>
-								<span th:if="${!roomEntry.value.get(mapKey)}" class="text-muted">　</span>
+<div th:each="roomEntry : ${occupiedMap.occupiedMap}" class="mb-5">
 
-							</th:block>
+	<h3 class="text-primary mb-3"
+		th:text="${roomEntry.key}">
+		教室名
+	</h3>
 
-						</td>
-					</tr>
-				</tbody>
-			</table>
-			<div class="mb-3">
-				<a th:href="@{roomSchedules(baseDate=${prevDate})}">前週</a>
-				<a th:href="@{roomSchedules}">今週</a>
-				<a th:href="@{roomSchedules(baseDate=${nextDate})}">翌週</a>
-			</div>
-			<label for="datePicker">日付を指定：</label>
-			<input type="date" id="datePicker" value="${baseDate}" onchange="location.href='/roomSchedules?baseDate='+this.value"/>
+	<table class="table table-striped table-bordered table-hover text-center align-middle">
 
-		</div>
+		<thead class="table-dark">
+			<tr>
+				<th>時間 / 日付</th>
 
-	</div>
+				<th th:each="date : ${occupiedMap.dateList}"
+					th:text="${date}">
+					日付
+				</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="time : ${occupiedMap.timeList}">
+				<td class="fw-bold"
+					th:text="${time}">
+					10:00
+				</td>
+				<td th:each="date : ${occupiedMap.dateList}"
+					th:with="mapKey=${date.toString() + '_' + time.toString()}"
+					th:classappend="${roomEntry.value.get(mapKey)} ? ' bg-danger' : ''">
+					<span th:if="${roomEntry.value.get(mapKey)}">
+					</span>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+</div>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

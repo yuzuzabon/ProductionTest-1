@@ -255,7 +255,7 @@ public class CourseController {
 		    }
 		}
 	// ///////////////////////////////////////////////////
-		@GetMapping("/roomSchedules4")
+		@GetMapping("/roomSchedules")
 //	@ResponseBody
 //		public Map<String,Set<String>>constScheduleMap(Model model){
 			public String contSelectClassRoomScheduleAll(
@@ -293,7 +293,7 @@ public class CourseController {
 				}*/
 				System.out.println("--利用状況--controller側取得--"+occupiedMap);
 
-				return "roomSchedules4";
+				return "roomSchedules";
 
 		}
 

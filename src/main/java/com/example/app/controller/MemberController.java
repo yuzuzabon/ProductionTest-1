@@ -26,15 +26,15 @@ public class MemberController {
 		private final MemberService memberService;
 		private final CourseService courseService;
 		private final int NUM_PER_PAGE=5;
-		
+
 		private List<CourseHistory> setMemberInfo(Integer id,Model model) {
 			Member member= memberService.servSelectMemberById(id);
 			model.addAttribute("member",member);
-			
+
 			List<CourseHistory>history=
 					memberService.servSellectCourseHistoryById(id);
 			model.addAttribute("history",history);
-			
+
 				return history;
 		}
 
@@ -51,51 +51,51 @@ public class MemberController {
 				model.addAttribute("members",memberService.servSelectMemberByWord(id, name));
 				return "members";
 		}
-		
+
 		@GetMapping("/member/{id}")
 		//@ResponseBody
 			public String contSelectMemberById(
 					@PathVariable Integer id,
 					@RequestParam(name="page",defaultValue = "1")Integer page,
 					Model model) {
-			
+
 					setMemberInfo(id,model);
 					// 以下をメソッド化
 //					Member member= memberService.servSelectMemberById(id);
 //					model.addAttribute("member",member);
-//					
+//
 //					List<CourseHistory>history=
 //							memberService.servSellectCourseHistoryById(id);
 //					model.addAttribute("history",history);
-					
+
 					model.addAttribute("courses",
 							courseService.servSelectCourseByPage(page, NUM_PER_PAGE));
 					model.addAttribute("page",page);
 					model.addAttribute("totalPages",
 							courseService.servSelectTotalPages(NUM_PER_PAGE));
-				
+
 					return "memberWithCourseList";
-					
+
 		}
-		@GetMapping("/member1/{id}")
-	
+		@GetMapping("/memberjoin/{id}")
+
 			public String contSelectMemberByIdWithCourseId(
 				@PathVariable Integer id,
 				@RequestParam(name="courseId")String courseId,
 				Model model	) {
-				
+
 				setMemberInfo(id,model);
-			
+
 				List<Course> course=courseService.servSellectCourseByCourseId(courseId);
 				model.addAttribute("course",course);
-				
+
 				List<CourseHistory>history=setMemberInfo(id,model);
-				
+
 				boolean isApplied=history.stream()
 						.map(CourseHistory::getCourseId)
 						.anyMatch(courseIdStr -> courseIdStr.equals(courseId));
 				model.addAttribute("isApplied",isApplied);
-		
+
 					return "memberWithCourseInfo";
 	}
 		@PostMapping("/apply")
@@ -105,7 +105,7 @@ public class MemberController {
 					@RequestParam(name="courseId")String courseId,
 					RedirectAttributes rd) {
 			boolean isSuccess=memberService.servApplyCourse(id,courseId);
-			
+
 			if(isSuccess) {
 				rd.addFlashAttribute("statusMessage","お申し込みを承りました");
 				rd.addAttribute("courseId",courseId);
@@ -116,6 +116,6 @@ public class MemberController {
 				//return "redirect:/member1/"+id+"?courseId="+courseId;
 					return "redirect:/member1/"+id;
 			}
-			
+
 		}
 }
