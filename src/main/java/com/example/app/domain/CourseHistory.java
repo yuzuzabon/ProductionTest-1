@@ -15,10 +15,10 @@ public class CourseHistory {
 		private Integer memberId;
 		private Integer memberStatus;
 		private String courseId;
-		private Integer paidTuituonFee;
+		private Integer paidTuitionFee;
 		private Integer paidMaterialFee;
-		private Integer refoundsTuituonFee;
-		private Integer refoundsMaterialFee;
+		private Integer refundsTuitionFee;
+		private Integer refundsMaterialFee;
 				
 		private LocalDateTime registeredAt;
 		private LocalDateTime updatedAt;

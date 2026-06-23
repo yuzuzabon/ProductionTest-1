@@ -16,6 +16,8 @@ public class CourseSales {
 	private String targetMonth;
 	private Integer monthlyTuitionFee;
 	private Integer materialFee;
+	private Integer refundsMonthlyTuitionFee;
+	private Integer refundsMaterialFee;
 	
 	private LocalDateTime registeredAt;
 	private LocalDateTime updatedAt;

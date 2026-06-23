@@ -80,7 +80,7 @@ public class MemberServiceImpl  implements MemberService{
 					history.setCourseId(courseId);
 					history.setMemberId(id);
 					history.setMemberStatus(1);
-					history.setPaidTuituonFee(term*tuition);
+					history.setPaidTuitionFee(term*tuition);
 					history.setPaidMaterialFee(material);
 // /////////// test環境では重複チェックをコメントアウト //////////
 /*					int overlapCount =

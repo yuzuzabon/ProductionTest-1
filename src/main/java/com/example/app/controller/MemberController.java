@@ -109,12 +109,12 @@ public class MemberController {
 			if(isSuccess) {
 				rd.addFlashAttribute("statusMessage","お申し込みを承りました");
 				rd.addAttribute("courseId",courseId);
-					return "redirect:/member1/"+id;
+					return "redirect:/memberjoin/"+id;
 			}else {
 				rd.addFlashAttribute("errorMessage","同じ講座にお申し込み済みです");
 				rd.addAttribute("courseId",courseId);
 				//return "redirect:/member1/"+id+"?courseId="+courseId;
-					return "redirect:/member1/"+id;
+					return "redirect:/memberjoin/"+id;
 			}
 
 		}

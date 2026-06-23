@@ -110,7 +110,7 @@
 				         id="formCapacity" onkeydown="return false" class="form-control w-50"/>
 			</div>
 			
-			
+			<p th:if="${#fields.hasErrors('tuitionFee')}" th:errors="*{tuitionFee}" class="alert alert-danger mt-4 w-50 py-2 mb-2 rounded"></p>
 			<div class="mb-3">
 			<label for="formCapacity">受講料単価</label>
 					<input type="number" th:field="*{tuitionFee}"
@@ -118,6 +118,7 @@
 			</div>
 			
 			
+			<p th:if="${#fields.hasErrors('materialFee')}" th:errors="*{materialFee}" class="alert alert-danger mt-4 w-50 py-2 mb-2 rounded"></p>
 			<div class="mb-3">
 			<label for="formCapacity">教材費</label>
 					<input type="number" th:field="*{materialFee}"

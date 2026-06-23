@@ -46,8 +46,13 @@ public class CourseController {
 
 		}
 
+		@GetMapping()
+			public String preview() {
+			return "menu";
+		}
+		
 		@GetMapping("/menu")
-		public String showMenu() {
+			public String showMenu() {
 			return "menu";
 		}
 

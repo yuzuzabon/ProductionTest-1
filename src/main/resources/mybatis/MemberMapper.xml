@@ -126,13 +126,13 @@
 			member_id,
 			member_status,
 			course_id,
-			paid_tuituon_fee,
+			paid_tuition_fee,
 			paid_material_fee)
 		values(
 			#{memberId},
 			#{memberStatus},
 			#{courseId},
-			#{paidTuituonFee},
+			#{paidTuitionFee},
 			#{paidMaterialFee})
  
  </insert>
