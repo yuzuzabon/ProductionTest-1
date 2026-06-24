@@ -50,7 +50,7 @@ public class CourseController {
 			public String preview() {
 			return "menu";
 		}
-		
+
 		@GetMapping("/menu")
 			public String showMenu() {
 			return "menu";
@@ -132,7 +132,7 @@ public class CourseController {
 				@Validated Course course,
 								Errors errors,
 								Model model,
-								RedirectAttributes redirectAttributes) {
+								RedirectAttributes rd) {
 			if(errors.hasErrors()) {
 				//model.addAttribute("room", classRoomService.servSelectRoomAll());
 					return "insertCourse";
@@ -146,7 +146,7 @@ public class CourseController {
 				String courseId = courseService.executeDbInsert(course, schedules);
 				//courseService.executeDbInsert(course, schedules);
 				//model.addAttribute("status","講座を登録しました");
-				redirectAttributes.addFlashAttribute("statusMessage", messageRegistrationComplete);
+				rd.addFlashAttribute("statusMessage", messageRegistrationComplete);
 				return "redirect:/show/"+courseId;
 			}else{
 				model.addAttribute("errorMessage", messageDuplicate);
