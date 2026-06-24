@@ -3,7 +3,7 @@
 <!--  -->
 <mapper namespace="com.example.app.mapper.ClassRoomMapper">
 
-<select id="SelectRoomAll" resultType="ClassRoom">
+<select id="selectRoomAll" resultType="ClassRoom">
 			select * FROM class_room
 			
 </select>

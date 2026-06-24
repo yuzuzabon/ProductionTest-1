@@ -10,6 +10,6 @@ import com.example.app.service.ClassRoomService;
 public interface ClassRoomMapper {
 
 	//全件
-	List<ClassRoomService> SelectRoomAll();
+	List<ClassRoomService> selectRoomAll();
 	
 }

@@ -30,14 +30,14 @@ public interface CourseMapper {
 				@Param("date") LocalDate date,
 				@Param("startTime")LocalTime startTime,
 				@Param("endTime") LocalTime endTime);
-	//変更　事前チェック
+	//変更 事前チェック
 		int countOverlappedSchedule(
 		    @Param("id") Integer id,
 		    @Param("classRoomId") Integer classRoomId,
 		    @Param("date") LocalDate date,
 		    @Param("startTime") LocalTime startTime,
 		    @Param("endTime") LocalTime endTime);
-	//変更　変更なし上書き回避チェック
+	//変更 変更なし上書き回避チェック
 		ClassRoomSchedule selectCheckSingleScheduleById(
 				@Param("id") Integer id);
 

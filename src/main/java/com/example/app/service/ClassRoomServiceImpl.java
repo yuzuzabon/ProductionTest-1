@@ -18,7 +18,7 @@ public class ClassRoomServiceImpl implements ClassRoomService{
 		@Override
 		public List<ClassRoomService> servSelectRoomAll() {
 			// TODO 自動生成されたメソッド・スタブ
-			return classRoomMapper.SelectRoomAll();
+			return classRoomMapper.selectRoomAll();
 		}
 
 }
