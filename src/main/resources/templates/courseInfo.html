@@ -26,7 +26,7 @@
 	<div class="container mt-4">
 		<div class="mb-3">
 			<a th:href="@{/menu}" class="btn btn-secondary">メニュー</a>
-			<a th:href="@{/show}" class="btn btn-secondary">一覧</a>
+			<a th:href="@{/show(page=${page})}" class="btn btn-secondary">一覧</a>
 			<a th:href="@{/add}" class="btn btn-primary">講座登録</a>
 			<a th:href="@{/roomSchedules}" class="btn btn-secondary">空き教室確認</a>
 		</div>
@@ -152,6 +152,8 @@
 							<div class="text-start mb-2">
 								<small class="period-error-msg" style="color: red; display: block; font-weight: bold;"></small>
 							</div>
+
+								<input type="hidden" name="page" th:value="${page}">
 
 							<div class="text-end mt-2">
 								<button type="submit" class="btn btn-primary btn-sm submit-btn">この回を保存</button>

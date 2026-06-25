@@ -76,10 +76,12 @@ public class CourseController {
 		@GetMapping("/show/{courseId}")
 			public String contSelectCourseByCourseId(
 					@PathVariable String courseId,
+					@RequestParam(defaultValue = "1") Integer page,
 					Model model	) {
 
 					List<Course> course=courseService.servSellectCourseByCourseId(courseId);
 					model.addAttribute("course",course);
+					model.addAttribute("page", page);
 				//System.out.println("******"+course);
 					return "courseInfo";
 		}
@@ -90,7 +92,9 @@ public class CourseController {
 				@Validated ScheduleUpdateRequest scheduleUpdateRequest,
 				Errors errors,
 				RedirectAttributes rd,
+				@RequestParam Integer page,
 				Model model) {
+				rd.addAttribute("page", page);
 
 			if (errors.hasErrors()) {
         rd.addFlashAttribute("errorMessage", "入力内容に不備があります。正しい値を入力してください");
