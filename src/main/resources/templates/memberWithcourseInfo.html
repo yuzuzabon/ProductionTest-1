@@ -88,7 +88,7 @@
 			<tr>
 				<th>受講料等(消費税等込み)</th>
 				<td>
-					<span th:text="${#numbers.formatInteger(c.courseTerm * c.tuitionFee + c.materialFee,3,'COMMA')}"></span>円
+					<span th:text="${#numbers.formatInteger(c.courseTerm * c.tuitionFee + c.materialFee,1,'COMMA')}"></span>円
 					（受講料：<span th:text="${#numbers.formatInteger(c.tuitionFee,1,'COMMA')}"></span>円 ×
 					<span th:text="${c.courseTerm}"></span>回 /
 					教材費：<span th:text="${#numbers.formatInteger(c.materialFee,1,'COMMA')}"></span>円 ）
