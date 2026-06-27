@@ -78,7 +78,7 @@
 				<td class="text-center">[[${c.courseCapacity.capacity}]]</td>
 				<td class="text-center">[[${c.courseCapacity.numberOfApplicant}]]</td>
 				<td class="text-center"	th:text="${c.courseCapacity.capacity - c.courseCapacity.numberOfApplicant}"></td>
-				<td> <a th:href="@{/memberjoin/{id}(id=${member.id},courseId=${c.courseId})}" class="btn btn-secondary">詳細</a></td>
+				<td> <a th:href="@{/memberjoin/{id}(id=${member.id},courseId=${c.courseId},,page=${page})}" class="btn btn-secondary">詳細</a></td>
 			</tr>
 		</tbody>
 	</table>

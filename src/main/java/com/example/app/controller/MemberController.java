@@ -82,6 +82,7 @@ public class MemberController {
 			public String contSelectMemberByIdWithCourseId(
 				@PathVariable Integer id,
 				@RequestParam(name="courseId")String courseId,
+				@RequestParam(defaultValue = "1") Integer page,
 				Model model	) {
 
 				setMemberInfo(id,model);
@@ -95,6 +96,7 @@ public class MemberController {
 						.map(CourseHistory::getCourseId)
 						.anyMatch(courseIdStr -> courseIdStr.equals(courseId));
 				model.addAttribute("isApplied",isApplied);
+				model.addAttribute("page", page);
 
 					return "memberWithCourseInfo";
 	}
@@ -103,7 +105,10 @@ public class MemberController {
 			public String contApplication(
 					@RequestParam(name="id")Integer id,
 					@RequestParam(name="courseId")String courseId,
+					@RequestParam(defaultValue = "1") Integer page,
+					//@RequestParam Integer page,
 					RedirectAttributes rd) {
+				rd.addAttribute("page", page);
 			boolean isSuccess=memberService.servApplyCourse(id,courseId);
 
 			if(isSuccess) {
