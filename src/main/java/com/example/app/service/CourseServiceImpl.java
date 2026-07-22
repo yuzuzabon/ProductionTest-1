@@ -31,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class CourseServiceImpl implements CourseService{
 
 		private final CourseMapper courseMapper;
+		private final MemberService memberService;
 
 		@Override
 		public List<Course> servSelectCourseAll(){
@@ -174,6 +175,15 @@ public class CourseServiceImpl implements CourseService{
 
 		    courseMapper.updateSingleSchedule(updateRequest.getId(), updateRequest.getClassRoomId(), updateRequest.getDate(), start, end);
 
+		   // System.out.println("updateRequest---"+updateRequest);
+		   String courseId=updateRequest.getCourseId();
+		   memberService.servScheduleChangeCourse(courseId);
+		    //受講料の再振り分け処理	
+		    //course_sales;の更新前データのフラグ変更
+		    //UpdateRequest(id=231, courseId=2026060007, classRoomId=2, date=2026-07-03, startTime=10:00, coursePeriod=120)
+		    
+		    
+		    
 		    return "success"; // 成功の目印
 		}
 

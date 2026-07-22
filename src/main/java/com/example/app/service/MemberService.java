@@ -22,5 +22,7 @@ public interface MemberService {
 		public Course selectCourseFee(String courseId);
 	//	
 		public List<CourseHistory>servSellectCourseHistoryById(Integer id);
+	//講座日程変更時の受講料振り分け用
+		public void servScheduleChangeCourse(String courseId);
 		
 }

@@ -104,6 +104,7 @@ public class MemberServiceImpl  implements MemberService{
 					CourseSales sales=new CourseSales();
 					String targetMonth=m.getSalesMonth();
 
+					sales.setCourseSalesStatus(1);
 					sales.setCourseId(courseId);
 					sales.setTargetMonth(targetMonth);
 					sales.setMonthlyTuitionFee(tuition*m.getCount());
@@ -127,5 +128,57 @@ public class MemberServiceImpl  implements MemberService{
 						return true;
 
 		}
+		
+		@Override
+		@Transactional
+		public void servScheduleChangeCourse(String courseId) {
+		
+		List<MonthlyCount>mc=memberMapper.selectMonthlyCount(courseId);
+		if(mc.isEmpty()) {
+				throw new IllegalStateException("月別回数データが存在しないため処理を中断しました"+courseId);
+		}
+		Course cf=memberMapper.selectCourseFee(courseId);
 
+			int tuition=cf.getTuitionFee();
+			int material=cf.getMaterialFee();
+//			int term=cf.getCourseTerm();
+
+
+//			CourseHistory history=new CourseHistory();
+//
+//			history.setCourseId(courseId);
+//			history.setMemberId(id);
+//			history.setMemberStatus(1);
+//			history.setPaidTuitionFee(term*tuition);
+//			history.setPaidMaterialFee(material);
+//
+//			memberMapper.insertCourseHistory(history);
+//			System.out.println(history);
+
+	    String initialMonth=mc.get(0).getSalesMonth();
+	    if(initialMonth.isEmpty()) {
+	    	throw new IllegalStateException("初回月データが存在しないため処理を中断しました");
+	    }
+		for(MonthlyCount m : mc) {
+			CourseSales sales=new CourseSales();
+			String targetMonth=m.getSalesMonth();
+
+			sales.setCourseSalesStatus(1);
+			sales.setCourseId(courseId);
+			sales.setTargetMonth(targetMonth);
+			sales.setMonthlyTuitionFee(tuition*m.getCount());
+			sales.setMaterialFee
+			(targetMonth.equals(initialMonth) ? material : 0);
+			System.out.println(sales);
+/*				if(targetMonth.equals(initialMonth)) {
+				sales.setMaterialFee(material);
+			}else {
+				sales.setMaterialFee(0);
+			}
+*/
+		memberMapper.upsertCourseSales(sales);
+		
+		}
+
+		}
 }

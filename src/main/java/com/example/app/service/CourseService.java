@@ -43,5 +43,7 @@ public interface CourseService {
 		public String executeDbInsert(Course course, List<ClassRoomSchedule> schedules) ;
 	//変更　重複チェック用
 		public String servCheckScheduleUpdateRequest(ScheduleUpdateRequest updateRequest);
-
+	//
+		
+		
 }

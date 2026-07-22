@@ -102,11 +102,13 @@
 <insert id="upsertCourseSales">
 	insert into 
 		course_sales(
+			course_sales_status,
 			course_id,
 			target_month,
 			monthly_tuition_fee,
 			material_fee)
 		values(
+			#{courseSalesStatus},
 			#{courseId},
 			#{targetMonth},
 			#{monthlyTuitionFee},

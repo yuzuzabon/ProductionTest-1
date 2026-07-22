@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class CourseSales {
 //売上マスタ
 	private Integer id;
+	private Integer courseSalesStatus;//申し込みあり：1　スケジュール変更：3
 	private String courseId;
 	private String targetMonth;
 	private Integer monthlyTuitionFee;
