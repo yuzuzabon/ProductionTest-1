@@ -159,6 +159,7 @@ public class MemberServiceImpl  implements MemberService{
 	    if(initialMonth.isEmpty()) {
 	    	throw new IllegalStateException("初回月データが存在しないため処理を中断しました");
 	    }
+	  
 		for(MonthlyCount m : mc) {
 			CourseSales sales=new CourseSales();
 			String targetMonth=m.getSalesMonth();
