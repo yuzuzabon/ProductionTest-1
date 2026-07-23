@@ -55,6 +55,8 @@ public interface CourseMapper {
 		//利用状況一覧
 		List<ClassRoomSchedule> selectClassRoomScheduleAll();
 
+		//日程変更course_salesリセット
+		void updateCourseSalesReset(String courseId);
 
 
 }

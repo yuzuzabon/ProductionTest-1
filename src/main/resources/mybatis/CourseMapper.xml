@@ -316,6 +316,17 @@ order by class_room_id,date,start_time
 	where id=#{id}
 
 	</update>
+	
+	<update id="updateCourseSalesReset">
+	update course_sales
+	set
+		monthly_tuition_fee=0,
+		material_fee=0,
+		updated_at=now()
+	where
+		course_id=#{courseId};
+	
+	</update>
 
 
 </mapper>

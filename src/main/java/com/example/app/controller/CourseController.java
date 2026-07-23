@@ -22,6 +22,7 @@ import com.example.app.domain.OccupiedRoomSchedule;
 import com.example.app.domain.ScheduleUpdateRequest;
 import com.example.app.service.ClassRoomService;
 import com.example.app.service.CourseService;
+import com.example.app.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 public class CourseController {
 
 		private final CourseService courseService;
+		private final MemberService memberService;
 		private final ClassRoomService classRoomService;
 		private final int NUM_PER_PAGE=5;//1ページに表示される件数
 		//private final ClassRoomScheduleService classRoomScheduleService;
@@ -95,10 +97,12 @@ public class CourseController {
 				@RequestParam Integer page,
 				Model model) {
 				rd.addAttribute("page", page);
+				
+			String courseId=scheduleUpdateRequest.getCourseId();	
 
 			if (errors.hasErrors()) {
         rd.addFlashAttribute("errorMessage", "入力内容に不備があります。正しい値を入力してください");
-        return "redirect:/show/" + scheduleUpdateRequest.getCourseId();
+        return "redirect:/show/" + courseId;
     }
 
 			String result = courseService.servCheckScheduleUpdateRequest(scheduleUpdateRequest);
@@ -111,8 +115,14 @@ public class CourseController {
 	    // 💡 変更なしの場合のメッセージを設定
 	    		rd.addFlashAttribute("errorMessage", "変更箇所がありません。");
 	    }
-
-				return "redirect:/show/" + scheduleUpdateRequest.getCourseId();
+	    // course_salesの変更をログに記録
+	        
+	    // course_salesのリセット
+	    	
+	    // course_salesの更新
+	    	memberService.servScheduleChangeCourse(courseId);
+	    
+				return "redirect:/show/" + courseId;
 	}
 
 		@GetMapping("/add")

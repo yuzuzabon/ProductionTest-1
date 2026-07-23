@@ -11,6 +11,7 @@ import com.example.app.domain.CourseHistory;
 import com.example.app.domain.CourseSales;
 import com.example.app.domain.Member;
 import com.example.app.domain.MonthlyCount;
+import com.example.app.mapper.CourseMapper;
 import com.example.app.mapper.MemberMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class MemberServiceImpl  implements MemberService{
 
 		private final MemberMapper memberMapper;
+		private final CourseMapper courseMapper;
 
 		@Override
 		public List<Member>servSelectMemberAll(){
@@ -104,7 +106,7 @@ public class MemberServiceImpl  implements MemberService{
 					CourseSales sales=new CourseSales();
 					String targetMonth=m.getSalesMonth();
 
-					sales.setCourseSalesStatus(1);
+
 					sales.setCourseId(courseId);
 					sales.setTargetMonth(targetMonth);
 					sales.setMonthlyTuitionFee(tuition*m.getCount());
@@ -128,58 +130,58 @@ public class MemberServiceImpl  implements MemberService{
 						return true;
 
 		}
-		
+		// 日程変更による受講マスタの更新//////////////////////
 		@Override
 		@Transactional
 		public void servScheduleChangeCourse(String courseId) {
-		
-		List<MonthlyCount>mc=memberMapper.selectMonthlyCount(courseId);
-		if(mc.isEmpty()) {
-				throw new IllegalStateException("月別回数データが存在しないため処理を中断しました"+courseId);
-		}
-		Course cf=memberMapper.selectCourseFee(courseId);
-
-			int tuition=cf.getTuitionFee();
-			int material=cf.getMaterialFee();
-//			int term=cf.getCourseTerm();
-
-
-//			CourseHistory history=new CourseHistory();
-//
-//			history.setCourseId(courseId);
-//			history.setMemberId(id);
-//			history.setMemberStatus(1);
-//			history.setPaidTuitionFee(term*tuition);
-//			history.setPaidMaterialFee(material);
-//
-//			memberMapper.insertCourseHistory(history);
-//			System.out.println(history);
-
-	    String initialMonth=mc.get(0).getSalesMonth();
-	    if(initialMonth.isEmpty()) {
-	    	throw new IllegalStateException("初回月データが存在しないため処理を中断しました");
-	    }
-	  
-		for(MonthlyCount m : mc) {
-			CourseSales sales=new CourseSales();
-			String targetMonth=m.getSalesMonth();
-
-			sales.setCourseSalesStatus(1);
-			sales.setCourseId(courseId);
-			sales.setTargetMonth(targetMonth);
-			sales.setMonthlyTuitionFee(tuition*m.getCount());
-			sales.setMaterialFee
-			(targetMonth.equals(initialMonth) ? material : 0);
-			System.out.println(sales);
-/*				if(targetMonth.equals(initialMonth)) {
-				sales.setMaterialFee(material);
-			}else {
-				sales.setMaterialFee(0);
+			
+			// 講座定員情報の取得 t=申込者数
+			CourseCapacity ca=memberMapper.selectByCourseIdForUpdate(courseId)
+					.orElseThrow(() -> new IllegalArgumentException("指定された講座が存在しないため処理を中断しました"+courseId));
+			Integer t=ca.getNumberOfApplicant();
+			// System.out.println("---申込者数="+t);
+			// 申込者0のときはcourse_salesへの書き込みをスキップする
+			if(t==null || t==0) {
+				return;
 			}
-*/
-		memberMapper.upsertCourseSales(sales);
-		
-		}
+			// 年月見出し＋月ごとの開催回数を取得
+				List<MonthlyCount>mc=memberMapper.selectMonthlyCount(courseId);
+				if(mc.isEmpty()) {
+						throw new IllegalStateException("月別回数データが存在しないため処理を中断しました"+courseId);
+				}
+				Course cf=memberMapper.selectCourseFee(courseId);
 
+					int tuition=cf.getTuitionFee();
+					int material=cf.getMaterialFee();
+					
+					String initialMonth=mc.get(0).getSalesMonth();
+			    if(initialMonth.isEmpty()) {
+			    	throw new IllegalStateException("初回月データが存在しないため処理を中断しました");
+			    }
+			    
+			  //受講料と教材費のリセット
+			  courseMapper.updateCourseSalesReset(courseId);	
+			  
+				for(MonthlyCount m : mc) {
+					CourseSales sales=new CourseSales();
+					String targetMonth=m.getSalesMonth();
+
+					sales.setCourseId(courseId);
+					sales.setTargetMonth(targetMonth);
+					sales.setMonthlyTuitionFee(tuition*t*m.getCount());
+					sales.setMaterialFee
+					(targetMonth.equals(initialMonth) ? material*t : 0);
+					System.out.println(sales);
+/*				if(targetMonth.equals(initialMonth)) {
+						sales.setMaterialFee(material);
+					}else {
+						sales.setMaterialFee(0);
+					}
+*/
+				//新しいスケジュールで受講料と教材費の書き込み	
+				memberMapper.upsertCourseSales(sales);
+				}
 		}
+		//　/////////////////////////////////
+		
 }

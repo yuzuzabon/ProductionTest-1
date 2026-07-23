@@ -40,6 +40,8 @@ public interface MemberMapper {
 	//講座申し込み後の受講料等書き込み
 	void upsertCourseSales(CourseSales courseSales);
 				//@Param("courseId")String courseId);
+	//日程変更course_sales変更
+	//void updateCourseSales(CourseSales courseSales);
 	//受講履歴への書き込み
 	void insertCourseHistory(CourseHistory courseHistory);
 	//重複受講チェック
