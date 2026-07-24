@@ -10,6 +10,7 @@ import org.apache.ibatis.annotations.Param;
 import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
 import com.example.app.domain.CourseCapacity;
+import com.example.app.domain.CourseSales;
 
 @Mapper
 public interface CourseMapper {
@@ -38,7 +39,7 @@ public interface CourseMapper {
 		    @Param("startTime") LocalTime startTime,
 		    @Param("endTime") LocalTime endTime);
 	//変更 変更なし上書き回避チェック
-		ClassRoomSchedule selectCheckSingleScheduleById(
+		ClassRoomSchedule selectCheckSingleScheduleByclassRoomId(
 				@Param("id") Integer id);
 
 	//ページ分割
@@ -57,6 +58,8 @@ public interface CourseMapper {
 
 		//日程変更course_salesリセット
 		void updateCourseSalesReset(String courseId);
+		//日程変更変更前当該講座のcourse_sales取得
+		List<CourseSales>selectCourseSalesByCourseId(String courseId);
 
 
 }

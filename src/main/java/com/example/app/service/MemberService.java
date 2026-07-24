@@ -24,5 +24,7 @@ public interface MemberService {
 		public List<CourseHistory>servSellectCourseHistoryById(Integer id);
 	//講座日程変更時の受講料振り分け用
 		public void servScheduleChangeCourse(String courseId);
+	//講座日程変更時の変更前データ取得
+	//	public List<CourseSales>selectCourseSalesByCourseId(String courseId);
 		
 }

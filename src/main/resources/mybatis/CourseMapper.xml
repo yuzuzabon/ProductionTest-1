@@ -258,7 +258,7 @@ order by class_room_id,date,start_time
 
 </select>
 
-<select id="selectCheckSingleScheduleById" resultType="com.example.app.domain.ClassRoomSchedule">
+<select id="selectCheckSingleScheduleByclassRoomId" resultType="com.example.app.domain.ClassRoomSchedule">
 	SELECT
 	id,
 	class_room_id AS classRoomId,
@@ -267,6 +267,24 @@ order by class_room_id,date,start_time
 	FROM class_room_schedule
 	where id=#{id}
 </select>
+
+<select id="selectCourseSalesByCourseId">
+	select 
+	id, 
+	course_sales_status, 
+	course_id, 
+	target_month, 
+	monthly_tuition_fee, 
+	material_fee, 
+	refunds_monthly_tuition_fee, 
+	refunds_material_fee, 
+	registered_at, 
+	updated_at
+	from course_sales
+	where course_id=#{courseId}
+	
+</select>
+
 
 
 <!--<select id="selectRegisteredSchedule">-->

@@ -157,7 +157,7 @@ public class CourseServiceImpl implements CourseService{
 		    }
 // ////////test環境時は変更箇所なしチェック処理部分をコメントアウト////////
 		  /*  // 重複チェックで使っている id を活用して、DBから現在の1件を直接取得
-		    ClassRoomSchedule current = courseMapper.selectCheckSingleScheduleById(updateRequest.getId());
+		    ClassRoomSchedule current = courseMapper.selectCheckSingleScheduleByclassRoomId(updateRequest.getId());
 
 		    if(current != null) {
 		    	boolean isClassRoomSame=current.getClassRoomId().equals(updateRequest.getClassRoomId());
