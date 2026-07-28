@@ -54,6 +54,35 @@
 		salesMonth ASC
 </select>
 
+<select id="selectRemainingMonthlyCount">
+	select 
+		course_id,
+		date_format(date,'%Y%m') AS salesMonth,
+		count(*) AS count
+	from
+		class_room_schedule
+	where
+		course_id=#{courseId}	
+		and
+		 (date, start_time) >= (CURRENT_DATE, CURRENT_TIME) 
+	group by
+		date_format(date,'%Y%m')
+	ORDER BY 
+		salesMonth ASC
+</select>
+
+<select id="selectRemainingCount" resultType="int">
+	select 
+		count(*) AS count
+	from
+		class_room_schedule
+	where
+		course_id=#{courseId}	
+		and
+		 (date, start_time) >= (CURRENT_DATE, CURRENT_TIME) 
+	
+</select>
+
 <select id="selectCourseFee">
 	select 
 		course_id,

@@ -9,15 +9,15 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.app.domain.ChangeLog;
 import com.example.app.domain.Course;
 import com.example.app.domain.CourseCapacity;
 import com.example.app.domain.CourseHistory;
 import com.example.app.domain.CourseSales;
+import com.example.app.domain.CourseSalesLog;
 import com.example.app.domain.Member;
 import com.example.app.domain.MonthlyCount;
-import com.example.app.mapper.ChangeLogMapper;
 import com.example.app.mapper.CourseMapper;
+import com.example.app.mapper.CourseSalesLogMapper;
 import com.example.app.mapper.MemberMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class MemberServiceImpl  implements MemberService{
 
 		private final MemberMapper memberMapper;
 		private final CourseMapper courseMapper;
-		private final ChangeLogMapper changeLogMapper;
+		private final CourseSalesLogMapper courseSalesLogMapper;
 
 		@Override
 		public List<Member>servSelectMemberAll(){
@@ -117,14 +117,111 @@ public class MemberServiceImpl  implements MemberService{
 				for(MonthlyCount m : mc) {
 					CourseSales sales=new CourseSales();
 					String targetMonth=m.getSalesMonth();
+					Integer calcTuition=tuition*m.getCount();
+					Integer calcMaterial=targetMonth.equals(initialMonth) ? material : 0;
 
-
+					//売り上げマスタへの記録
 					sales.setCourseId(courseId);
 					sales.setTargetMonth(targetMonth);
-					sales.setMonthlyTuitionFee(tuition*m.getCount());
-					sales.setMaterialFee
-					(targetMonth.equals(initialMonth) ? material : 0);
-					System.out.println(sales);
+					sales.setMonthlyTuitionFee(calcTuition);
+					sales.setMaterialFee(calcMaterial);
+					//System.out.println(sales);
+/*				if(targetMonth.equals(initialMonth)) {
+						sales.setMaterialFee(material);
+					}else {
+						sales.setMaterialFee(0);
+					}
+*/
+				memberMapper.upsertCourseSales(sales);
+				//申し込みログ記録
+				CourseSalesLog log=new CourseSalesLog();
+				log.setCourseId(courseId);
+				log.setReasonType("APPLICATION");
+				log.setTargetMonth(targetMonth);
+				log.setBeforeTuitionFee(0);
+				log.setBeforeMaterialFee(0);
+				log.setAfterTuitionFee(calcTuition);
+				log.setAfterMaterialFee(calcMaterial);
+				//System.out.println("application log-----"+log);
+				courseSalesLogMapper.insertLog(log);
+				
+				}
+			// 申込者数の更新
+			// 	numberOfApplicant=numberOfApplicant+1をSQL側で処理
+			//int numberOfApplicant=ca.getNumberOfApplicant()+1;
+				memberMapper.updateApplyedCount(courseId);
+
+						return true;
+
+		}
+		//途中受講　/////////////////////////////////
+		@Override
+		@Transactional
+		public boolean servRemainingApplyCourse(Integer id,String courseId) {
+			// 講座定員情報の取得
+			CourseCapacity ca=memberMapper.selectByCourseIdForUpdate(courseId)
+						.orElseThrow(() -> new IllegalArgumentException("指定された講座が存在しないため処理を中断しました"+courseId));
+			// 満員をチェック
+				if(ca.getCapacity()<=ca.getNumberOfApplicant()) {
+						return false;//　満員
+				}
+			// 年月見出し＋月ごとの開催回数を取得
+				List<MonthlyCount>mc=memberMapper.selectRemainingMonthlyCount(courseId);
+				if(mc.isEmpty()) {
+						throw new IllegalStateException("月別回数データが存在しないため処理を中断しました"+courseId);
+				}
+				Course cf=memberMapper.selectCourseFee(courseId);
+
+					int tuition=cf.getTuitionFee();
+					int material=cf.getMaterialFee();
+					int term=mc.stream()
+							.mapToInt(MonthlyCount::getCount)
+							.sum();
+//				int term=memberMapper.selectRemainingCount(courseId);
+//				int term=0;
+//				for(MonthlyCount m:mc) {
+//				term +=m.getCount();
+//				}
+
+				//受講生マスタへの記録
+				CourseHistory history=new CourseHistory();
+
+				history.setCourseId(courseId);
+				history.setMemberId(id);
+				history.setMemberStatus(1);
+				history.setPaidTuitionFee(term*tuition);
+				history.setPaidMaterialFee(material);
+					
+				memberMapper.insertCourseHistory(history);
+				System.out.println(history);
+			
+// /////////// test環境では重複チェックをコメントアウト //////////
+/*					int overlapCount =
+							memberMapper.countOverlappedCourse(history);
+*/		    // 重複がある（カウントが1以上）場合は、更新せずにfalseを返して処理を中断
+					int overlapCount = 0;//test環境でのダミーフラグ
+			    if (overlapCount > 0) {
+			    	System.out.println(overlapCount);
+
+			        return false;// 重複
+			    }	
+
+			    String initialMonth=mc.get(0).getSalesMonth();
+			    if(initialMonth.isEmpty()) {
+			    	throw new IllegalStateException("初回月データが存在しないため処理を中断しました");
+			    }
+				for(MonthlyCount m : mc) {
+					CourseSales sales=new CourseSales();
+					String targetMonth=m.getSalesMonth();
+					Integer calcTuition=tuition*m.getCount();
+					Integer calcMaterial=targetMonth.equals(initialMonth) ? material : 0;
+
+					//売り上げマスタへの記録
+					sales.setCourseId(courseId);
+					sales.setTargetMonth(targetMonth);
+					sales.setMonthlyTuitionFee(calcTuition);
+					sales.setMaterialFee(calcMaterial);
+					//System.out.println(sales);
 /*				if(targetMonth.equals(initialMonth)) {
 						sales.setMaterialFee(material);
 					}else {
@@ -133,7 +230,20 @@ public class MemberServiceImpl  implements MemberService{
 */
 				memberMapper.upsertCourseSales(sales);
 
+				//申し込みログ記録(途中申し込み)
+				CourseSalesLog log=new CourseSalesLog();
+				log.setCourseId(courseId);
+				log.setReasonType("REMAINING_APPLICATION");
+				log.setTargetMonth(targetMonth);
+				log.setBeforeTuitionFee(0);
+				log.setBeforeMaterialFee(0);
+				log.setAfterTuitionFee(calcTuition);
+				log.setAfterMaterialFee(calcMaterial);
+				//System.out.println("application log-----"+log);
+				courseSalesLogMapper.insertLog(log);
+				
 				}
+				
 			// 申込者数の更新
 			// 	numberOfApplicant=numberOfApplicant+1をSQL側で処理
 			//int numberOfApplicant=ca.getNumberOfApplicant()+1;
@@ -228,16 +338,16 @@ public class MemberServiceImpl  implements MemberService{
 					
 					//金額に差分がある月をログに記録
 					if(beforeTuition != afterTuition || beforeMaterial != afterMaterial) {
-						ChangeLog log=new ChangeLog();
+						CourseSalesLog log=new CourseSalesLog();
 						log.setCourseId(courseId);
-						log.setReasonType("SHEDULE_CHANGE");
+						log.setReasonType("SCHEDULE_CHANGE");
 						log.setTargetMonth(month);
 						log.setBeforeTuitionFee(beforeTuition);
 						log.setBeforeMaterialFee(beforeMaterial);
 						log.setAfterTuitionFee(afterTuition);
 						log.setAfterMaterialFee(afterMaterial);
 						System.out.println("log-----"+log);
-						changeLogMapper.insertLog(log);
+						courseSalesLogMapper.insertLog(log);
 					}
 				}
 				

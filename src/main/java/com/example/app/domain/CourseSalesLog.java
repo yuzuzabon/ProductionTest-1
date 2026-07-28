@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChangeLog {
+public class CourseSalesLog {
 	
 	private Integer id;
 	private String courseId;

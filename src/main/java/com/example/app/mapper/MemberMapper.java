@@ -37,6 +37,12 @@ public interface MemberMapper {
 				@Param("courseId")String courseId);
 	public Course selectCourseFee(
 				@Param("courseId")String courseId);
+	//講座途中申し込み時の月ごとの回数取得
+	List<MonthlyCount>selectRemainingMonthlyCount(
+			@Param("courseId")String courseId);
+//(未使用)講座途中申し込み時の残回数取得（MonthlyCountからの取得に変更）
+		int selectRemainingCount(String courseId);
+	
 	//講座申し込み後の受講料等書き込み
 	void upsertCourseSales(CourseSales courseSales);
 				//@Param("courseId")String courseId);
