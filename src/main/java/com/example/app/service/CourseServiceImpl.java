@@ -84,7 +84,12 @@ public class CourseServiceImpl implements CourseService{
 				throw new IllegalArgumentException("設定された講座回数（" + expectedCount + "回）と、選択された開催日の日数（" + actualCount + "日）が一致しません。");
 			}
 			//Integer classRoomCode=course.getClassRoomId();//教室ID実行位置移動
-
+			
+			//回数が2未満で、途中受講が「可(true)」になっている場合
+			if(expectedCount != null && expectedCount < 2 
+          && Boolean.TRUE.equals(course.getAllowLateEnrollment())) {
+				throw new IllegalArgumentException("途中受講は1回以下の講座には設定できません");
+			}
 
 
 			System.out.println("****検証用データ****");

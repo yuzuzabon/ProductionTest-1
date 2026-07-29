@@ -73,7 +73,7 @@ public class MemberController {
 					model.addAttribute("page",page);
 					model.addAttribute("totalPages",
 							courseService.servSelectTotalPages(NUM_PER_PAGE));
-
+					
 					return "memberWithCourseList";
 
 		}

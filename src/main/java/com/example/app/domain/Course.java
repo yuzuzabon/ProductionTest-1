@@ -34,7 +34,7 @@ public class Course {
 		//private Integer numberOfDays;
 		private Integer courseTerm;
 		
-		private Boolean allowLateEnrollment;
+		private Boolean allowLateEnrollment=false;
 		
 		@NotNull
 		@Min(0)

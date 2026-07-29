@@ -15,6 +15,11 @@ public class CourseHistory {
 		private Integer memberId;
 		private Integer memberStatus;
 		private String courseId;
+		
+		private boolean lateEnrollment;
+		private Integer courseTerm;
+		private Integer remainingCount;
+		
 		private Integer paidTuitionFee;
 		private Integer paidMaterialFee;
 		private Integer refundsTuitionFee;

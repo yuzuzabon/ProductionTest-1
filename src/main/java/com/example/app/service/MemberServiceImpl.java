@@ -66,7 +66,25 @@ public class MemberServiceImpl  implements MemberService{
 //		
 //			return courseMapper.selectCourseSalesByCourseId(courseId); 
 //		}
+		//ログ記録用共通部分
+		private void recordCourseSalesLog
+		(String courseId,String reasonType,String targetMonth,
+				Integer beforeTuition,Integer beforeMaterial,
+				Integer afterTuition,Integer afterMaterial) {
+			CourseSalesLog log=new CourseSalesLog();
+			log.setCourseId(courseId);
+			log.setReasonType(reasonType);
+			log.setTargetMonth(targetMonth);
+			log.setBeforeTuitionFee(beforeTuition);
+			log.setBeforeMaterialFee(beforeMaterial);
+			log.setAfterTuitionFee(afterTuition);
+			log.setAfterMaterialFee(afterMaterial);
+			
+			courseSalesLogMapper.insertLog(log);
+			
+		}
 		
+		//新規受講
 		@Override
 		@Transactional
 		public boolean servApplyCourse(Integer id,String courseId) {
@@ -86,15 +104,17 @@ public class MemberServiceImpl  implements MemberService{
 
 					int tuition=cf.getTuitionFee();
 					int material=cf.getMaterialFee();
-					int term=cf.getCourseTerm();
-
+					int courseTerm=cf.getCourseTerm();
 
 					CourseHistory history=new CourseHistory();
 
 					history.setCourseId(courseId);
 					history.setMemberId(id);
 					history.setMemberStatus(1);
-					history.setPaidTuitionFee(term*tuition);
+					history.setLateEnrollment(false);
+					history.setCourseTerm(courseTerm);
+					history.setRemainingCount(courseTerm);
+					history.setPaidTuitionFee(courseTerm*tuition);
 					history.setPaidMaterialFee(material);
 // /////////// test環境では重複チェックをコメントアウト //////////
 /*					int overlapCount =
@@ -134,16 +154,18 @@ public class MemberServiceImpl  implements MemberService{
 */
 				memberMapper.upsertCourseSales(sales);
 				//申し込みログ記録
-				CourseSalesLog log=new CourseSalesLog();
-				log.setCourseId(courseId);
-				log.setReasonType("APPLICATION");
-				log.setTargetMonth(targetMonth);
-				log.setBeforeTuitionFee(0);
-				log.setBeforeMaterialFee(0);
-				log.setAfterTuitionFee(calcTuition);
-				log.setAfterMaterialFee(calcMaterial);
-				//System.out.println("application log-----"+log);
-				courseSalesLogMapper.insertLog(log);
+//				CourseSalesLog log=new CourseSalesLog();
+//				log.setCourseId(courseId);
+//				log.setReasonType("APPLICATION");
+//				log.setTargetMonth(targetMonth);
+//				log.setBeforeTuitionFee(0);
+//				log.setBeforeMaterialFee(0);
+//				log.setAfterTuitionFee(calcTuition);
+//				log.setAfterMaterialFee(calcMaterial);
+//				//System.out.println("application log-----"+log);
+				//courseSalesLogMapper.insertLog(log);
+				recordCourseSalesLog
+				(courseId,"APPLICATION",targetMonth,0,0,calcTuition,calcMaterial);
 				
 				}
 			// 申込者数の更新
@@ -174,7 +196,8 @@ public class MemberServiceImpl  implements MemberService{
 
 					int tuition=cf.getTuitionFee();
 					int material=cf.getMaterialFee();
-					int term=mc.stream()
+					int courseTerm=cf.getCourseTerm();
+					int remainingCount=mc.stream()
 							.mapToInt(MonthlyCount::getCount)
 							.sum();
 //				int term=memberMapper.selectRemainingCount(courseId);
@@ -189,7 +212,10 @@ public class MemberServiceImpl  implements MemberService{
 				history.setCourseId(courseId);
 				history.setMemberId(id);
 				history.setMemberStatus(1);
-				history.setPaidTuitionFee(term*tuition);
+				history.setLateEnrollment(false);
+				history.setCourseTerm(courseTerm);
+				history.setRemainingCount(remainingCount);
+				history.setPaidTuitionFee(remainingCount*tuition);
 				history.setPaidMaterialFee(material);
 					
 				memberMapper.insertCourseHistory(history);
@@ -231,16 +257,19 @@ public class MemberServiceImpl  implements MemberService{
 				memberMapper.upsertCourseSales(sales);
 
 				//申し込みログ記録(途中申し込み)
-				CourseSalesLog log=new CourseSalesLog();
-				log.setCourseId(courseId);
-				log.setReasonType("REMAINING_APPLICATION");
-				log.setTargetMonth(targetMonth);
-				log.setBeforeTuitionFee(0);
-				log.setBeforeMaterialFee(0);
-				log.setAfterTuitionFee(calcTuition);
-				log.setAfterMaterialFee(calcMaterial);
-				//System.out.println("application log-----"+log);
-				courseSalesLogMapper.insertLog(log);
+//				CourseSalesLog log=new CourseSalesLog();
+//				log.setCourseId(courseId);
+//				log.setReasonType("REMAINING_APPLICATION");
+//				log.setTargetMonth(targetMonth);
+//				log.setBeforeTuitionFee(0);
+//				log.setBeforeMaterialFee(0);
+//				log.setAfterTuitionFee(calcTuition);
+//				log.setAfterMaterialFee(calcMaterial);
+//				//System.out.println("application log-----"+log);
+//				courseSalesLogMapper.insertLog(log);
+				
+				recordCourseSalesLog
+				(courseId,"REMAINING_APPLICATION",targetMonth,0,0,calcTuition,calcMaterial);
 				
 				}
 				
@@ -338,21 +367,23 @@ public class MemberServiceImpl  implements MemberService{
 					
 					//金額に差分がある月をログに記録
 					if(beforeTuition != afterTuition || beforeMaterial != afterMaterial) {
-						CourseSalesLog log=new CourseSalesLog();
-						log.setCourseId(courseId);
-						log.setReasonType("SCHEDULE_CHANGE");
-						log.setTargetMonth(month);
-						log.setBeforeTuitionFee(beforeTuition);
-						log.setBeforeMaterialFee(beforeMaterial);
-						log.setAfterTuitionFee(afterTuition);
-						log.setAfterMaterialFee(afterMaterial);
-						System.out.println("log-----"+log);
-						courseSalesLogMapper.insertLog(log);
+//						CourseSalesLog log=new CourseSalesLog();
+//						log.setCourseId(courseId);
+//						log.setReasonType("SCHEDULE_CHANGE");
+//						log.setTargetMonth(month);
+//						log.setBeforeTuitionFee(beforeTuition);
+//						log.setBeforeMaterialFee(beforeMaterial);
+//						log.setAfterTuitionFee(afterTuition);
+//						log.setAfterMaterialFee(afterMaterial);
+//						System.out.println("log-----"+log);
+//						courseSalesLogMapper.insertLog(log);
+						recordCourseSalesLog
+						(courseId,"SCHEDULE_CHANGE",month,beforeTuition,beforeMaterial,afterTuition,afterMaterial);
 					}
 				}
 				
 		}
+// /////////////////////////////////
 		
-		//　/////////////////////////////////
 		
 }

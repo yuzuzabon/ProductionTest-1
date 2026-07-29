@@ -54,8 +54,13 @@
 			</tr>
 			<tr>
 				<th>回数</th>
-				<td th:text="${c.courseTerm}"></td>
+				<td th:text="|${c.courseTerm} （途中受講${c.allowLateEnrollment ? '可':'不可'}）|"></td>
+
 			</tr>
+			
+				
+
+			
 			<tr>
 				<th>受講料等(消費税等込み)</th>
 				<td>

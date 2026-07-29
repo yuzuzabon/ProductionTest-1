@@ -34,6 +34,8 @@ public class CourseWithClassRoom {
 		//private Integer numberOfDays;
 		private Integer courseTerm;
 		
+		private Boolean allowLateEnrollment=false;
+		
 		@NotNull
 		@Min(0)
 		private Integer tuitionFee;
