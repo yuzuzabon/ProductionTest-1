@@ -6,6 +6,7 @@ import com.example.app.domain.Course;
 import com.example.app.domain.CourseHistory;
 import com.example.app.domain.Member;
 import com.example.app.domain.MonthlyCount;
+import com.example.app.domain.RemainingCourseData;
 
 public interface MemberService {
 
@@ -28,5 +29,6 @@ public interface MemberService {
 		public void servScheduleChangeCourse(String courseId);
 	//講座日程変更時の変更前データ取得
 	//	public List<CourseSales>selectCourseSalesByCourseId(String courseId);
-		
+	//途中受講用データ取得
+		public RemainingCourseData servSelectRemainingCourseData(String courseId);
 }

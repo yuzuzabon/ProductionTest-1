@@ -16,7 +16,8 @@ import com.example.app.domain.CourseSales;
 public interface CourseMapper {
 
 	//全件
-		List<Course> selectCourseAll();
+//		List<Course> selectCourseAll();
+		List<Course> selectCourseAll(@Param("searchType") String searchType);
 	//１件
 		List<Course> selectCourseByCourseId(String courseId);
 	//登録
@@ -41,13 +42,21 @@ public interface CourseMapper {
 	//変更 変更なし上書き回避チェック
 		ClassRoomSchedule selectCheckSingleScheduleByclassRoomId(
 				@Param("id") Integer id);
-
 	//ページ分割
+/*
 		List<Course> selectCourseByPage(
 				@Param("offset")int offset,
 				@Param("limit")int limit);
+		
 		Long selectTotalPages();
-
+*/
+		List<Course> selectCourseByPage(
+				@Param("offset")int offset,
+				@Param("limit")int limit,
+				@Param("searchType")String searchType
+				);
+		Long selectTotalPages(@Param("searchType")String searchType);
+		
 	//重複チェック
 		List<ClassRoomSchedule> selectRegisteredSchedule(
         @Param("classRoomId") Integer classRoomId,

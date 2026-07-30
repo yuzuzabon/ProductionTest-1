@@ -138,8 +138,8 @@
 	</sql>
 
 
-<select id="selectCourseAll" resultMap="joinCourse">
-	select DISTINCT
+<select id="selectCourseAll2" resultMap="joinCourse">
+	select
 
 	<include refid="standardSelect"></include>
 
@@ -157,6 +157,43 @@
       on course.course_id =
       class_room_schedule.course_id
 
+      order by c_course_id,s_date,s_start_time
+
+</select>
+
+<select id="selectCourseAll" resultMap="joinCourse">
+	select DISTINCT
+
+	<include refid="standardSelect"></include>
+
+	FROM course 
+
+			join  course_capacity
+			on course.course_id=
+			course_capacity.course_id
+
+			join class_room
+			on course.class_room_id=
+			class_room.id
+
+			join class_room_schedule
+      on course.course_id =
+      class_room_schedule.course_id
+      
+      
+<where>
+<!-- もしデータがあればSQLをくっつける -->
+<!-- 「途中受講可 兼 残回数あり」の検索条件を選択した場合 -->
+<if test='searchType != null and searchType == "lateEnrollment"'>
+course.allow_late_enrollment = true
+AND (
+SELECT COUNT(*) 
+FROM class_room_schedule crs 
+WHERE crs.course_id = course.course_id 
+AND crs.date &gt;= CURRENT_DATE
+) &gt; 0
+</if>
+</where>
       order by c_course_id,s_date,s_start_time
 
 </select>
@@ -181,9 +218,21 @@
       class_room_schedule.course_id
 
   	  join(
-	    SELECT course_id
-  	  FROM course
-    	ORDER BY course_id
+	    SELECT c.course_id
+  	  FROM course c
+<where>
+ <if test='searchType != null and searchType == "lateEnrollment"'>
+	c.allow_late_enrollment = true
+  AND (
+  SELECT COUNT(*) 
+  FROM class_room_schedule crs 
+  WHERE crs.course_id = c.course_id 
+  AND crs.date &gt;= CURRENT_DATE
+          ) &gt; 0
+  </if>
+</where>  	  
+  	  
+    	ORDER BY c.course_id
     	limit #{offset},#{limit}
 			) as limited_course
 			on course.course_id=limited_course.course_id
@@ -191,9 +240,85 @@
 			order by c_course_id,s_date,s_start_time
 
 </select>
-
 <select id="selectTotalPages" resultType="long">
-	select count(*) from course
+	select count(*) from course c
+<where>
+	<if test='searchType != null and searchType == "lateEnrollment"'>
+  c.allow_late_enrollment = true
+  AND (
+  SELECT COUNT(*) 
+  FROM class_room_schedule crs 
+  WHERE crs.course_id = c.course_id 
+  AND crs.date &gt;= CURRENT_DATE
+ 			    ) &gt; 0
+  </if>
+</where>	
+	
+	
+</select>
+
+<select id="selectCourseByPage2" resultMap="joinCourse">
+	select
+
+	<include refid="standardSelect"></include>
+
+	FROM course
+
+			join  course_capacity
+			on course.course_id=
+			course_capacity.course_id
+
+			join class_room
+			on course.class_room_id=
+			class_room.id
+
+			join class_room_schedule
+      on course.course_id =
+      class_room_schedule.course_id
+
+  	  join(
+	    SELECT c.course_id
+  	  FROM course c
+  	  
+<where>
+<!-- もしデータがあればSQLをくっつける -->
+<!-- 「途中受講可 兼 残回数あり」の検索条件を選択した場合 -->
+<if test='searchType != null and searchType == "lateEnrollment"'>
+c.allow_late_enrollment = true
+AND (
+SELECT COUNT(*) 
+FROM class_room_schedule crs 
+WHERE crs.course_id = c.course_id 
+AND crs.date &gt;= CURRENT_DATE
+) &gt; 0
+</if>
+</where>
+  	  
+    	ORDER BY c.course_id
+    	limit #{offset},#{limit}
+			) as limited_course
+			on course.course_id=limited_course.course_id
+
+			order by c_course_id,s_date,s_start_time
+</select>
+
+
+<select id="selectTotalPages2" resultType="long">
+	select count(*) from course c
+	<where>
+<!-- もしデータがあればSQLをくっつける -->
+<!-- 「途中受講可 兼 残回数あり」の検索条件を選択した場合 -->
+<if test='searchType != null and searchType == "lateEnrollment"'>
+c.allow_late_enrollment = true
+AND (
+SELECT COUNT(*) 
+FROM class_room_schedule crs 
+WHERE crs.course_id = c.course_id 
+AND crs.date &gt;= CURRENT_DATE
+) &gt; 0
+</if>
+</where>
+	
 </select>
 
 <select id="selectCourseByCourseId" parameterType="String" resultMap="joinCourseWithClassRoom">

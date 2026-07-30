@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,8 +35,8 @@ public class CourseServiceImpl implements CourseService{
 	//private final MemberService memberService;
 
 		@Override
-		public List<Course> servSelectCourseAll(){
-				return courseMapper.selectCourseAll();
+		public List<Course> servSelectCourseAll(String searchType){
+				return courseMapper.selectCourseAll(searchType);
 		}
 
 		@Override
@@ -314,8 +315,10 @@ public class CourseServiceImpl implements CourseService{
 			return courseMapper.selectCourseByCourseId(courseId);
 		}
 		//ページ分割
-		@Override
-		public List<Course> servSelectCourseByPage(int page, int numPerPage) {
+/*		@Override
+		
+		public List<Course> servSelectCourseByPage
+		(int page, int numPerPage) {
 			// TODO 自動生成されたメソッド・スタブ
 			int offset=numPerPage*(page-1);
 			//System.out.println("page数"+page+" offset"+offset+" numPerPage"+numPerPage);//test
@@ -328,6 +331,26 @@ public class CourseServiceImpl implements CourseService{
 			//System.out.println("総件数"+totalNum);//test
 			return (int) Math.ceil(totalNum/ numPerPage);
 		}
+*/
+		@Autowired
+		public static final int NUM_PER_PAGE=10;
+	// 一覧の取得
+    public List<Course> getCourseList(int page, String searchType) {
+        int offset = (page - 1) * NUM_PER_PAGE;
+        return courseMapper.selectCourseByPage(offset, NUM_PER_PAGE, searchType);
+    }
+
+    // 総ページ数の計算
+    public double getTotalPages(String searchType) {
+        Long totalCount = courseMapper.selectTotalPages(searchType);
+        if (totalCount == null || totalCount == 0) {
+            return 0;
+        }
+        // 総件数 ÷ 1ページ件数 を切り上げ計算
+        return Math.ceil((double) totalCount / NUM_PER_PAGE);
+    }
+		
+		
 		@Override
 		public List<ClassRoomSchedule>servSelectRegisteredSchedule(Integer classRoomId,List<LocalDate> date) {
 			// TODO 自動生成されたメソッド・スタブ

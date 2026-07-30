@@ -13,6 +13,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.app.domain.Course;
 import com.example.app.domain.CourseHistory;
 import com.example.app.domain.Member;
+import com.example.app.domain.RemainingCourseData;
 import com.example.app.service.CourseService;
 import com.example.app.service.MemberService;
 
@@ -87,10 +88,14 @@ public class MemberController {
 
 				setMemberInfo(id,model);
 
-				List<Course> course=courseService.servSellectCourseByCourseId(courseId);
+				List<Course> course=
+						courseService.servSellectCourseByCourseId(courseId);
 				model.addAttribute("course",course);
 
 				List<CourseHistory>history=setMemberInfo(id,model);
+				RemainingCourseData rcData=
+						memberService.servSelectRemainingCourseData(courseId);
+				model.addAttribute("rcData",rcData);
 
 				boolean isApplied=history.stream()
 						.map(CourseHistory::getCourseId)

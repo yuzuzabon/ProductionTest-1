@@ -61,8 +61,25 @@ public class CourseController {
 		@GetMapping("/show")
 		//講座全件取得
 //		public String contSelectCourseAll(Model model) {
-//			model.addAttribute("courses",service.servSelectCourseAll());
+//			model.addAttribute("courses",courseService.servSelectCourseAll());
+		public String contSelectCourseAll(
+				@RequestParam(name = "searchType", defaultValue = "all") String searchType,
+				@RequestParam(name="page",defaultValue = "1")Integer page,
+				Model model) {
+			model.addAttribute("courses",courseService.servSelectCourseAll(searchType));
+			model.addAttribute("searchType", searchType);
 
+			// 画面側（HTML）で検索条件を保持・再表示するために Model に追加
+		  // model.addAttribute("searchType", searchType);
+		  // model.addAttribute("keyword", keyword);
+		  // System.out.println("受け取ったsearchType: " + searchType);
+			return "courseList";
+		}
+		@GetMapping("test/show")
+/*	//講座全件取得
+		public String contSelectCourseAll(Model model) {
+			model.addAttribute("courses",courseService.servSelectCourseAll());
+*/
 		//ページ分割対応
 			public String contSelectCourseByPage(
 					@RequestParam(name="page",defaultValue = "1")Integer page,
@@ -72,9 +89,11 @@ public class CourseController {
 				model.addAttribute("page",page);
 				model.addAttribute("totalPages",
 						courseService.servSelectTotalPages(NUM_PER_PAGE));
+
 			return "courseList";
 		}
 
+		
 		@GetMapping("/show/{courseId}")
 			public String contSelectCourseByCourseId(
 					@PathVariable String courseId,

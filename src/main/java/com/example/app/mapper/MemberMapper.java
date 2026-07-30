@@ -40,7 +40,7 @@ public interface MemberMapper {
 	//講座途中申し込み時の月ごとの回数取得
 	List<MonthlyCount>selectRemainingMonthlyCount(
 			@Param("courseId")String courseId);
-//(未使用)講座途中申し込み時の残回数取得（MonthlyCountからの取得に変更）
+//講座途中申し込み用の残回数取得（表示用。申し込み時はMonthlyCountからの取得に変更）
 		int selectRemainingCount(String courseId);
 	
 	//講座申し込み後の受講料等書き込み

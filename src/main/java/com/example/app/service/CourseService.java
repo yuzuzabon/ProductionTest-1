@@ -11,7 +11,8 @@ import com.example.app.domain.ScheduleUpdateRequest;
 public interface CourseService {
 
 	//全件
-		List<Course> servSelectCourseAll();
+//		List<Course> servSelectCourseAll();
+		List<Course> servSelectCourseAll(String searchType);
 	//１件
 		List<Course> servSellectCourseByCourseId(String courseId);
 	//検索

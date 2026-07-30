@@ -16,6 +16,7 @@ import com.example.app.domain.CourseSales;
 import com.example.app.domain.CourseSalesLog;
 import com.example.app.domain.Member;
 import com.example.app.domain.MonthlyCount;
+import com.example.app.domain.RemainingCourseData;
 import com.example.app.mapper.CourseMapper;
 import com.example.app.mapper.CourseSalesLogMapper;
 import com.example.app.mapper.MemberMapper;
@@ -176,7 +177,24 @@ public class MemberServiceImpl  implements MemberService{
 						return true;
 
 		}
-		//途中受講　/////////////////////////////////
+		//途中受講時の受講料教材費残回数取得用/////////////////////////////////
+		@Override
+		
+		public RemainingCourseData servSelectRemainingCourseData(String courseId) {
+
+				//途中受講用の情報取得
+				Course cf=memberMapper.selectCourseFee(courseId);
+
+					Integer tuition=cf.getTuitionFee();
+					Integer material=cf.getMaterialFee();
+					
+					// 残数取得
+					Integer remainingCount=memberMapper.selectRemainingCount(courseId);
+					
+					return new RemainingCourseData(tuition,material,remainingCount);
+		}
+
+		//途中受講　申し込み/////////////////////////////////
 		@Override
 		@Transactional
 		public boolean servRemainingApplyCourse(Integer id,String courseId) {
