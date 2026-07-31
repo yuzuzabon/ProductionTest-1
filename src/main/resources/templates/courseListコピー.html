@@ -6,47 +6,46 @@
 	<link th:href="@{/css/style.css}" rel="stylesheet" />
 	<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
 
-	<title>講座選択</title>
+	<title>講座一覧</title>
 </head>
 
 <body>
 
 <div class="container">
 
-	<h1 class="mt-4 mb-4">講座選択</h1>
+	<h1 class="mt-4 mb-4">講座一覧</h1>
 
 	<div class="mb-3">
 		<a th:href="@{/menu}" class="btn btn-secondary">メニュー</a>
-
-		<a th:href="@{/members}" class="btn btn-secondary">受講生選択にもどる</a>
+		<a th:href="@{/add}" class="btn btn-primary">講座登録</a>
+		<a th:href="@{/roomSchedules}" class="btn btn-secondary">空き教室確認</a>
 	</div>
+	<!-- 検索フォームエリア -->
+	<div class="search-box mb-4 p-3 bg-light border rounded">
+	  <form th:action="@{/show}" method="get" class="row g-3 align-items-center">
+	    
+	    <div class="col-auto">
+	      <label class="col-form-label fw-bold">絞り込み条件：</label>
+	    </div>
 
-	<table class="table table-bordered table-striped mb-4">
-		<thead class="table-dark">
-			<tr>
-				<th>ID</th>
-				<th>氏名</th>
-				<th>年齢</th>
-				<th>住所</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr>
-				<td>[[${member.id}]]</td>
-				<td>[[${member.name}]]</td>
-				<td>[[${member.age}]]</td>
-				<td>[[${member.address}]]</td>
-			</tr>
-				<th>申し込み履歴</th>
-					<td colspan="3">
-					<span class="badge bg-primary me-1"
-					 th:each="h : ${history}"
-					 th:text="${h.courseId}"></span>
-				<!--<span th:text="${h.memberStatus}"></span> -->
-					</td>
-		</tbody>
-	</table>
+	    <!-- ラジオボタンによる切り替え例 -->
+	    <div class="col-auto">
+	      <div class="form-check form-check-inline">
+	        <input class="form-check-input" type="radio" name="searchType" id="searchAll" value="all"
+	               th:checked="${searchType == null or searchType == 'all'}" onchange="this.form.submit()">
+	        <label class="form-check-label" for="searchAll">すべての講座</label>
+	      </div>
+	      
+	      <div class="form-check form-check-inline">
+	        <input class="form-check-input" type="radio" name="searchType" id="searchLate" value="lateEnrollment"
+	               th:checked="${searchType == 'lateEnrollment'}" onchange="this.form.submit()">
+	        <label class="form-check-label" for="searchLate">途中受講可（受付中のみ）</label>
+	      </div>
+	    </div>
 
+	  </form>
+	</div>	
+			
 	<table class="table table-striped table-bordered table-hover">
 
 		<thead class="table-dark">
@@ -61,7 +60,6 @@
 				<th>定員</th>
 				<th>申込数</th>
 				<th>空き</th>
-<!--		<th>途中受講</th>-->
 				<th>詳細</th>
 			</tr>
 		</thead>
@@ -79,12 +77,7 @@
 				<td class="text-center">[[${c.courseCapacity.capacity}]]</td>
 				<td class="text-center">[[${c.courseCapacity.numberOfApplicant}]]</td>
 				<td class="text-center"	th:text="${c.courseCapacity.capacity - c.courseCapacity.numberOfApplicant}"></td>
-<!--		<td class="text-center">[[${c.allowLateEnrollment ? "可":"不可"}]]</td>-->
-				<td> <a th:href="@{/memberjoin/{id}(id=${member.id},courseId=${c.courseId},,page=${page})}" 
-						class="btn" th:classappend="${#lists.isEmpty(c.classRoomSchedule.?[date.isBefore(#temporals.createToday())])} ? 
-						'btn-primary' : 'btn-warning'">詳細</a></td>
-<!--				class="btn btn-secondary">詳細</a></td>-->
-<!--				class="btn" th:classappend="${c.allowLateEnrollment} ? 'btn-secondary':'btn-warning'">詳細</a></td>-->
+				<td> <a th:href="@{/show/{id}(id=${c.courseId},page=${page})}" class="btn btn-secondary">詳細</a></td>
 			</tr>
 		</tbody>
 	</table>
@@ -100,7 +93,7 @@
 			<span th:case="1" class="btn btn-secondary disabled">&laquo;</span>
 
 			<a th:case="*"
-			   th:href="@{/member/{id}(id=${member.id},page=${page -1})}"
+			   th:href="@{/show(page=${page -1})}"
 			   class="btn btn-secondary">
 				&laquo;
 			</a>
@@ -117,7 +110,7 @@
 				</span>
 
 				<a th:case="*"
-				   th:href="@{/member/{id}(id=${member.id},page=${index})}"
+				   th:href="@{/show(page=${index})}"
 				   class="btn btn-secondary">
 					[[${index}]]
 				</a>
@@ -135,9 +128,8 @@
 			</span>
 
 			<a th:case="*"
-				th:href="@{/member/{id}(id=${member.id},page=${page + 1})}"
-
-				class="btn btn-secondary">
+			   th:href="@{/show(page=${page + 1})}"
+			   class="btn btn-secondary">
 				&raquo;
 			</a>
 

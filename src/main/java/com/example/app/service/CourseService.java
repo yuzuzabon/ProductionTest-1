@@ -29,9 +29,9 @@ public interface CourseService {
 
 	//申し込み
 		void join(Course course);
-	//ページ分割
-		List<Course> servSelectCourseByPage(int page, int numPerPage);
-		int servSelectTotalPages(int numPerPage);
+	//ページ分割　zdrive仕様
+	//	List<Course> servSelectCourseByPage(int page, int numPerPage);
+	//	int servSelectTotalPages(int numPerPage);
 
 	//登録 重複チェック用
 		public boolean servInsertCourse(Course course);
@@ -44,7 +44,8 @@ public interface CourseService {
 		public String executeDbInsert(Course course, List<ClassRoomSchedule> schedules) ;
 	//変更　重複チェック用
 		public String servCheckScheduleUpdateRequest(ScheduleUpdateRequest updateRequest);
-	//
-		
+	//ページネーション用
+		public List<Course> servSelectCourseByPage(int page, String searchType);
+		public double servSelectTotalPages(String searchType);
 		
 }

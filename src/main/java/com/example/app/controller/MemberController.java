@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class MemberController {
 		private final MemberService memberService;
 		private final CourseService courseService;
-		private final int NUM_PER_PAGE=5;
+//		private final int NUM_PER_PAGE=5;
 
 		private List<CourseHistory> setMemberInfo(Integer id,Model model) {
 			Member member= memberService.servSelectMemberById(id);
@@ -57,6 +57,7 @@ public class MemberController {
 		//@ResponseBody
 			public String contSelectMemberById(
 					@PathVariable Integer id,
+					@RequestParam(name = "searchType", defaultValue = "lateEnrollment") String searchType,
 					@RequestParam(name="page",defaultValue = "1")Integer page,
 					Model model) {
 
@@ -70,14 +71,15 @@ public class MemberController {
 //					model.addAttribute("history",history);
 
 					model.addAttribute("courses",
-							courseService.servSelectCourseByPage(page, NUM_PER_PAGE));
+							courseService.servSelectCourseByPage(page, searchType));
 					model.addAttribute("page",page);
 					model.addAttribute("totalPages",
-							courseService.servSelectTotalPages(NUM_PER_PAGE));
+							courseService.servSelectTotalPages(searchType));
 					
 					return "memberWithCourseList";
 
 		}
+		
 		@GetMapping("/memberjoin/{id}")
 
 			public String contSelectMemberByIdWithCourseId(

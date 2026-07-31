@@ -39,7 +39,7 @@
 	      <div class="form-check form-check-inline">
 	        <input class="form-check-input" type="radio" name="searchType" id="searchLate" value="lateEnrollment"
 	               th:checked="${searchType == 'lateEnrollment'}" onchange="this.form.submit()">
-	        <label class="form-check-label" for="searchLate">途中受講可（受付中のみ）</label>
+	        <label class="form-check-label" for="searchLate">受付中の講座</label>
 	      </div>
 	    </div>
 
@@ -60,6 +60,7 @@
 				<th>定員</th>
 				<th>申込数</th>
 				<th>空き</th>
+				<th>途中受講</th>
 				<th>詳細</th>
 			</tr>
 		</thead>
@@ -77,12 +78,16 @@
 				<td class="text-center">[[${c.courseCapacity.capacity}]]</td>
 				<td class="text-center">[[${c.courseCapacity.numberOfApplicant}]]</td>
 				<td class="text-center"	th:text="${c.courseCapacity.capacity - c.courseCapacity.numberOfApplicant}"></td>
-				<td> <a th:href="@{/show/{id}(id=${c.courseId},page=${page})}" class="btn btn-secondary">詳細</a></td>
+				<td class="text-center">[[${c.allowLateEnrollment ? "可":"不可"}]]</td>
+				<td> <a th:href="@{/show/{id}(id=${c.courseId},page=${page},searchType=${searchType})}" 
+						class="btn btn-secondary">詳細</a></td>
+<!--				class="btn" th:classappend="${c.allowLateEnrollment} ? 'btn-primary':'btn-secondary'">詳細</a></td>-->
 			</tr>
 		</tbody>
 	</table>
 </div>
 
+<!-- ページネーションリンクエリア -->
 <!-- 2 ページ以上の場合、ページネーションを表示:start -->
 <div th:if="${totalPages >= 2}" class="container mt-3">
 
@@ -138,6 +143,39 @@
 	</div>
 
 </div>
+<!-- 2 ページ以上の場合、ページネーションを表示:end -->
+
+
+<!--/*
+<div th:if="${totalPages > 0}" class="d-flex justify-content-center mt-4">
+  <nav>
+    <ul class="pagination">
+      
+      <!-- 前へボタン -->
+      <li class="page-item" th:classappend="${page == 1} ? 'disabled'">
+        <a class="page-link" 
+           th:href="@{/show(page=${page - 1}, searchType=${searchType})}">前へ</a>
+      </li>
+
+      <!-- ページ番号ループ -->
+      <li class="page-item" 
+          th:each="i : ${#numbers.sequence(1, totalPages)}"
+          th:classappend="${i == page} ? 'active'">
+        <a class="page-link" 
+           th:href="@{/show(page=${i}, searchType=${searchType})}" 
+           th:text="${i}">1</a>
+      </li>
+
+      <!-- 次へボタン -->
+      <li class="page-item" th:classappend="${page == totalPages} ? 'disabled'">
+        <a class="page-link" 
+           th:href="@{/show(page=${page + 1}, searchType=${searchType})}">次へ</a>
+      </li>
+
+    </ul>
+  </nav>
+</div>
+*/-->
 <!-- 2 ページ以上の場合、ページネーションを表示:end -->
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 

@@ -34,7 +34,7 @@ public class CourseController {
 		private final CourseService courseService;
 		private final MemberService memberService;
 		private final ClassRoomService classRoomService;
-		private final int NUM_PER_PAGE=5;//1ページに表示される件数
+		//private final int NUM_PER_PAGE=5;//1ページに表示される件数
 		//private final ClassRoomScheduleService classRoomScheduleService;
 
 		public String messageDuplicate="選択した教室は使用されています";
@@ -66,20 +66,22 @@ public class CourseController {
 				@RequestParam(name = "searchType", defaultValue = "all") String searchType,
 				@RequestParam(name="page",defaultValue = "1")Integer page,
 				Model model) {
-			model.addAttribute("courses",courseService.servSelectCourseAll(searchType));
+			
+			List<Course>courses=courseService.servSelectCourseByPage(page,searchType);
+			double totalPages=courseService.servSelectTotalPages(searchType);
+			
+			model.addAttribute("courses",courses);
 			model.addAttribute("searchType", searchType);
+			model.addAttribute("page", page);
+			model.addAttribute("totalPages", (int)totalPages);
 
-			// 画面側（HTML）で検索条件を保持・再表示するために Model に追加
-		  // model.addAttribute("searchType", searchType);
-		  // model.addAttribute("keyword", keyword);
-		  // System.out.println("受け取ったsearchType: " + searchType);
 			return "courseList";
 		}
-		@GetMapping("test/show")
-/*	//講座全件取得
+/*		@GetMapping("/show") zdrive仕様のページネーション機能
+	//講座全件取得
 		public String contSelectCourseAll(Model model) {
 			model.addAttribute("courses",courseService.servSelectCourseAll());
-*/
+
 		//ページ分割対応
 			public String contSelectCourseByPage(
 					@RequestParam(name="page",defaultValue = "1")Integer page,
@@ -92,16 +94,18 @@ public class CourseController {
 
 			return "courseList";
 		}
-
+*/
 		
 		@GetMapping("/show/{courseId}")
 			public String contSelectCourseByCourseId(
 					@PathVariable String courseId,
+					@RequestParam(name = "searchType", defaultValue = "all") String searchType,
 					@RequestParam(defaultValue = "1") Integer page,
 					Model model	) {
 
 					List<Course> course=courseService.servSellectCourseByCourseId(courseId);
 					model.addAttribute("course",course);
+					model.addAttribute("searchType", searchType);
 					model.addAttribute("page", page);
 				//System.out.println("******"+course);
 					return "courseInfo";
@@ -133,7 +137,10 @@ public class CourseController {
 	    } else if("no_change".equals(result)) {
 	    // 💡 変更なしの場合のメッセージを設定
 	    		rd.addFlashAttribute("errorMessage", "変更箇所がありません。");
-	    }
+	    } else if("past_date_error".equals(result)) {
+		    // 過去日付への変更場合のメッセージを設定
+    		rd.addFlashAttribute("errorMessage", "過去日付への変更はできません。");
+    } 
 	    // course_salesの変更をログに記録
 	        
 	    // course_salesのリセット
