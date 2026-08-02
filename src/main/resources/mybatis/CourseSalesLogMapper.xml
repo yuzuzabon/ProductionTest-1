@@ -3,19 +3,70 @@
 <!--  -->
 <mapper namespace="com.example.app.mapper.CourseSalesLogMapper">
 
+<select id="selectCourseSalesLogAll" >
+	SELECT * FROM course_sales_log
+
+</select>
+
+<select id="selectCourseSalesLogByCriteria" resultType="com.example.app.domain.CourseSalesLog">
+	SELECT * FROM course_sales_log
+	<where>
+		<!-- 講座ID（数値型の場合は null チェックのみ） -->
+		<if test="courseId != null">
+			AND course_id = #{courseId}
+		</if>
+
+		<!-- 事由（文字列型の場合は null と空文字をチェック） -->
+		<if test="reasonType != null and reasonType != ''">
+			AND reason_type = #{reasonType}
+		</if>
+
+		<!-- 計上月（文字列型の場合は null と空文字をチェック） -->
+		<if test="targetMonth != null and targetMonth != ''">
+			AND target_month = #{targetMonth}
+		</if>
+	</where>
+<!--	ORDER BY registered_at DESC-->
+</select>
+
+<select id="selectDistinctCourseIds" resultType="string">
+    SELECT DISTINCT
+    course_id
+    FROM
+    course_sales_log
+    WHERE course_id
+    IS NOT NULL ORDER BY course_id
+</select>
+
+<select id="selectDistinctReasonTypes" resultType="string">
+    SELECT DISTINCT
+    reason_type
+    FROM course_sales_log
+    WHERE reason_type
+    IS NOT NULL AND reason_type != '' ORDER BY reason_type
+</select>
+
+<select id="selectDistinctTargetMonths" resultType="string">
+    SELECT DISTINCT
+    target_month
+    FROM course_sales_log
+    WHERE target_month
+    IS NOT NULL AND target_month != '' ORDER BY target_month DESC
+</select>
+
 <insert id="insertLog">
 insert into course_sales_log
 (
-id, 
-course_id, 
-reason_type, 
-target_month, 
-before_tuition_fee, 
-before_material_fee, 
-after_tuition_fee, 
-after_material_fee, 
-refunds_monthly_tuitionFee, 
-refunds_material_fee, 
+id,
+course_id,
+reason_type,
+target_month,
+before_tuition_fee,
+before_material_fee,
+after_tuition_fee,
+after_material_fee,
+refunds_monthly_tuitionFee,
+refunds_material_fee,
 registered_at
 )
 	values
