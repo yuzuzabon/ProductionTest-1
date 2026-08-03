@@ -29,6 +29,7 @@ public class MemberServiceImpl  implements MemberService{
 
 		private final MemberMapper memberMapper;
 		private final CourseMapper courseMapper;
+		private final CourseService courseService;
 		private final CourseSalesLogMapper courseSalesLogMapper;
 
 		@Override
@@ -82,8 +83,31 @@ public class MemberServiceImpl  implements MemberService{
 			log.setAfterMaterialFee(afterMaterial);
 			
 			courseSalesLogMapper.insertLog(log);
-			
+			System.out.println("courseSalelog---"+log);
 		}
+		//全回数受講(true)途中受講判定(false)/////////////////
+		@Override
+		public boolean servisFullCourseEnrollment(String courseId){
+			RemainingCourseData rcData=
+				servSelectRemainingCourseData(courseId);
+			//boolean ale=rcData.isAle();
+			int ct=rcData.getCt();
+			int rc=rcData.getRemainingCount();
+			//途中受講の判定
+			//途中受講可allow_late_enrollment=1　
+			//講座回数 course_term > 残り回数 remainingCount
+			
+			return ct==rc;
+		}
+		//途中受講の可否判定
+		@Override
+		public boolean servisValidLateEnrollment(String courseId) {
+			RemainingCourseData rcData = servSelectRemainingCourseData(courseId);
+	    // 途中受講許可があり、かつ残回数が1以上あるか
+	    return rcData.isAle() && rcData.getRemainingCount() > 0;
+		}
+		
+		
 		
 		//新規受講
 		@Override
@@ -129,7 +153,7 @@ public class MemberServiceImpl  implements MemberService{
 			    }	else {
 
 				memberMapper.insertCourseHistory(history);
-					System.out.println(history);}
+					System.out.println("新規history---"+history);}
 
 			    String initialMonth=mc.get(0).getSalesMonth();
 			    if(initialMonth.isEmpty()) {
@@ -154,6 +178,7 @@ public class MemberServiceImpl  implements MemberService{
 					}
 */
 				memberMapper.upsertCourseSales(sales);
+					System.out.println("新規sales---"+sales);
 				//申し込みログ記録
 //				CourseSalesLog log=new CourseSalesLog();
 //				log.setCourseId(courseId);
@@ -184,14 +209,15 @@ public class MemberServiceImpl  implements MemberService{
 
 				//途中受講用の情報取得
 				Course cf=memberMapper.selectCourseFee(courseId);
-
+					boolean ale=cf.getAllowLateEnrollment();
+					Integer ct=cf.getCourseTerm();
 					Integer tuition=cf.getTuitionFee();
 					Integer material=cf.getMaterialFee();
 					
 					// 残数取得
 					Integer remainingCount=memberMapper.selectRemainingCount(courseId);
 					
-					return new RemainingCourseData(tuition,material,remainingCount);
+					return new RemainingCourseData(ale,ct,tuition,material,remainingCount);
 		}
 
 		//途中受講　申し込み/////////////////////////////////
@@ -230,14 +256,14 @@ public class MemberServiceImpl  implements MemberService{
 				history.setCourseId(courseId);
 				history.setMemberId(id);
 				history.setMemberStatus(1);
-				history.setLateEnrollment(false);
+				history.setLateEnrollment(true);
 				history.setCourseTerm(courseTerm);
 				history.setRemainingCount(remainingCount);
 				history.setPaidTuitionFee(remainingCount*tuition);
 				history.setPaidMaterialFee(material);
 					
 				memberMapper.insertCourseHistory(history);
-				System.out.println(history);
+				System.out.println("途中受講history---"+history);
 			
 // /////////// test環境では重複チェックをコメントアウト //////////
 /*					int overlapCount =
@@ -273,7 +299,8 @@ public class MemberServiceImpl  implements MemberService{
 					}
 */
 				memberMapper.upsertCourseSales(sales);
-
+					System.out.println("途中受講salse---"+sales);
+					
 				//申し込みログ記録(途中申し込み)
 //				CourseSalesLog log=new CourseSalesLog();
 //				log.setCourseId(courseId);

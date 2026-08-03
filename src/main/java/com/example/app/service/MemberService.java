@@ -31,4 +31,8 @@ public interface MemberService {
 	//	public List<CourseSales>selectCourseSalesByCourseId(String courseId);
 	//途中受講用データ取得
 		public RemainingCourseData servSelectRemainingCourseData(String courseId);
+	//初回からの受講or途中受講判定
+		public boolean servisFullCourseEnrollment(String courseId);
+	//途中受講が可否判定
+		public boolean servisValidLateEnrollment(String courseId);
 }

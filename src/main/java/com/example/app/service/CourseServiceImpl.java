@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 //@NoArgsConstructor
 public class CourseServiceImpl implements CourseService{
 
-	@Autowired
+	
 		private final CourseMapper courseMapper;
 	//private final MemberService memberService;
 

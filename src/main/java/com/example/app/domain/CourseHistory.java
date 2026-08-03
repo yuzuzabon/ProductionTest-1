@@ -17,6 +17,7 @@ public class CourseHistory {
 		private String courseId;
 		
 		private boolean lateEnrollment;
+		private String startMonth;
 		private Integer courseTerm;
 		private Integer remainingCount;
 		

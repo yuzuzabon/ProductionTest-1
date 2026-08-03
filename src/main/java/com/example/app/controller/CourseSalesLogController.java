@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,13 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.app.domain.CourseSalesLog;
 import com.example.app.service.CourseSalesLogService;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/api/sales-log")
 @CrossOrigin(origins = "http://localhost:5173") // React開発サーバーのURL
+@RequiredArgsConstructor
 public class CourseSalesLogController {
 
-	@Autowired
-  private CourseSalesLogService salesLogService;
+
+  private final CourseSalesLogService salesLogService;
 
   // 一覧取得エンドポイント
   @GetMapping
@@ -36,9 +38,9 @@ public class CourseSalesLogController {
   @GetMapping("/options")
   public Map<String, Object> getSearchOptions() {
       Map<String, Object> options = new HashMap<>();
-      options.put("courseIds", salesLogService.getDistinctCourseIds());
-      options.put("reasonTypes", salesLogService.getDistinctReasonTypes());
-      options.put("targetMonths", salesLogService.getDistinctTargetMonths());
+      options.put("courseIds", salesLogService.servSelectDistinctCourseIds());
+      options.put("reasonTypes", salesLogService.servSelectDistinctReasonTypes());
+      options.put("targetMonths", salesLogService.servSelectDistinctTargetMonths());
       return options;
   }
   

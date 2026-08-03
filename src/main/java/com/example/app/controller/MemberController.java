@@ -62,7 +62,7 @@ public class MemberController {
 					Model model) {
 
 					setMemberInfo(id,model);
-					// 以下をメソッド化
+					// 以下をメソッド化 private List<CourseHistory> setMemberInfo(Integer id,Model model)
 //					Member member= memberService.servSelectMemberById(id);
 //					model.addAttribute("member",member);
 //
@@ -116,18 +116,43 @@ public class MemberController {
 					//@RequestParam Integer page,
 					RedirectAttributes rd) {
 				rd.addAttribute("page", page);
-			boolean isSuccess=memberService.servApplyCourse(id,courseId);
+			//初回からの受講or途中受講判定	
+			boolean isFullCourse=memberService.servisFullCourseEnrollment(courseId);	
+			
+			//初回からの申し込み処理
+			if(isFullCourse) {
+				boolean isSuccess=memberService.servApplyCourse(id,courseId);
 
-			if(isSuccess) {
-				rd.addFlashAttribute("statusMessage","お申し込みを承りました");
-				rd.addAttribute("courseId",courseId);
-					return "redirect:/memberjoin/"+id;
+				if(isSuccess) {
+					rd.addFlashAttribute("statusMessage","お申し込みを承りました");
+				
+				}else {
+					rd.addFlashAttribute("errorMessage","同じ講座にお申し込み済みです");
+				}
 			}else {
-				rd.addFlashAttribute("errorMessage","同じ講座にお申し込み済みです");
-				rd.addAttribute("courseId",courseId);
-				//return "redirect:/member1/"+id+"?courseId="+courseId;
-					return "redirect:/memberjoin/"+id;
+				boolean isValid=memberService.servisValidLateEnrollment(courseId);
+				if(isValid) {
+				
+			//途中申し込みservRemainingApplyCourse
+				boolean isSuccess=memberService.servRemainingApplyCourse(id,courseId);
+				if(isSuccess) {
+					rd.addFlashAttribute("statusMessage","お申し込みを承りました");
+					
+				}else {
+					rd.addFlashAttribute("errorMessage","同じ講座にお申し込み済みです");
+				}	
+				
+				}else {
+					rd.addFlashAttribute("errorMessage","この講座は途中受講できません");
+				}
+									
 			}
-
+				//リダイレクトパラメータ設定
+					rd.addAttribute("page",page);
+					rd.addAttribute("courseId",courseId);
+						//return "redirect:/member1/"+id+"?courseId="+courseId;
+						
+						return "redirect:/memberjoin/"+id;
+					
 		}
 }

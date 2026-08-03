@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RemainingCourseData {
 
+	private boolean ale;
+	private Integer ct;
 	private Integer tuition;
 	private Integer material;
 	private Integer remainingCount;

@@ -87,6 +87,7 @@
 	select 
 		course_id,
 		course_term,
+		allow_late_enrollment,
 		tuition_fee,
 		material_fee
 	from

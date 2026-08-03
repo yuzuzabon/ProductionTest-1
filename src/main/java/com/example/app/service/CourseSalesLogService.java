@@ -1,41 +1,19 @@
 package com.example.app.service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import com.example.app.domain.CourseSalesLog;
-import com.example.app.mapper.CourseSalesLogMapper;
 
-import lombok.RequiredArgsConstructor;
-@Service
-@RequiredArgsConstructor
-public class CourseSalesLogService {
+public interface CourseSalesLogService {
 
-	@Autowired
-	private final CourseSalesLogMapper salesLogMapper;
-
+	//売り上げマスタ閲覧
 	public List<CourseSalesLog> servSelectCourseSalesLogByCriteria(
-			String courseId,String reasonType,String targetMonth){
-	// パラメータを Map にセット
-    Map<String, Object> params = new HashMap<>();
-    params.put("courseId", courseId);
-    params.put("reasonType", reasonType);
-    params.put("targetMonth", targetMonth);
-
-		return salesLogMapper.selectCourseSalesLogByCriteria(params);
-	}
-	public List<String> getDistinctCourseIds() {
-    return salesLogMapper.selectDistinctCourseIds();
-	}
-	public List<String> getDistinctReasonTypes() {
-    return salesLogMapper.selectDistinctReasonTypes();
-	}
-	public List<String> getDistinctTargetMonths() {
-    return salesLogMapper.selectDistinctTargetMonths();
-	}
-
+			String courseId,String reasonType,String targetMonth);
+	//売上マスタ検索条件courseId取得
+	public List<String> servSelectDistinctCourseIds();
+	//売上マスタ検索条件reasonType取得
+	public List<String> servSelectDistinctReasonTypes();
+	//売上マスタ検索条件targetMonths取得
+	public List<String> servSelectDistinctTargetMonths()
+;	
 }
