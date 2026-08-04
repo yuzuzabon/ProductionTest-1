@@ -9,12 +9,14 @@ import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
 import com.example.app.domain.CourseCapacity;
 import com.example.app.domain.CourseHistory;
 import com.example.app.domain.CourseSales;
 import com.example.app.domain.CourseSalesLog;
 import com.example.app.domain.Member;
+import com.example.app.domain.MemberScheduleStatus;
 import com.example.app.domain.MonthlyCount;
 import com.example.app.domain.RemainingCourseData;
 import com.example.app.mapper.CourseMapper;
@@ -31,6 +33,7 @@ public class MemberServiceImpl  implements MemberService{
 		private final CourseMapper courseMapper;
 		private final CourseService courseService;
 		private final CourseSalesLogMapper courseSalesLogMapper;
+		
 
 		@Override
 		public List<Member>servSelectMemberAll(){
@@ -82,7 +85,7 @@ public class MemberServiceImpl  implements MemberService{
 			log.setAfterTuitionFee(afterTuition);
 			log.setAfterMaterialFee(afterMaterial);
 			
-			courseSalesLogMapper.insertLog(log);
+// test---			courseSalesLogMapper.insertLog(log);
 			System.out.println("courseSalelog---"+log);
 		}
 		//全回数受講(true)途中受講判定(false)/////////////////
@@ -125,6 +128,18 @@ public class MemberServiceImpl  implements MemberService{
 				if(mc.isEmpty()) {
 						throw new IllegalStateException("月別回数データが存在しないため処理を中断しました"+courseId);
 				}
+			//講座スケジュール情報取得
+				List<ClassRoomSchedule>crs=
+						memberMapper.sellectCourseSchedulesByCourseId(courseId);
+				if(crs.isEmpty()) {
+					throw new IllegalStateException("講座スケジュールデータが存在しないため処理を中断しました"+courseId);
+				}
+			//初回月を抽出		
+				String initialMonth=mc.get(0).getSalesMonth();
+		    if(initialMonth.isEmpty()) {
+		    	throw new IllegalStateException("初回月データが存在しないため処理を中断しました");
+		    }
+				
 				Course cf=memberMapper.selectCourseFee(courseId);
 
 					int tuition=cf.getTuitionFee();
@@ -142,23 +157,22 @@ public class MemberServiceImpl  implements MemberService{
 					history.setPaidTuitionFee(courseTerm*tuition);
 					history.setPaidMaterialFee(material);
 // /////////// test環境では重複チェックをコメントアウト //////////
-/*					int overlapCount =
+/**/					int overlapCount =
 							memberMapper.countOverlappedCourse(history);
-*/		    // 重複がある（カウントが1以上）場合は、更新せずにfalseを返して処理を中断
-					int overlapCount = 0;//test環境でのダミーフラグ
+/**/		    // 重複がある（カウントが1以上）場合は、更新せずにfalseを返して処理を中断
+// test---					int overlapCount = 0;//test環境でのダミーフラグ
 			    if (overlapCount > 0) {
 			    	System.out.println(overlapCount);
 
 			        return false;// 重複
 			    }	else {
 
-				memberMapper.insertCourseHistory(history);
-					System.out.println("新規history---"+history);}
+// test---				memberMapper.insertCourseHistory(history);
+					System.out.println("新規history---"+history);
+			    System.out.println("新規mc---"+mc);
+			    System.out.println("新規crs---"+crs);}
 
-			    String initialMonth=mc.get(0).getSalesMonth();
-			    if(initialMonth.isEmpty()) {
-			    	throw new IllegalStateException("初回月データが存在しないため処理を中断しました");
-			    }
+			   
 				for(MonthlyCount m : mc) {
 					CourseSales sales=new CourseSales();
 					String targetMonth=m.getSalesMonth();
@@ -167,9 +181,9 @@ public class MemberServiceImpl  implements MemberService{
 
 					//売り上げマスタへの記録
 					sales.setCourseId(courseId);
-					sales.setTargetMonth(targetMonth);
-					sales.setMonthlyTuitionFee(calcTuition);
-					sales.setMaterialFee(calcMaterial);
+					sales.setTargetMonth(m.getSalesMonth());
+					sales.setMonthlyTuitionFee(tuition*m.getCount());
+					sales.setMaterialFee(targetMonth.equals(initialMonth) ? material : 0);
 					//System.out.println(sales);
 /*				if(targetMonth.equals(initialMonth)) {
 						sales.setMaterialFee(material);
@@ -177,7 +191,7 @@ public class MemberServiceImpl  implements MemberService{
 						sales.setMaterialFee(0);
 					}
 */
-				memberMapper.upsertCourseSales(sales);
+// test---				memberMapper.upsertCourseSales(sales);
 					System.out.println("新規sales---"+sales);
 				//申し込みログ記録
 //				CourseSalesLog log=new CourseSalesLog();
@@ -194,10 +208,22 @@ public class MemberServiceImpl  implements MemberService{
 				(courseId,"APPLICATION",targetMonth,0,0,calcTuition,calcMaterial);
 				
 				}
+				//
+				for(ClassRoomSchedule c : crs) {
+					MemberScheduleStatus scheduleStatus
+					=new MemberScheduleStatus();
+					scheduleStatus.setMemberId(history.getMemberId());
+					scheduleStatus.setCourseId(courseId);
+					scheduleStatus.setScheduleId(c.getId());
+					scheduleStatus.setStatus("RESERVED");
+					
+					System.out.println("途中受講status"+scheduleStatus);
+				}
+				
 			// 申込者数の更新
 			// 	numberOfApplicant=numberOfApplicant+1をSQL側で処理
 			//int numberOfApplicant=ca.getNumberOfApplicant()+1;
-				memberMapper.updateApplyedCount(courseId);
+// test---				memberMapper.updateApplyedCount(courseId);
 
 						return true;
 
@@ -236,6 +262,18 @@ public class MemberServiceImpl  implements MemberService{
 				if(mc.isEmpty()) {
 						throw new IllegalStateException("月別回数データが存在しないため処理を中断しました"+courseId);
 				}
+			//講座スケジュール情報取得
+				List<ClassRoomSchedule>crs=
+						memberMapper.sellectCourseSchedulesByCourseId(courseId);
+				if(crs.isEmpty()) {
+					throw new IllegalStateException("講座スケジュールデータが存在しないため処理を中断しました"+courseId);
+				}
+			//初回月を抽出	
+		    String initialMonth=mc.get(0).getSalesMonth();
+		    if(initialMonth.isEmpty()) {
+		    	throw new IllegalStateException("初回月データが存在しないため処理を中断しました");
+		    }
+				
 				Course cf=memberMapper.selectCourseFee(courseId);
 
 					int tuition=cf.getTuitionFee();
@@ -261,25 +299,24 @@ public class MemberServiceImpl  implements MemberService{
 				history.setRemainingCount(remainingCount);
 				history.setPaidTuitionFee(remainingCount*tuition);
 				history.setPaidMaterialFee(material);
+				history.setStartMonth(initialMonth);
 					
-				memberMapper.insertCourseHistory(history);
+// test---				memberMapper.insertCourseHistory(history);
 				System.out.println("途中受講history---"+history);
+		    System.out.println("途中mc---"+mc);
+		    System.out.println("途中crs---"+crs);
 			
 // /////////// test環境では重複チェックをコメントアウト //////////
-/*					int overlapCount =
+/**/					int overlapCount =
 							memberMapper.countOverlappedCourse(history);
-*/		    // 重複がある（カウントが1以上）場合は、更新せずにfalseを返して処理を中断
-					int overlapCount = 0;//test環境でのダミーフラグ
+/**/		    // 重複がある（カウントが1以上）場合は、更新せずにfalseを返して処理を中断
+// test---					int overlapCount = 0;//test環境でのダミーフラグ
 			    if (overlapCount > 0) {
 			    	System.out.println(overlapCount);
 
 			        return false;// 重複
 			    }	
 
-			    String initialMonth=mc.get(0).getSalesMonth();
-			    if(initialMonth.isEmpty()) {
-			    	throw new IllegalStateException("初回月データが存在しないため処理を中断しました");
-			    }
 				for(MonthlyCount m : mc) {
 					CourseSales sales=new CourseSales();
 					String targetMonth=m.getSalesMonth();
@@ -288,9 +325,11 @@ public class MemberServiceImpl  implements MemberService{
 
 					//売り上げマスタへの記録
 					sales.setCourseId(courseId);
-					sales.setTargetMonth(targetMonth);
-					sales.setMonthlyTuitionFee(calcTuition);
-					sales.setMaterialFee(calcMaterial);
+					sales.setTargetMonth(m.getSalesMonth());
+					sales.setMonthlyTuitionFee(tuition*m.getCount());
+					sales.setMaterialFee(targetMonth.equals(initialMonth) ? material : 0);
+					
+					
 					//System.out.println(sales);
 /*				if(targetMonth.equals(initialMonth)) {
 						sales.setMaterialFee(material);
@@ -298,8 +337,10 @@ public class MemberServiceImpl  implements MemberService{
 						sales.setMaterialFee(0);
 					}
 */
-				memberMapper.upsertCourseSales(sales);
+					
+// test---				memberMapper.upsertCourseSales(sales);
 					System.out.println("途中受講salse---"+sales);
+					
 					
 				//申し込みログ記録(途中申し込み)
 //				CourseSalesLog log=new CourseSalesLog();
@@ -317,11 +358,23 @@ public class MemberServiceImpl  implements MemberService{
 				(courseId,"REMAINING_APPLICATION",targetMonth,0,0,calcTuition,calcMaterial);
 				
 				}
+				//
+				for(ClassRoomSchedule c : crs) {
+					MemberScheduleStatus scheduleStatus
+					=new MemberScheduleStatus();
+					scheduleStatus.setMemberId(history.getMemberId());
+					scheduleStatus.setCourseId(courseId);
+					scheduleStatus.setScheduleId(c.getId());
+					scheduleStatus.setStatus("RESERVED");
+					
+					System.out.println("途中受講status"+scheduleStatus);
+				}
 				
 			// 申込者数の更新
 			// 	numberOfApplicant=numberOfApplicant+1をSQL側で処理
 			//int numberOfApplicant=ca.getNumberOfApplicant()+1;
-				memberMapper.updateApplyedCount(courseId);
+				
+// test---				memberMapper.updateApplyedCount(courseId);
 
 						return true;
 
@@ -382,7 +435,7 @@ public class MemberServiceImpl  implements MemberService{
 					String targetMonth=m.getSalesMonth();
 
 					sales.setCourseId(courseId);
-					sales.setTargetMonth(targetMonth);
+					sales.setTargetMonth(m.getSalesMonth());
 					sales.setMonthlyTuitionFee(tuition*t*m.getCount());
 					sales.setMaterialFee
 					(targetMonth.equals(initialMonth) ? material*t : 0);

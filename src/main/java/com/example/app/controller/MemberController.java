@@ -58,6 +58,7 @@ public class MemberController {
 			public String contSelectMemberById(
 					@PathVariable Integer id,
 					@RequestParam(name = "searchType", defaultValue = "lateEnrollment") String searchType,
+//					@RequestParam(name = "searchType", defaultValue = "all") String searchType,
 					@RequestParam(name="page",defaultValue = "1")Integer page,
 					Model model) {
 
@@ -93,6 +94,8 @@ public class MemberController {
 				List<Course> course=
 						courseService.servSellectCourseByCourseId(courseId);
 				model.addAttribute("course",course);
+// test -------				
+//			System.out.println("controller---"+course);
 
 				List<CourseHistory>history=setMemberInfo(id,model);
 				RemainingCourseData rcData=

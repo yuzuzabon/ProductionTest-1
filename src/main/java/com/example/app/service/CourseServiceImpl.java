@@ -368,8 +368,8 @@ public class CourseServiceImpl implements CourseService{
 			List<LocalDate>dateList=servGenerateDateList(baseDate);
 			List<LocalTime>timeList=servGenerateTimeList();
 
-			System.out.println("------1週間分の日付------"+dateList);
-			System.out.println("------1日分の時刻------"+timeList);
+			//System.out.println("------1週間分の日付------"+dateList);
+			//System.out.println("------1日分の時刻------"+timeList);
 
 			List<ClassRoomSchedule> roomSchedules=courseMapper.selectClassRoomScheduleAll();
 			Map<String,Set<String>>scheduleMap=new TreeMap<>();

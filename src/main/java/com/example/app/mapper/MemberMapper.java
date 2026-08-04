@@ -6,11 +6,13 @@ import java.util.Optional;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
 import com.example.app.domain.CourseCapacity;
 import com.example.app.domain.CourseHistory;
 import com.example.app.domain.CourseSales;
 import com.example.app.domain.Member;
+import com.example.app.domain.MemberScheduleStatus;
 import com.example.app.domain.MonthlyCount;
 
 @Mapper
@@ -55,4 +57,10 @@ public interface MemberMapper {
 	//講座申し込み履歴取得
 	List<CourseHistory>sellectCourseHistoryById(
 				@Param("memberId") Integer memberId);
+	//講座の日程取得
+	List<ClassRoomSchedule>sellectCourseSchedulesByCourseId(
+				@Param("courseId")String courseId);
+	//受講者と講座日程を紐づけたデータの書き込み
+	void upsertMemberScheduleStatus(MemberScheduleStatus scheduleStatus);
+	
 }

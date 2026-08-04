@@ -64,7 +64,7 @@
 	where
 		course_id=#{courseId}	
 		and
-		 (date, start_time) >= (CURRENT_DATE, CURRENT_TIME) 
+		TIMESTAMP(date, start_time) >= NOW()
 	group by
 		date_format(date,'%Y%m')
 	ORDER BY 
@@ -79,9 +79,28 @@
 	where
 		course_id=#{courseId}	
 		and
-		 (date, start_time) >= (CURRENT_DATE, CURRENT_TIME) 
+		TIMESTAMP(date, start_time) >= NOW()
 	
 </select>
+
+<select id="sellectCourseSchedulesByCourseId" resultType="ClassRoomSchedule"> 
+	select
+		id,
+		course_id,
+		date,
+		start_time,
+		DATE_FORMAT(date,'%Y%m') as salesMonth
+	from
+		class_room_schedule
+	where
+		course_id=#{courseId}
+	and 
+		TIMESTAMP(date, start_time) >= NOW()
+	order by
+		date ASC,start_time ASC
+
+</select>
+
 
 <select id="selectCourseFee">
 	select 
@@ -175,5 +194,26 @@
 			#{paidMaterialFee})
  
  </insert>
+ 
+ <insert id="upsertMemberScheduleStatus">
+    INSERT INTO member_schedule_status (
+        member_id,
+        course_id,
+        schedule_id,
+        status,
+        registered_at,
+        updated_at
+    ) VALUES (
+        #{memberId},
+        #{courseId},
+        #{scheduleId},
+        #{status},
+        NOW(),
+        NOW()
+    )
+    ON DUPLICATE KEY UPDATE
+        status = #{status},
+        updated_at = NOW()
+</insert>
 
 </mapper>
