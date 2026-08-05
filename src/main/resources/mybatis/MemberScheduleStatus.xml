@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--  -->
+<mapper namespace="com.example.app.mapper.MemberScheduleStatusMapper">
+
+<!-- ScheduleAccountingDetail へのマッピング定義 -->
+    <resultMap id="ScheduleAccountingDetail" type="com.example.app.domain.ScheduleAccountingDetail">
+        <!-- MemberScheduleStatus -->
+        <id property="mssId" column="mss_id" />
+        <result property="mssStatus" column="mss_status" />
+
+        <!-- ClassRoomSchedule -->
+        <result property="crsId" column="crs_id" />
+        <result property="crsDate" column="crs_date" />
+        <result property="crsStartTime" column="crs_start_time" />
+
+        <!-- CourseHistory -->
+        <result property="chMemberId" column="ch_member_id" />
+        <result property="chCourseId" column="ch_course_id" />
+        <result property="chPaidTuitionFee" column="ch_paid_tuition_fee" />
+        <result property="chPaidMaterialFee" column="ch_paid_material_fee" />
+        <result property="chStartMonth" column="ch_start_month" />
+
+        <!-- Course -->
+        <result property="cTuitionFee" column="c_tuition_fee" />
+        <result property="cMaterialFee" column="c_material_fee" />
+    </resultMap>
+
+    <!-- 4テーブル結合クエリ -->
+
+<select id="selectScheduleAccountingDetails" resultMap="ScheduleAccountingDetail">
+SELECT
+ 	-- MemberScheduleStatus
+  mss.id AS mss_id,
+  mss.status AS mss_status,
+            
+  -- ClassRoomSchedule
+  crs.id AS crs_id,
+  crs.date AS crs_date,       
+  crs.start_time AS crs_start_time,     
+            
+  -- CourseHistory
+  ch.member_id AS ch_member_id,
+  ch.course_id AS ch_course_id,
+  ch.paid_tuition_fee AS ch_paid_tuition_fee,
+  ch.paid_material_fee AS ch_paid_material_fee,
+  ch.start_month AS ch_start_month,
+          
+  -- Course
+  c.tuition_fee AS c_tuition_fee,      
+  c.material_fee AS c_material_fee     
+FROM
+  member_schedule_status mss
+inner JOIN
+  class_room_schedule crs ON mss.schedule_id = crs.id
+inner JOIN
+  course_history ch ON mss.member_id = ch.member_id
+AND
+	mss.course_id = ch.course_id
+inner JOIN
+  course c ON ch.course_id = c.course_id
+WHERE
+ 
+	ch.course_id = #{courseId}
+AND 
+	mss.status in ('RESERVED', 'ATTENDED') -- 日程変更の再計算対象（予約中・受講済みのコマのみ）
+ORDER BY
+  crs.date ASC,
+  crs.start_time ASC;
+</select>
+
+</mapper>

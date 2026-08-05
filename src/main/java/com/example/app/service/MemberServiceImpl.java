@@ -19,9 +19,11 @@ import com.example.app.domain.Member;
 import com.example.app.domain.MemberScheduleStatus;
 import com.example.app.domain.MonthlyCount;
 import com.example.app.domain.RemainingCourseData;
+import com.example.app.domain.ScheduleAccountingDetail;
 import com.example.app.mapper.CourseMapper;
 import com.example.app.mapper.CourseSalesLogMapper;
 import com.example.app.mapper.MemberMapper;
+import com.example.app.mapper.MemberScheduleStatusMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -33,7 +35,7 @@ public class MemberServiceImpl  implements MemberService{
 		private final CourseMapper courseMapper;
 		private final CourseService courseService;
 		private final CourseSalesLogMapper courseSalesLogMapper;
-		
+		private final MemberScheduleStatusMapper scheduleStatusMapper;
 
 		@Override
 		public List<Member>servSelectMemberAll(){
@@ -85,7 +87,8 @@ public class MemberServiceImpl  implements MemberService{
 			log.setAfterTuitionFee(afterTuition);
 			log.setAfterMaterialFee(afterMaterial);
 			
-// test---			courseSalesLogMapper.insertLog(log);
+// test---
+			courseSalesLogMapper.insertLog(log);
 			System.out.println("courseSalelog---"+log);
 		}
 		//全回数受講(true)途中受講判定(false)/////////////////
@@ -156,6 +159,7 @@ public class MemberServiceImpl  implements MemberService{
 					history.setRemainingCount(courseTerm);
 					history.setPaidTuitionFee(courseTerm*tuition);
 					history.setPaidMaterialFee(material);
+					history.setStartMonth(initialMonth);
 // /////////// test環境では重複チェックをコメントアウト //////////
 /**/					int overlapCount =
 							memberMapper.countOverlappedCourse(history);
@@ -167,7 +171,8 @@ public class MemberServiceImpl  implements MemberService{
 			        return false;// 重複
 			    }	else {
 
-// test---				memberMapper.insertCourseHistory(history);
+// test---
+			    	memberMapper.insertCourseHistory(history);
 					System.out.println("新規history---"+history);
 			    System.out.println("新規mc---"+mc);
 			    System.out.println("新規crs---"+crs);}
@@ -191,7 +196,8 @@ public class MemberServiceImpl  implements MemberService{
 						sales.setMaterialFee(0);
 					}
 */
-// test---				memberMapper.upsertCourseSales(sales);
+// test---
+					memberMapper.upsertCourseSales(sales);
 					System.out.println("新規sales---"+sales);
 				//申し込みログ記録
 //				CourseSalesLog log=new CourseSalesLog();
@@ -217,13 +223,16 @@ public class MemberServiceImpl  implements MemberService{
 					scheduleStatus.setScheduleId(c.getId());
 					scheduleStatus.setStatus("RESERVED");
 					
-					System.out.println("途中受講status"+scheduleStatus);
+// test---
+					memberMapper.upsertMemberScheduleStatus(scheduleStatus);
+					System.out.println("新規受講status"+scheduleStatus);
 				}
 				
 			// 申込者数の更新
 			// 	numberOfApplicant=numberOfApplicant+1をSQL側で処理
 			//int numberOfApplicant=ca.getNumberOfApplicant()+1;
-// test---				memberMapper.updateApplyedCount(courseId);
+// test---
+				memberMapper.updateApplyedCount(courseId);
 
 						return true;
 
@@ -301,7 +310,8 @@ public class MemberServiceImpl  implements MemberService{
 				history.setPaidMaterialFee(material);
 				history.setStartMonth(initialMonth);
 					
-// test---				memberMapper.insertCourseHistory(history);
+// test---
+				memberMapper.insertCourseHistory(history);
 				System.out.println("途中受講history---"+history);
 		    System.out.println("途中mc---"+mc);
 		    System.out.println("途中crs---"+crs);
@@ -338,7 +348,8 @@ public class MemberServiceImpl  implements MemberService{
 					}
 */
 					
-// test---				memberMapper.upsertCourseSales(sales);
+// test---
+					memberMapper.upsertCourseSales(sales);
 					System.out.println("途中受講salse---"+sales);
 					
 					
@@ -366,7 +377,8 @@ public class MemberServiceImpl  implements MemberService{
 					scheduleStatus.setCourseId(courseId);
 					scheduleStatus.setScheduleId(c.getId());
 					scheduleStatus.setStatus("RESERVED");
-					
+// test---
+					memberMapper.upsertMemberScheduleStatus(scheduleStatus);					
 					System.out.println("途中受講status"+scheduleStatus);
 				}
 				
@@ -374,7 +386,8 @@ public class MemberServiceImpl  implements MemberService{
 			// 	numberOfApplicant=numberOfApplicant+1をSQL側で処理
 			//int numberOfApplicant=ca.getNumberOfApplicant()+1;
 				
-// test---				memberMapper.updateApplyedCount(courseId);
+// test---
+				memberMapper.updateApplyedCount(courseId);
 
 						return true;
 
@@ -393,6 +406,16 @@ public class MemberServiceImpl  implements MemberService{
 			if(t==null || t==0) {
 				return;
 			}
+			
+			List<ScheduleAccountingDetail>sad=
+					scheduleStatusMapper.selectScheduleAccountingDetails(courseId);
+				if(sad.isEmpty()) {
+						throw new IllegalStateException("月別回数データが存在しないため処理を中断しました"+courseId);
+				}	
+				System.out.println("講座変更データ確認----"+sad);
+			
+//test用------------			
+			if(false) {
 			// 年月見出し＋月ごとの開催回数を取得
 				List<MonthlyCount>mc=memberMapper.selectMonthlyCount(courseId);
 				if(mc.isEmpty()) {
@@ -481,6 +504,7 @@ public class MemberServiceImpl  implements MemberService{
 				}
 				
 		}
+		}//if(false) {とセット
 // /////////////////////////////////
 		
 		

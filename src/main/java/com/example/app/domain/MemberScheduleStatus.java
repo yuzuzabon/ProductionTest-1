@@ -12,6 +12,7 @@ public class MemberScheduleStatus {
 	private String courseId;
 	private Integer scheduleId;
 	private String status;
+	//-- RESERVED(受講予定), ATTENDED(受講済), REFUNDED(返金済), CANCELLED(キャンセル)
 	
 	private LocalDateTime registeredAt;
 	private LocalDateTime updatedAt;
