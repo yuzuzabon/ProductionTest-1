@@ -398,6 +398,27 @@ public class MemberServiceImpl  implements MemberService{
 		@Transactional
 		public void servScheduleChangeCourse(String courseId) {
 			
+// ////////////////////
+			
+			//変更前のcourse_salesの取得
+			List<CourseSales>beforeList=courseMapper.selectCourseSalesByCourseId(courseId);
+			System.out.println("変更前受講料マスタ----"+beforeList); 
+			Map<String, CourseSales> beforeMap = new HashMap<>();
+			for (CourseSales s : beforeList) {
+				beforeMap.put(s.getTargetMonth(), s);
+			}
+			//変更前の対象月をbeforeMapのkeyから抽出
+			List<MonthlyCount>bmc=memberMapper.selectMonthlyCount(courseId);
+			Set<String>allMonths=new HashSet<>(beforeMap.keySet());
+			for(MonthlyCount m:bmc){
+				allMonths.add(m.getSalesMonth());
+			}
+			System.out.println("変更前受講料マスタmap----"+beforeMap); 
+			System.out.println("変更前受講月----"+allMonths); 
+// /////////////////////				
+			
+			
+			
 			// 講座定員情報の取得 t=申込者数
 			CourseCapacity ca=memberMapper.selectByCourseIdForUpdate(courseId)
 					.orElseThrow(() -> new IllegalArgumentException("指定された講座が存在しないため処理を中断しました"+courseId));
@@ -443,36 +464,29 @@ public class MemberServiceImpl  implements MemberService{
 */			
 				// 支払い済み教材費 (Key: chStartMonth, Value: chPaidMaterialFee)
 				Map<String,Integer>materialFee=new HashMap<>();	
+				// 支払い済み受講料 (Key: chCourseId, Value: chPaidTuitionFee)
+				Map<String,Integer>tFee=new HashMap<>();	
+				//　日程変更後の講座日ごとの受講人数分の受講料を取得
+				Map<String,Integer>tuitionFeeByMonth=new HashMap<>();
+				
 				// 処理済み（計算済み）の会員IDを記録する Set
 				Set<Integer>processedMemberIds=new HashSet<>();
+				DateTimeFormatter formatter=
+						DateTimeFormatter.ofPattern("yyyyMM");				
+				// 1回の for ループで全集計を回す
 				for(ScheduleAccountingDetail s :sad) {
 					Integer memberId=s.getChMemberId();
 					// まだ処理していない会員の場合のみ計算を行う
 					if(!processedMemberIds.contains(memberId)) {
+						// 教材費の集計 (chStartMonth ごと)
 						String startMonth=s.getChStartMonth();
-						Integer mFee=s.getChPaidMaterialFee();
-					// 該当の startMonth の既存合計額に加算（初回は 0 に加算）
+						Integer pmFee=s.getChPaidMaterialFee();
+						// 該当の startMonth の既存合計額に加算（初回は 0 に加算）
 						materialFee.put(
 								startMonth, 
 								materialFee.getOrDefault(startMonth,0)
-								+mFee);
-						// この会員は処理済みとして記録
-						processedMemberIds.add(memberId);
-						
-					}
-					
-				}
-			
-				System.out.println("講座変更教材費確認----"+materialFee);
-				
-				// 支払い済み受講料 (Key: chCourseId, Value: chPaidTuitionFee)
-				Map<String,Integer>tFee=new HashMap<>();	
-				// 処理済み（計算済み）の会員IDを記録する Set
-				Set<Integer>processedMemberIds2=new HashSet<>();
-				for(ScheduleAccountingDetail s :sad) {
-					Integer mId=s.getChMemberId();
-					// まだ処理していない会員の場合のみ計算を行う
-					if(!processedMemberIds2.contains(mId)) {
+								+pmFee);
+						// 支払い済み受講料総額の集計 (chCourseId ごと)
 						String cId=s.getChCourseId();
 						Integer ptFee=s.getChPaidTuitionFee();
 					// 該当の startMonth の既存合計額に加算（初回は 0 に加算）
@@ -480,45 +494,23 @@ public class MemberServiceImpl  implements MemberService{
 								cId,
 								tFee.getOrDefault(cId,0)
 								+ptFee);
-						// この会員は処理済みとして記録
-						processedMemberIds2.add(mId);
-						
+						// 処理済みとして記録
+						processedMemberIds.add(memberId);
 					}
-					
+						// 【コマごとの処理】会員重複関係なく毎コマ加算
+						String targetMonth=s.getCrsDate().format(formatter);
+						Integer tuitionFee=s.getCTuitionFee();
+				
+						tuitionFeeByMonth.put(
+						targetMonth, 
+						tuitionFeeByMonth.getOrDefault(targetMonth,0)+tuitionFee);					
 				}
 			
+				System.out.println("講座変更教材費確認----"+materialFee);
 				System.out.println("講座変更受講料確認----"+tFee);
-				
-				
-			//　日程変更後の講座日ごとの受講人数分の受講料を取得
-			Map<String,Integer>tuitionFeeByMonth=new HashMap<>();
-				for(ScheduleAccountingDetail s:sad) {
-				
-					String targetMonth=s.getCrsDate().format(DateTimeFormatter.ofPattern("yyyyMM"));
-					Integer tuitionFee=s.getCTuitionFee();
-				
-					tuitionFeeByMonth.put(
-						targetMonth, 
-						tuitionFeeByMonth.getOrDefault(targetMonth,0)+tuitionFee);
-				}
 				System.out.println("講座変更受講料確認----"+tuitionFeeByMonth);
 				
-		  //変更前のcourse_salesの取得
-			List<CourseSales>beforeList=courseMapper.selectCourseSalesByCourseId(courseId);
-				System.out.println("変更前受講料マスタ----"+beforeList); 
 
-			Map<String, CourseSales> beforeMap = new HashMap<>();
-				for (CourseSales s : beforeList) {
-				    beforeMap.put(s.getTargetMonth(), s);
-				}
-			//変更前の対象月をbeforeMapのkeyから抽出
-			Set<String>allMonths=new HashSet<>(beforeMap.keySet());
-				for(MonthlyCount m:mc){
-					allMonths.add(m.getSalesMonth());
-				}
-				System.out.println("変更前受講料マスタmap----"+beforeMap); 
-				System.out.println("変更前受講月----"+allMonths); 
-				
 				
 			
 //test用------------			
