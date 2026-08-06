@@ -118,8 +118,10 @@ public class CourseController {
 				Errors errors,
 				RedirectAttributes rd,
 				@RequestParam Integer page,
+				@RequestParam(name = "searchType", defaultValue = "lateEnrollment") String searchType,
 				Model model) {
 				rd.addAttribute("page", page);
+				rd.addAttribute("searchType", searchType);
 				
 			String courseId=scheduleUpdateRequest.getCourseId();	
 

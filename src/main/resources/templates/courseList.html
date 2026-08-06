@@ -98,7 +98,7 @@
 			<span th:case="1" class="btn btn-secondary disabled">&laquo;</span>
 
 			<a th:case="*"
-			   th:href="@{/show(page=${page -1})}"
+			   th:href="@{/show(page=${page - 1},searchType=${searchType})}"
 			   class="btn btn-secondary">
 				&laquo;
 			</a>
@@ -115,7 +115,7 @@
 				</span>
 
 				<a th:case="*"
-				   th:href="@{/show(page=${index})}"
+				   th:href="@{/show(page=${index},searchType=${searchType})}"
 				   class="btn btn-secondary">
 					[[${index}]]
 				</a>
@@ -133,7 +133,7 @@
 			</span>
 
 			<a th:case="*"
-			   th:href="@{/show(page=${page + 1})}"
+			   th:href="@{/show(page=${page + 1},searchType=${searchType})}"
 			   class="btn btn-secondary">
 				&raquo;
 			</a>
