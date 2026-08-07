@@ -62,5 +62,8 @@ public interface MemberMapper {
 				@Param("courseId")String courseId);
 	//受講者と講座日程を紐づけたデータの書き込み
 	void upsertMemberScheduleStatus(MemberScheduleStatus scheduleStatus);
+	//スケジュール変更による新しい初回月の書き込み
+	void updateCourseHistoryStartMonth(
+			Integer memberId,String courseId,String newStartMonth);
 	
 }

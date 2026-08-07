@@ -152,6 +152,17 @@
 		
 </update>
 
+ <update id="updateCourseHistoryStartMonth">
+ 	update
+ 		course_history
+ 	set	
+ 		start_month=#{newStartMonth},
+ 		updated_at=now()
+ 	where
+		course_id=#{courseId}
+	and
+		member_id=#{memberId}	
+ </update>
  
 <insert id="upsertCourseSales">
 	insert into 
