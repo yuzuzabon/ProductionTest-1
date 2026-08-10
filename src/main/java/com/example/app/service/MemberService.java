@@ -7,6 +7,7 @@ import com.example.app.domain.CourseHistory;
 import com.example.app.domain.Member;
 import com.example.app.domain.MonthlyCount;
 import com.example.app.domain.RemainingCourseData;
+import com.example.app.domain.ScheduleAccountingDetail;
 
 public interface MemberService {
 
@@ -35,4 +36,10 @@ public interface MemberService {
 		public boolean servisFullCourseEnrollment(String courseId);
 	//途中受講が可否判定
 		public boolean servisValidLateEnrollment(String courseId);
+	//受講履歴詳細情報取得
+		public List<Course>servSellectCourseByMemberId(Integer id);
+	//受講生事由の払い戻し用
+		public List<ScheduleAccountingDetail>
+			servSelectCancellMemberById(Integer id);
+		
 }

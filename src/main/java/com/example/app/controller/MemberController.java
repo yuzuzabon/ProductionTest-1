@@ -158,4 +158,30 @@ public class MemberController {
 						return "redirect:/memberjoin/"+id;
 					
 		}
+		@GetMapping("/cancelledMembers")
+		public String contSelectCancelledMemberAll(Model model) {
+			model.addAttribute("members",memberService.servSelectMemberAll());
+			return "cancelledMembers";
+	}
+		@GetMapping("/cancelledMember/{id}")
+		//@ResponseBody
+			public String contSelectCancellMemberById(
+					@PathVariable("id") Integer id,
+					@RequestParam(name = "searchType", defaultValue = "lateEnrollment") String searchType,
+//					@RequestParam(name = "searchType", defaultValue = "all") String searchType,
+					@RequestParam(name="page",defaultValue = "1")Integer page,
+					Model model) {
+			
+					setMemberInfo(id,model);
+
+					model.addAttribute("courses",
+							memberService.servSelectCancellMemberById(id));
+					System.out.println(memberService.servSelectCancellMemberById(id));
+					model.addAttribute("page",page);
+					model.addAttribute("totalPages",
+							courseService.servSelectTotalPages(searchType));
+					
+					return "cancelledMemberWithCourseList";
+
+		}
 }

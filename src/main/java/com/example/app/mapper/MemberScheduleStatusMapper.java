@@ -16,4 +16,7 @@ public interface MemberScheduleStatusMapper {
   List<ScheduleAccountingDetail> selectScheduleAccountingDetails(
          // @Param("memberId") Integer memberId,
           @Param("courseId") String courseId);
+  //受講生事由の払い戻し用
+  List<ScheduleAccountingDetail> selectScheduleCancelledDetails(
+					@Param("memberId") Integer id);
 }

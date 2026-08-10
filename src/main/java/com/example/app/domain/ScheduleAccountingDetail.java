@@ -25,6 +25,7 @@ public class ScheduleAccountingDetail {
 	private String chStartMonth;//受講開始月 日程変更後に再計算
 	
 //Course
+	private String cTitle;
 	private Integer cTuitionFee; //受講料単価
 	private Integer cMaterialFee;//教材費単価
 	

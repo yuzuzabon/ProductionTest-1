@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8" />
+	<link th:href="@{/css/style.css}" rel="stylesheet" />
+	<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+	<title>講座詳細・変更</title>
+	<style>
+		/* スケジュールごとの外枠スタイル */
+		.schedule-container {
+			border: 1px solid #dee2e6;
+			border-radius: 0.25rem;
+			margin-bottom: 1.5rem;
+			padding: 1rem;
+			background-color: #fff;
+		}
+		/* 終了した講座用のスタイル（薄く表示） */
+				.schedule-ended {
+					background-color: #e9ecef;
+					color: #6c757d;
+					border-color: #ced4da;
+				}
+		/* 変更フォーム用のレイアウト（最初は非表示、展開時に左側に境界線を追加） */
+		.edit-area {
+			background-color: #f8f9fa;
+			border-left: 2px dashed #dee2e6;
+			padding-left: 1.5rem;
+		}
+	</style>
+</head>
+<body>
+	<div class="container mt-4">
+		<div class="mb-3">
+			<a th:href="@{/menu}" class="btn btn-secondary">メニュー</a>
+			<a th:href="@{/cancelledSchedule(page=${page},searchType=${searchType})}" class="btn btn-secondary">一覧</a>
+			<a th:href="@{/add}" class="btn btn-primary">講座登録</a>
+			<a th:href="@{/roomSchedules}" class="btn btn-secondary">空き教室確認</a>
+		</div>
+
+		<div th:if="${statusMessage}" class="alert alert-success mt-4">
+		    <span th:text="${statusMessage}"></span>
+		</div>
+
+		<div th:if="${errorMessage}" class="alert alert-danger mt-4">
+		    <span th:text="${errorMessage}"></span>
+		</div>
+
+		<table class="table table-bordered mb-4" th:each="c : ${course}">
+			<tr>
+				<th class="w-25">講座番号</th>
+				<td th:text="${c.courseId}"></td>
+			</tr>
+			<tr>
+				<th>タイトル</th>
+				<td th:text="${c.title}"></td>
+			</tr>
+			<tr>
+				<th>内容</th>
+				<td th:text="${c.detail}"></td>
+			</tr>
+			<tr>
+				<th>回数</th>
+				<td>
+				<span	th:text="${c.courseTerm}+回"></span>
+				<span th:text="'(残り'+${rcData.remainingCount}+'回)'"></span>	
+				<button type="button" 
+					class="btn btn-sm btn-outline-warning toggle-edit-btn">
+				<span th:text="'以降講座中止('+${rcData.remainingCount}+'回)'"></span>
+				</button>
+				</td> 
+			</tr>
+					
+<!-- 1. 全回数受講の場合のみ表示（全回数 == 残回数） -->
+	<tr th:if="${c.courseTerm == rcData.remainingCount}">
+				<th>受講料等(消費税等込み)</th>
+				<td>
+					<span th:text="${#numbers.formatInteger
+						(c.courseTerm * c.tuitionFee + c.materialFee,1,'COMMA')}"></span>円
+						（受講料：<span th:text="${#numbers.formatInteger
+						(c.tuitionFee,1,'COMMA')}"></span>円 ×
+					<span th:text="${c.courseTerm}"></span>回 /
+						教材費：<span th:text="${#numbers.formatInteger
+						(c.materialFee,1,'COMMA')}"></span>円 ）
+				</td>
+	</tr>
+					
+<!-- 2. 途中受講の場合のみ表示（全回数 > 残回数） -->
+<!--	<tr th:if="${c.courseTerm > rcData.remainingCount}">-->
+<!--				<th th:utext="|受講料等(消費税等込み)<br>(残り${rcData.remainingCount}回)|"></th>-->
+<!--				<td>-->
+<!--					<span th:text="${#numbers.formatInteger-->
+<!--						(rcData.remainingCount * rcData.tuition + rcData.material,1,'COMMA')}"></span>円-->
+<!--						（受講料：<span th:text="${#numbers.formatInteger(rcData.tuition,1,'COMMA')}"></span>円 ×-->
+<!--					<span th:text="${rcData.remainingCount}"></span>回 /-->
+<!--							教材費：<span th:text="${#numbers.formatInteger(rcData.material,1,'COMMA')}"></span>円 ）-->
+<!--				</td>-->
+<!--	</tr>-->
+			<tr>
+				<th>定員情報</th>
+				<td>
+					定員: <span th:text="${c.courseCapacity.capacity}"></span> /
+					申込数: <span th:text="${c.courseCapacity.numberOfApplicant}"></span> /
+					空き: <span th:text="${c.courseCapacity.capacity - c.courseCapacity.numberOfApplicant}"></span>
+					<form th:action="@{/apply}" method="post"  th:unless="${isApplied}">
+<!--								<input type="hidden" name="id" th:value="${member.id}"/>-->
+						<input type="hidden" name="courseId" th:value="${c.courseId}"/>
+						<input type="hidden" name="page" th:value="${page}">
+<!-- 3. ボタンの動的切り替え（全回数: btn-secondary / 途中受講: btn-warning） -->
+<!--									<button type="submit" -->
+<!--										class="btn"-->
+<!--										th:classappend="${c.courseTerm > rcData.remainingCount} ? 'btn-warning' : 'btn-secondary'"-->
+<!--										th:disabled="${c.courseCapacity.capacity <= c.courseCapacity.numberOfApplicant}"-->
+<!--										th:text="${c.courseTerm > rcData.remainingCount} ? '途中受講申し込み' : '受講申し込み'">-->
+<!--										受講申し込み-->
+<!--									</button>-->
+								
+		<!--						<button type="submit" class="btn btn-secondary"-->
+		<!--						th:disabled="${c.courseCapacity.capacity <= c.courseCapacity.numberOfApplicant}"-->
+		<!--						>受講申し込み</button>-->
+					<span th:if="${c.courseCapacity.capacity <= c.courseCapacity.numberOfApplicant}"
+						class="text-danger">
+						空きがありません
+					</span>
+					</form>
+							<!-- <a th:href="@{/apply/{id}(id=${member.id},courseId=${c.courseId})}" class="btn btn-secondary">受講</a> -->
+				</td>
+			</tr>
+
+		</table>
+
+		<h4 class="mb-3">詳細</h4>
+
+		<div th:each="c : ${course}">
+			<div class="row">
+
+				<div th:each="r, stat : ${c.classRoomSchedule}"
+					 class="col-md-4 mb-3">
+<!-- 4. 過去日付の場合に 'schedule-ended' クラスを付与してグレーアウト -->
+					<div class="schedule-container h-100"
+						th:classappend="${r.date.isBefore(#temporals.createToday())} ? 'schedule-ended'"					
+						th:data-index="${stat.index}">
+
+						<form th:action="@{/updateSchedule}"
+							  method="post"
+							  class="schedule-form">
+
+							<input type="hidden"
+								   name="courseId"
+								   th:value="${c.courseId}" />
+
+							<input type="hidden"
+								   name="id"
+								   th:value="${r.id}" />
+							<div class="border-bottom pb-2 mb-2 d-flex justify-content-between align-items-center">
+								<h5 class="mb-0" 
+									th:classappend="${r.date.isBefore(#temporals.createToday())} ? 'text-muted' : 'text-primary'"
+									th:text="${stat.count} + '回目'"></h5>
+										<tr th:if="${r.date.isAfter(#temporals.createToday())}">
+											<button type="button" 
+											class="btn btn-sm btn-outline-danger toggle-edit-btn">休講</button>
+										</tr>
+								<!-- 終了済みのラベルを表示（任意） -->
+								<span th:if="${r.date.isBefore(#temporals.createToday())}" class="badge bg-secondary">終了</span>
+							</div>
+		<!--							<div class="border-bottom pb-2 mb-2">-->
+		<!--								<h5 class="text-primary mb-0"-->
+		<!--									th:text="${stat.count} + '回目'"></h5>-->
+		<!--							</div>-->
+
+							<table class="table table-sm table-borderless mb-0">
+								<tr>
+									<th>開催日</th>
+									<td th:text="${r.date}"></td>
+								</tr>
+
+								<tr>
+									<th>開始時間</th>
+									<td th:text="${r.startTime}"></td>
+								</tr>
+
+								<tr>
+									<th>終了時間</th>
+									<td th:text="${r.endTime}"></td>
+								</tr>
+
+								<tr>
+									<th>講座時間</th>
+									<td th:text="${r.coursePeriod} + '分'"></td>
+								</tr>
+
+								<tr>
+									<th>教室</th>
+									<td th:text="${r.classRoom.classRoom}"></td>
+								</tr>
+							</table>
+
+						</form>
+
+			</div>
+		</div>
+	</div>
+	</div>
+		
+		
+	<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script>
+// 💡 特定のスケジュールコンテナに対して、選択された開始時間＋固定の講座時間で17:00を超えないかチェックする関数
+function validatePeriodForContainer(container) {
+    const startTimeSelect = container.querySelector('.change-start-time');
+    const periodInput = container.querySelector('.base-period-val');
+    const submitBtn = container.querySelector('.submit-btn');
+    const errorMsg = container.querySelector('.period-error-msg');
+
+    if (!startTimeSelect || !periodInput) return;
+
+    // 開始時間を「分」に変換
+    const [hour, min] = startTimeSelect.value.split(':').map(Number);
+    const startTotalMinutes = hour * 60 + min;
+
+    // 固定されている既存の講座時間（分）を取得
+    const periodMin = parseInt(periodInput.value, 10);
+    const maxTotalMinutes = 17 * 60; // 17:00 は 1020分
+
+    // 終了時間が17:00を超える場合の制御
+    if (startTotalMinutes + periodMin > maxTotalMinutes) {
+        errorMsg.textContent = `終了時間が17:00を超えるため、この開始時間は選択できません。（終了予定 ${Math.floor((startTotalMinutes + periodMin)/60)}:${String((startTotalMinutes + periodMin)%60).padStart(2, '0')}）`;
+        submitBtn.disabled = true; // 保存ボタンを無効化
+    } else {
+        errorMsg.textContent = '';
+        submitBtn.disabled = false; // 保存ボタンを有効化
+    }
+}
+
+// 開始時間が変更されたら、該当する回のコンテナだけバリデーションを実行
+document.addEventListener('change', function(event) {
+    if (event.target.classList.contains('change-start-time')) {
+        const container = event.target.closest('.schedule-container');
+        validatePeriodForContainer(container);
+    }
+});
+
+// 「この回を変更する」ボタンを押したときの表示・非表示切り替え処理
+document.querySelectorAll('.toggle-edit-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const container = this.closest('.schedule-container');
+        const infoArea = container.querySelector('.info-area');
+        const arrowArea = container.querySelector('.arrow-area');
+        const editArea = container.querySelector('.edit-area');
+
+        // 変更フォームが現在非表示の場合 -> 表示する
+        if (editArea.classList.contains('d-none')) {
+            editArea.classList.remove('d-none');
+            arrowArea.classList.remove('d-none');
+            // 左側の表示幅を狭めて右側フォームが入るスペースを作る (col-md-5)
+            infoArea.className = 'col-md-5 info-area';
+
+            this.textContent = '変更をキャンセル';
+            this.classList.replace('btn-outline-primary', 'btn-outline-secondary');
+
+            // フォームを開いた瞬間に一度17:00超えチェックを走らせる
+            validatePeriodForContainer(container);
+        }
+        // 変更フォームが現在表示されている場合 -> 非表示（詳細表示のみ）に戻す
+        else {
+            editArea.classList.add('d-none');
+            arrowArea.classList.add('d-none');
+            // フォームが消えるので、詳細テーブルを幅いっぱいに戻す (col-md-12)
+            infoArea.className = 'col-md-12 info-area';
+
+            this.textContent = 'この回を変更する';
+            this.classList.replace('btn-outline-secondary', 'btn-outline-primary');
+        }
+    });
+});
+
+// 画面読み込み時、左側の詳細表示を幅いっぱいに設定するための初期化
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.info-area').forEach(info => {
+        info.className = 'col-md-12 info-area';
+    });
+});
+
+// フォーム送信時の最終防衛チェック
+document.querySelectorAll('.schedule-form').forEach(form => {
+    form.addEventListener('submit', function(event) {
+        const container = this.closest('.schedule-container');
+        const editArea = container.querySelector('.edit-area');
+
+        // 変更エリアが表示されていない（ボタンが押されていない）状態での誤送信をブロック
+        if (editArea.classList.contains('d-none')) {
+            event.preventDefault();
+            return;
+        }
+
+        const startTimeSelect = container.querySelector('.change-start-time');
+        const periodInput = container.querySelector('.base-period-val');
+
+        if (startTimeSelect && periodInput) {
+            const [hour, min] = startTimeSelect.value.split(':').map(Number);
+            const startTotalMinutes = hour * 60 + min;
+            const periodMin = parseInt(periodInput.value, 10);
+
+            if (startTotalMinutes + periodMin > 1020) {
+                alert('終了時間が17:00を超えるため、登録できません。');
+                event.preventDefault();// 17:00 は 1020分
+            }
+        }
+    });
+});
+</script>
+</body>
+</html>

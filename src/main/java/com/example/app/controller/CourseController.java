@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
 import com.example.app.domain.OccupiedRoomSchedule;
+import com.example.app.domain.RemainingCourseData;
 import com.example.app.domain.ScheduleUpdateRequest;
 import com.example.app.service.ClassRoomService;
 import com.example.app.service.CourseService;
@@ -343,5 +344,43 @@ public class CourseController {
 				return "roomSchedules";
 
 		}
+		
+		@GetMapping("/cancelledSchedule")
+		//@ResponseBody
+		public String contCancelledSchedule(//(@ModelAttribute("classRoomSchedule")
+					@RequestParam(name = "searchType", defaultValue = "lateEnrollment") String searchType,
+					@RequestParam(name="page",defaultValue = "1")Integer page,
+					Model model) {
+					
+					List<Course>courses=courseService.servSelectCourseByPage(page,searchType);
+					double totalPages=courseService.servSelectTotalPages(searchType);
+					
+					model.addAttribute("courses",courses);
+					model.addAttribute("searchType", searchType);
+					model.addAttribute("page", page);
+					model.addAttribute("totalPages", (int)totalPages);
+    
+				return "cancelledCourseList";
+	}
+		@GetMapping("/cancelledSchedule/{courseId}")
+		public String contCancelledScheduleRequestByCourseId(
+				@PathVariable String courseId,
+				@RequestParam(name = "searchType", defaultValue = "lateEnrollment") String searchType,
+				@RequestParam(defaultValue = "1") Integer page,
+				
+				Model model	) {
 
+				List<Course> course=courseService.servSellectCourseByCourseId(courseId);
+				RemainingCourseData rcData=
+						memberService.servSelectRemainingCourseData(courseId);
+				model.addAttribute("rcData",rcData);
+				model.addAttribute("course",course);
+				model.addAttribute("searchType", searchType);
+				model.addAttribute("page", page);
+			//System.out.println("******"+course);
+				return "cancelledCourseInfo";
+	}
+	
+		
+		
 }

@@ -70,6 +70,16 @@ public class MemberServiceImpl  implements MemberService{
 		public List<CourseHistory>servSellectCourseHistoryById(Integer id){
 			return memberMapper.sellectCourseHistoryById(id);
 		}
+		@Override
+		public List<Course>servSellectCourseByMemberId(Integer id){
+			return memberMapper.sellectCourseByMemberId(id);
+		}
+		@Override
+		public List<ScheduleAccountingDetail> servSelectCancellMemberById(Integer id) {
+			return scheduleStatusMapper.selectScheduleCancelledDetails(id);
+		}
+		
+		
 //		@Override
 //		public List<CourseSales> selectCourseSalesByCourseId(String courseId) {
 //		
