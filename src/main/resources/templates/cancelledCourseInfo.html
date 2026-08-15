@@ -62,14 +62,14 @@
 				<th>回数</th>
 				<td>
 				<span	th:text="${c.courseTerm}+回"></span>
-				<span th:text="'(残り'+${rcData.remainingCount}+'回)'"></span>	
-				<button type="button" 
-					class="btn btn-sm btn-outline-warning toggle-edit-btn">
+				<span th:text="'(残り'+${rcData.remainingCount}+'回)'"></span>
+				<button type="button"
+					class="btn btn-sm btn-danger toggle-edit-btn">
 				<span th:text="'以降講座中止('+${rcData.remainingCount}+'回)'"></span>
 				</button>
-				</td> 
+				</td>
 			</tr>
-					
+
 <!-- 1. 全回数受講の場合のみ表示（全回数 == 残回数） -->
 	<tr th:if="${c.courseTerm == rcData.remainingCount}">
 				<th>受講料等(消費税等込み)</th>
@@ -83,7 +83,7 @@
 						(c.materialFee,1,'COMMA')}"></span>円 ）
 				</td>
 	</tr>
-					
+
 <!-- 2. 途中受講の場合のみ表示（全回数 > 残回数） -->
 <!--	<tr th:if="${c.courseTerm > rcData.remainingCount}">-->
 <!--				<th th:utext="|受講料等(消費税等込み)<br>(残り${rcData.remainingCount}回)|"></th>-->
@@ -113,7 +113,7 @@
 <!--										th:text="${c.courseTerm > rcData.remainingCount} ? '途中受講申し込み' : '受講申し込み'">-->
 <!--										受講申し込み-->
 <!--									</button>-->
-								
+
 		<!--						<button type="submit" class="btn btn-secondary"-->
 		<!--						th:disabled="${c.courseCapacity.capacity <= c.courseCapacity.numberOfApplicant}"-->
 		<!--						>受講申し込み</button>-->
@@ -137,7 +137,7 @@
 					 class="col-md-4 mb-3">
 <!-- 4. 過去日付の場合に 'schedule-ended' クラスを付与してグレーアウト -->
 					<div class="schedule-container h-100"
-						th:classappend="${r.date.isBefore(#temporals.createToday())} ? 'schedule-ended'"					
+						th:classappend="${r.date.isBefore(#temporals.createToday())} ? 'schedule-ended'"
 						th:data-index="${stat.index}">
 
 						<form th:action="@{/updateSchedule}"
@@ -152,12 +152,12 @@
 								   name="id"
 								   th:value="${r.id}" />
 							<div class="border-bottom pb-2 mb-2 d-flex justify-content-between align-items-center">
-								<h5 class="mb-0" 
+								<h5 class="mb-0"
 									th:classappend="${r.date.isBefore(#temporals.createToday())} ? 'text-muted' : 'text-primary'"
 									th:text="${stat.count} + '回目'"></h5>
 										<tr th:if="${r.date.isAfter(#temporals.createToday())}">
-											<button type="button" 
-											class="btn btn-sm btn-outline-danger toggle-edit-btn">休講</button>
+											<button type="button"
+											class="btn btn-sm btn-danger toggle-edit-btn">休講</button>
 										</tr>
 								<!-- 終了済みのラベルを表示（任意） -->
 								<span th:if="${r.date.isBefore(#temporals.createToday())}" class="badge bg-secondary">終了</span>
@@ -200,8 +200,8 @@
 		</div>
 	</div>
 	</div>
-		
-		
+
+
 	<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 <script>
 // 💡 特定のスケジュールコンテナに対して、選択された開始時間＋固定の講座時間で17:00を超えないかチェックする関数

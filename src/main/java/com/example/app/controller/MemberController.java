@@ -1,6 +1,11 @@
 package com.example.app.controller;
 
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +19,7 @@ import com.example.app.domain.Course;
 import com.example.app.domain.CourseHistory;
 import com.example.app.domain.Member;
 import com.example.app.domain.RemainingCourseData;
+import com.example.app.domain.ScheduleAccountingDetail;
 import com.example.app.service.CourseService;
 import com.example.app.service.MemberService;
 
@@ -76,11 +82,11 @@ public class MemberController {
 					model.addAttribute("page",page);
 					model.addAttribute("totalPages",
 							courseService.servSelectTotalPages(searchType));
-					
+
 					return "memberWithCourseList";
 
 		}
-		
+
 		@GetMapping("/memberjoin/{id}")
 
 			public String contSelectMemberByIdWithCourseId(
@@ -94,7 +100,7 @@ public class MemberController {
 				List<Course> course=
 						courseService.servSellectCourseByCourseId(courseId);
 				model.addAttribute("course",course);
-// test -------				
+// test -------
 //			System.out.println("controller---"+course);
 
 				List<CourseHistory>history=setMemberInfo(id,model);
@@ -119,44 +125,44 @@ public class MemberController {
 					//@RequestParam Integer page,
 					RedirectAttributes rd) {
 				rd.addAttribute("page", page);
-			//初回からの受講or途中受講判定	
-			boolean isFullCourse=memberService.servisFullCourseEnrollment(courseId);	
-			
+			//初回からの受講or途中受講判定
+			boolean isFullCourse=memberService.servisFullCourseEnrollment(courseId);
+
 			//初回からの申し込み処理
 			if(isFullCourse) {
 				boolean isSuccess=memberService.servApplyCourse(id,courseId);
 
 				if(isSuccess) {
 					rd.addFlashAttribute("statusMessage","お申し込みを承りました");
-				
+
 				}else {
 					rd.addFlashAttribute("errorMessage","同じ講座にお申し込み済みです");
 				}
 			}else {
 				boolean isValid=memberService.servisValidLateEnrollment(courseId);
 				if(isValid) {
-				
+
 			//途中申し込みservRemainingApplyCourse
 				boolean isSuccess=memberService.servRemainingApplyCourse(id,courseId);
 				if(isSuccess) {
 					rd.addFlashAttribute("statusMessage","お申し込みを承りました");
-					
+
 				}else {
 					rd.addFlashAttribute("errorMessage","同じ講座にお申し込み済みです");
-				}	
-				
+				}
+
 				}else {
 					rd.addFlashAttribute("errorMessage","この講座は途中受講できません");
 				}
-									
+
 			}
 				//リダイレクトパラメータ設定
 					rd.addAttribute("page",page);
 					rd.addAttribute("courseId",courseId);
 						//return "redirect:/member1/"+id+"?courseId="+courseId;
-						
+
 						return "redirect:/memberjoin/"+id;
-					
+
 		}
 		@GetMapping("/cancelledMembers")
 		public String contSelectCancelledMemberAll(Model model) {
@@ -171,16 +177,70 @@ public class MemberController {
 //					@RequestParam(name = "searchType", defaultValue = "all") String searchType,
 					@RequestParam(name="page",defaultValue = "1")Integer page,
 					Model model) {
-			
-					setMemberInfo(id,model);
 
-					model.addAttribute("courses",
-							memberService.servSelectCancellMemberById(id));
-					System.out.println(memberService.servSelectCancellMemberById(id));
-					model.addAttribute("page",page);
-					model.addAttribute("totalPages",
-							courseService.servSelectTotalPages(searchType));
-					
+					setMemberInfo(id,model);
+					//データ取得
+					List<ScheduleAccountingDetail> rawList = memberService.servSelectCancellMemberById(id);
+					//chCourseId ごとにグループ化
+					Map<String, List<ScheduleAccountingDetail>> groupedCourses = rawList.stream()
+					    .collect(Collectors.groupingBy(
+					        ScheduleAccountingDetail::getChCourseId,
+					        LinkedHashMap::new, // 順序を維持
+					        Collectors.toList()
+					    ));
+					// 今日の日付（開始前/開始後の判定用）
+					LocalDate today = LocalDate.now();
+
+					//画面表示・計算用にグループごとの集計情報を保持する Map を作成
+					Map<String, Map<String, Object>> refundSummaryMap = new LinkedHashMap<>();
+
+					for (Map.Entry<String, List<ScheduleAccountingDetail>> entry : groupedCourses.entrySet()) {
+					    String courseId = entry.getKey();
+					    List<ScheduleAccountingDetail> details = entry.getValue();
+					    ScheduleAccountingDetail firstItem = details.get(0);
+
+					 // 今日以降（未受講）のコマデータだけを抽出したリストを作成
+					    List<ScheduleAccountingDetail> remainingSchedules = details.stream()
+					            .filter(s -> !s.getCrsDate().isBefore(today)) // 今日以降のコマ
+					            .collect(Collectors.toList());
+
+					    // 全コマ数と未受講コマ数（今日以降のコマ）をカウント
+					    long totalCount = details.size();
+					    long remainingCount = remainingSchedules.size(); // 今日以降のコマ
+
+					    // 判定フラグ
+					    boolean isBeforeStart = (remainingCount == totalCount); // 1度も開始していないか
+					    boolean isFinished = (remainingCount == 0);             // すべて終了しているか
+
+					    // 1コマあたりの受講料単価
+					    int unitTuitionFee = firstItem.getCTuitionFee();
+
+					    // 返金対象の受講料計算（未受講コマ数 × 単価）
+					    int refundTuitionFee = (int) remainingCount * unitTuitionFee;
+
+					    // 返金対象の教材費計算（開始前のみ全額、開始後は0円）
+					    int refundMaterialFee = isBeforeStart ? firstItem.getChPaidMaterialFee() : 0;
+
+					    // 返金合計額
+					    int totalRefundAmount = refundTuitionFee + refundMaterialFee;
+
+					    // 画面渡し用の Map に格納
+					    Map<String, Object> summary = new HashMap<>();
+					    summary.put("details", details);
+					    summary.put("firstItem", firstItem);
+					    summary.put("totalCount", totalCount);
+					    summary.put("remainingCount", remainingCount);
+					    summary.put("remainingSchedules", remainingSchedules);
+					    summary.put("isBeforeStart", isBeforeStart);
+					    summary.put("isFinished", isFinished);
+					    summary.put("refundTuitionFee", refundTuitionFee);
+					    summary.put("refundMaterialFee", refundMaterialFee);
+					    summary.put("totalRefundAmount", totalRefundAmount);
+
+					    refundSummaryMap.put(courseId, summary);
+					}
+
+					model.addAttribute("refundSummaryMap", refundSummaryMap);
 					return "cancelledMemberWithCourseList";
 
 		}

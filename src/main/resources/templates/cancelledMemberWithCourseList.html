@@ -51,32 +51,73 @@
 
 		<thead class="table-dark">
 			<tr>
-				<th>講座番号</th>
-				<th>タイトル</th>
-<!--				<th>回数</th>-->
-<!--				<th>教室</th>-->
-<!--				<th>開催日</th>-->
-<!--				<th>開始時間</th>-->
-<!--				<th>終了時間</th>-->
-<!--				<th>定員</th>-->
-<!--				<th>申込数</th>-->
-<!--				<th>空き</th>-->
-<!--		<th>途中受講</th>-->
-<!--				<th>詳細</th>-->
+				<th>講座ID</th>
+				<th>講座名</th>
+				<th>ステータス</th>
+				<th>日程</th>
+				<th>返金対象：受講料</th>
+				<th>返金対象：教材費</th>
+				<th>返金見込み合計</th>
 			</tr>
 		</thead>
 
 		<tbody>
-			<tr th:each="c,stat:${courses}"></tr>
-				<td th:text="${stat.first || c.chCourseId !=courses[stat.index - 1].chCourseId} ? ${c.chCourseId} : ''"></td>	
-				<td th:text="${stat.first || c.chCourseId !=courses[stat.index - 1].chCourseId} ? ${c.cTitle} : ''"></td>		
-<!--			<tr th:each="c : ${courses}">-->
+			<tr th:each="entry : ${refundSummaryMap}" th:with="item=${entry.value}">
 
-<!--				<td>[[${c.chCourseId}]]</td>-->
-<!--				<td>[[${c.cTitle}]]</td>-->
+			            <!-- 1. 講座ID -->
+			            <td th:text="${entry.key}">2026080001</td>
 
+			            <!-- 2. 講座名 -->
+			            <td th:text="${item.firstItem.cTitle}">さ</td>
 
-			</tr>
+			            <!-- 3. ステータス表示 -->
+			            <td>
+			                <span th:if="${item.isBeforeStart}" class="badge bg-success">受講開始前</span>
+			                <span th:if="${!item.isBeforeStart && !item.isFinished}" class="badge bg-warning text-dark">受講途中</span>
+			                <span th:if="${item.isFinished}" class="badge bg-secondary">全日程終了</span>
+			            </td>
+
+			            <!-- 4. 未受講コマ数 / 全コマ数 -->
+									<td>
+										<div class="fw-bold mb-1">
+									       未受講 <span th:text="${item.remainingCount}">2</span> / <span th:text="${item.totalCount}">4</span> 回
+									  </div>
+
+									  <!-- 💡 返金対象となる残りの日程を縦並びで表示 -->
+									  <div th:if="${!item.isFinished}" class="border-top pt-1 small text-muted">
+									    <div th:each="s : ${item.remainingSchedules}">
+									       <span th:text="${#temporals.format(s.crsDate, 'yyyy/MM/dd')}">2026/08/25</span>
+									       <span th:text="${s.crsStartTime}">10:00</span>
+									    </div>
+								    </div>
+								      <div th:if="${item.isFinished}" class="small text-muted">
+								          （全日程終了のため対象日なし）
+								      </div>
+								 	 </td>
+
+			            <!-- 5. 返金対象受講料（単価 × 未受講コマ数） -->
+			            <td>
+			                <span th:text="${item.refundTuitionFee} + '円'">1000円</span>
+			                <small class="text-muted d-block" th:if="${!item.isFinished}">
+			                    (@<span th:text="${item.firstItem.cTuitionFee}">500</span>円 × <span th:text="${item.remainingCount}">2</span>回)
+			                </small>
+			            </td>
+
+			            <!-- 6. 返金対象教材費（開始前のみ返金） -->
+			            <td>
+			                <span th:if="${item.isBeforeStart}" th:text="${item.refundMaterialFee} + '円'">500円</span>
+			                <span th:unless="${item.isBeforeStart}" class="text-muted">0円（対象外）</span>
+			            </td>
+
+			            <!-- 7. 返金見込み合計額 -->
+			            <td class="fw-bold text-primary">
+			                <span th:text="${item.totalRefundAmount} + '円'">1500円</span>
+											<form th:action="@{/refund/member/{memberId}/course/{courseId}(memberId=${member.id}, courseId=${entry.key})}" method="post">
+											    <button type="submit" class="btn btn-danger">受講中止</button>
+
+											</form>
+			            </td>
+			        </tr>
 		</tbody>
 	</table>
 </div>
