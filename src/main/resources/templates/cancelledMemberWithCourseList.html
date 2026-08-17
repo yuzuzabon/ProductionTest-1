@@ -97,21 +97,21 @@
 
 			            <!-- 5. 返金対象受講料（単価 × 未受講コマ数） -->
 			            <td>
-			                <span th:text="${item.refundTuitionFee} + '円'">1000円</span>
+			                <span th:text="${#numbers.formatInteger(item.refundTuitionFee,1,'COMMA')} + '円'">1000円</span>
 			                <small class="text-muted d-block" th:if="${!item.isFinished}">
-			                    (@<span th:text="${item.firstItem.cTuitionFee}">500</span>円 × <span th:text="${item.remainingCount}">2</span>回)
+			                    (@<span th:text="${#numbers.formatInteger(item.firstItem.cTuitionFee,1,'COMMA')}">500</span>円 × <span th:text="${item.remainingCount}">2</span>回)
 			                </small>
 			            </td>
 
 			            <!-- 6. 返金対象教材費（開始前のみ返金） -->
 			            <td>
-			                <span th:if="${item.isBeforeStart}" th:text="${item.refundMaterialFee} + '円'">500円</span>
+			                <span th:if="${item.isBeforeStart}" th:text="${#numbers.formatInteger(item.refundMaterialFee,1,'COMMA')} + '円'">500円</span>
 			                <span th:unless="${item.isBeforeStart}" class="text-muted">0円（対象外）</span>
 			            </td>
 
 			            <!-- 7. 返金見込み合計額 -->
 			            <td class="fw-bold text-primary">
-			                <span th:text="${item.totalRefundAmount} + '円'">1500円</span>
+			                <span th:text="${#numbers.formatInteger(item.totalRefundAmount,1,'COMMA')} + '円'">1500円</span>
 											<form th:action="@{/refund/member/{memberId}/course/{courseId}(memberId=${member.id}, courseId=${entry.key})}" method="post">
 											    <button type="submit" class="btn btn-danger">受講中止</button>
 

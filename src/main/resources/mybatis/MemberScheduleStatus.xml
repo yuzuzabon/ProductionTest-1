@@ -69,7 +69,7 @@ ORDER BY
   crs.start_time ASC;
 </select>
 
-<select id="selectScheduleCancelledDetails" resultMap="ScheduleAccountingDetail">
+<select id="selectCancellMemberByMemberId" resultMap="ScheduleAccountingDetail">
 SELECT
  	-- MemberScheduleStatus
   mss.id AS mss_id,

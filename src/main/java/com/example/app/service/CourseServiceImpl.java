@@ -19,8 +19,10 @@ import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
 import com.example.app.domain.CourseCapacity;
 import com.example.app.domain.OccupiedRoomSchedule;
+import com.example.app.domain.ScheduleAccountingDetail;
 import com.example.app.domain.ScheduleUpdateRequest;
 import com.example.app.mapper.CourseMapper;
+import com.example.app.mapper.MemberScheduleStatusMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,6 +34,7 @@ public class CourseServiceImpl implements CourseService{
 
 	
 		private final CourseMapper courseMapper;
+		private final MemberScheduleStatusMapper scheduleStatusMapper;
 	//private final MemberService memberService;
 
 		@Override
@@ -433,6 +436,10 @@ public class CourseServiceImpl implements CourseService{
 					start=start.plusMinutes(30);
 			}
 					return timeList;
+		}
+		@Override
+		public List<ScheduleAccountingDetail> servSelectScheduleAccountingDetails(String memberId) {
+			return scheduleStatusMapper.selectScheduleAccountingDetails(memberId);
 		}
 
 

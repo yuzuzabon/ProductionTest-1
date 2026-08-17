@@ -76,7 +76,7 @@ public class MemberServiceImpl  implements MemberService{
 		}
 		@Override
 		public List<ScheduleAccountingDetail> servSelectCancellMemberById(Integer id) {
-			return scheduleStatusMapper.selectScheduleCancelledDetails(id);
+			return scheduleStatusMapper.selectCancellMemberByMemberId(id);
 		}
 		
 		

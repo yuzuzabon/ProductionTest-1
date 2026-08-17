@@ -6,6 +6,7 @@ import java.util.List;
 import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
 import com.example.app.domain.OccupiedRoomSchedule;
+import com.example.app.domain.ScheduleAccountingDetail;
 import com.example.app.domain.ScheduleUpdateRequest;
 
 public interface CourseService {
@@ -47,5 +48,6 @@ public interface CourseService {
 	//ページネーション用
 		public List<Course> servSelectCourseByPage(int page, String searchType);
 		public double servSelectTotalPages(String searchType);
-		
+	//事業者事由払い戻し用
+		public List<ScheduleAccountingDetail> servSelectScheduleAccountingDetails(String memberId);
 }
