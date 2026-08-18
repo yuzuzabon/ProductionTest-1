@@ -1,14 +1,10 @@
 package com.example.app.controller;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,12 +20,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.example.app.domain.ClassRoomSchedule;
 import com.example.app.domain.Course;
 import com.example.app.domain.OccupiedRoomSchedule;
+import com.example.app.domain.RefundSummary;
 import com.example.app.domain.RemainingCourseData;
-import com.example.app.domain.ScheduleAccountingDetail;
 import com.example.app.domain.ScheduleUpdateRequest;
 import com.example.app.service.ClassRoomService;
 import com.example.app.service.CourseService;
 import com.example.app.service.MemberService;
+import com.example.app.service.RefundService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +38,7 @@ public class CourseController {
 		private final CourseService courseService;
 		private final MemberService memberService;
 		private final ClassRoomService classRoomService;
+		private final RefundService refundService;
 		//private final int NUM_PER_PAGE=5;//1ページに表示される件数
 		//private final ClassRoomScheduleService classRoomScheduleService;
 
@@ -73,10 +71,10 @@ public class CourseController {
 				@RequestParam(name = "searchType", defaultValue = "all") String searchType,
 				@RequestParam(name="page",defaultValue = "1")Integer page,
 				Model model) {
-			
+
 			List<Course>courses=courseService.servSelectCourseByPage(page,searchType);
 			double totalPages=courseService.servSelectTotalPages(searchType);
-			
+
 			model.addAttribute("courses",courses);
 			model.addAttribute("searchType", searchType);
 			model.addAttribute("page", page);
@@ -102,7 +100,7 @@ public class CourseController {
 			return "courseList";
 		}
 */
-		
+
 		@GetMapping("/show/{courseId}")
 			public String contSelectCourseByCourseId(
 					@PathVariable String courseId,
@@ -129,8 +127,8 @@ public class CourseController {
 				Model model) {
 				rd.addAttribute("page", page);
 				rd.addAttribute("searchType", searchType);
-				
-			String courseId=scheduleUpdateRequest.getCourseId();	
+
+			String courseId=scheduleUpdateRequest.getCourseId();
 
 			if (errors.hasErrors()) {
         rd.addFlashAttribute("errorMessage", "入力内容に不備があります。正しい値を入力してください");
@@ -149,14 +147,14 @@ public class CourseController {
 	    } else if("past_date_error".equals(result)) {
 		    // 過去日付への変更場合のメッセージを設定
     		rd.addFlashAttribute("errorMessage", "過去日付への変更はできません。");
-    } 
+    }
 	    // course_salesの変更をログに記録
-	        
+
 	    // course_salesのリセット
-	    	
+
 	    // course_salesの更新
 	    	memberService.servScheduleChangeCourse(courseId);
-	    
+
 				return "redirect:/show/" + courseId;
 	}
 
@@ -350,22 +348,22 @@ public class CourseController {
 				return "roomSchedules";
 
 		}
-		
+
 		@GetMapping("/cancelledSchedule")
 		//@ResponseBody
 		public String contCancelledSchedule(//(@ModelAttribute("classRoomSchedule")
 					@RequestParam(name = "searchType", defaultValue = "lateEnrollment") String searchType,
 					@RequestParam(name="page",defaultValue = "1")Integer page,
 					Model model) {
-					
+
 					List<Course>courses=courseService.servSelectCourseByPage(page,searchType);
 					double totalPages=courseService.servSelectTotalPages(searchType);
-					
+
 					model.addAttribute("courses",courses);
 					model.addAttribute("searchType", searchType);
 					model.addAttribute("page", page);
 					model.addAttribute("totalPages", (int)totalPages);
-    
+
 				return "cancelledCourseList";
 	}
 		@GetMapping("/cancelledSchedule/{courseId}")
@@ -373,7 +371,7 @@ public class CourseController {
 				@PathVariable String courseId,
 				@RequestParam(name = "searchType", defaultValue = "lateEnrollment") String searchType,
 				@RequestParam(defaultValue = "1") Integer page,
-				
+
 				Model model	) {
 
 				List<Course> course=courseService.servSellectCourseByCourseId(courseId);
@@ -383,10 +381,15 @@ public class CourseController {
 				model.addAttribute("course",course);
 				model.addAttribute("searchType", searchType);
 				model.addAttribute("page", page);
-				
+
 				// /////////////////
+				Map<Integer,RefundSummary> refundSummaryMap =
+						refundService.calculateRefundSummary(courseId);
+
 				//データ取得
-				List<ScheduleAccountingDetail> rawList = courseService.servSelectScheduleAccountingDetails(courseId);
+				//以下public class RefundServiceImplへ
+/*				List<ScheduleAccountingDetail> rawList =
+						courseService.servSelectScheduleAccountingDetails(courseId);
 				//chMemberId ごとにグループ化
 				Map<Integer, List<ScheduleAccountingDetail>> groupedCourses = rawList.stream()
 				    .collect(Collectors.groupingBy(
@@ -400,7 +403,7 @@ public class CourseController {
 				//画面表示・計算用にグループごとの集計情報を保持する Map を作成
 				Map<Integer, Map<String, Object>> refundSummaryMap = new LinkedHashMap<>();
 
-				for (Map.Entry<Integer, List<ScheduleAccountingDetail>> 
+				for (Map.Entry<Integer, List<ScheduleAccountingDetail>>
 					entry : groupedCourses.entrySet()) {
 				    Integer memberId = entry.getKey();
 				    List<ScheduleAccountingDetail> details = entry.getValue();
@@ -415,7 +418,7 @@ public class CourseController {
 				              return !scheduleDateTime.isBefore(today);
 				          })
 				            .collect(Collectors.toList());
-	
+
 				    // 全コマ数と未受講コマ数（今日以降のコマ）をカウント
 				    long totalCount = details.size();
 				    long remainingCount = remainingSchedules.size(); // 今日以降のコマ
@@ -452,13 +455,13 @@ public class CourseController {
 				    refundSummaryMap.put(memberId, summary);
 
 				}
-				
-				System.out.println("******"+refundSummaryMap);
-				System.out.println("******"+groupedCourses);
+*/
+				System.out.println("GET側******"+refundSummaryMap);
+
 
 				model.addAttribute("refundSummaryMap", refundSummaryMap);
-				
-				
+
+
 				return "cancelledCourseInfo";
 	}
 		@PostMapping("/cancelledSchedule/{courseId}")
@@ -470,15 +473,18 @@ public class CourseController {
 //				@RequestParam("courseId")String courseId,
 				RedirectAttributes rd,
 				Model model	) {
-			
-			
-			
+
+			Map<Integer,RefundSummary> refundSummaryMap =
+					refundService.calculateRefundSummary(courseId);
+
+			System.out.println("PUT側******"+refundSummaryMap);
+
 			rd.addAttribute("page", page);
 	    rd.addAttribute("searchType", searchType);
-			
+
 			return "redirect:/cancelledSchedule/" + courseId;
 		}
-		
-	
-		
+
+
+
 }

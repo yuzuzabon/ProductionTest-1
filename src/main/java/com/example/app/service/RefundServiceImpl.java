@@ -1,7 +1,6 @@
 package com.example.app.service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.app.domain.RefundSummary;
 import com.example.app.domain.ScheduleAccountingDetail;
 import com.example.app.mapper.MemberScheduleStatusMapper;
 
@@ -17,25 +17,18 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class RefundServiceImpl implements RefundService{
-	
-		private final CourseService courseService; 
+
+		private final CourseService courseService;
 		private final MemberScheduleStatusMapper scheduleStatusMapper;
-	
-		@Transactional
-		public Map<Integer,Map<String,Object>> getRefundSummaryMap(String courseId) {
-		//データ取得
-			List<ScheduleAccountingDetail> rawList = 
+
+		@Override
+		public Map<Integer, RefundSummary> calculateRefundSummary(String courseId) {
+		//get用：画面表示用の集計データ取得
+			List<ScheduleAccountingDetail> rawList =
 				scheduleStatusMapper.selectScheduleAccountingDetails(courseId);
 
-			return calculateRefundSummary(rawList); // 共通計算ロジックの呼び出し;
-		
-	}
-	
-		private Map<Integer, Map<String, Object>>calculateRefundSummary
-		(List<ScheduleAccountingDetail> rawList){
-		// 今日の日付（開始前/開始後の判定用）
-			LocalDateTime today = LocalDateTime.now();
 		//chMemberId ごとにグループ化
 			Map<Integer, List<ScheduleAccountingDetail>> groupedCourses = rawList.stream()
 				.collect(Collectors.groupingBy(
@@ -43,12 +36,12 @@ public class RefundServiceImpl implements RefundService{
 						LinkedHashMap::new, // 順序を維持
 						Collectors.toList()
 						));
-			
-			
-			//画面表示・計算用にグループごとの集計情報を保持する Map を作成
-			Map<Integer, Map<String, Object>> refundSummaryMap = new LinkedHashMap<>();
-			
-			for (Map.Entry<Integer, List<ScheduleAccountingDetail>> 
+
+			LocalDateTime today = LocalDateTime.now();
+			Map<Integer, RefundSummary>refundSummaryMap = new LinkedHashMap<>();
+
+		//各受講生の返金額計算ループ
+			for (Map.Entry<Integer, List<ScheduleAccountingDetail>>
 			entry : groupedCourses.entrySet()) {
 		    Integer memberId = entry.getKey();
 		    List<ScheduleAccountingDetail> details = entry.getValue();
@@ -85,28 +78,32 @@ public class RefundServiceImpl implements RefundService{
 		    int totalRefundAmount = refundTuitionFee + refundMaterialFee;
 
 		    // 画面渡し用の Map に格納
-		    Map<String, Object> summary = new HashMap<>();
-		    summary.put("details", details);
-		    summary.put("firstItem", firstItem);// 1コマあたりの受講料単価
-		    summary.put("totalCount", totalCount);
-		    summary.put("remainingCount", remainingCount);
-		    summary.put("remainingSchedules", remainingSchedules);
-		    summary.put("isBeforeStart", isBeforeStart);
-		    summary.put("isFinished", isFinished);
-		    summary.put("refundTuitionFee", refundTuitionFee);
-		    summary.put("refundMaterialFee", refundMaterialFee);
-		    summary.put("totalRefundAmount", totalRefundAmount);
+		    RefundSummary summary = new RefundSummary();
+		    summary.setDetails(details);
+		    summary.setFirstItem(firstItem);// 1コマあたりの受講料単価
+		    summary.setTotalCount(totalCount);
+        summary.setRemainingCount(remainingCount);
+        summary.setRemainingSchedules(remainingSchedules);
+        summary.setBeforeStart(isBeforeStart);
+        summary.setFinished(isFinished);
+        summary.setRefundTuitionFee(refundTuitionFee);
+        summary.setRefundMaterialFee(refundMaterialFee);
+        summary.setTotalRefundAmount(totalRefundAmount);
 
 		    refundSummaryMap.put(memberId, summary);
 
+			}
+
+			return refundSummaryMap;
+
 		}
-		
-				return refundSummaryMap;
-			
-		}
-	
-	
-	
-	
-	
 }
+
+
+
+
+
+
+
+
+

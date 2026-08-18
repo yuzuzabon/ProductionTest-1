@@ -22,6 +22,7 @@
         <result property="chStartMonth" column="ch_start_month" />
 
         <!-- Course -->
+        <result property="cTitle" column="c_title" />
         <result property="cTuitionFee" column="c_tuition_fee" />
         <result property="cMaterialFee" column="c_material_fee" />
     </resultMap>
@@ -33,22 +34,23 @@ SELECT
  	-- MemberScheduleStatus
   mss.id AS mss_id,
   mss.status AS mss_status,
-            
+
   -- ClassRoomSchedule
   crs.id AS crs_id,
-  crs.date AS crs_date,       
-  crs.start_time AS crs_start_time,     
-            
+  crs.date AS crs_date,
+  crs.start_time AS crs_start_time,
+
   -- CourseHistory
   ch.member_id AS ch_member_id,
   ch.course_id AS ch_course_id,
   ch.paid_tuition_fee AS ch_paid_tuition_fee,
   ch.paid_material_fee AS ch_paid_material_fee,
   ch.start_month AS ch_start_month,
-          
+
   -- Course
-  c.tuition_fee AS c_tuition_fee,      
-  c.material_fee AS c_material_fee     
+  c.title AS c_title,
+  c.tuition_fee AS c_tuition_fee,
+  c.material_fee AS c_material_fee
 FROM
   member_schedule_status mss
 inner JOIN
@@ -60,9 +62,9 @@ AND
 inner JOIN
   course c ON ch.course_id = c.course_id
 WHERE
- 
+
 	ch.course_id = #{courseId}
-AND 
+AND
 	mss.status in ('RESERVED', 'ATTENDED') -- 日程変更の再計算対象（予約中・受講済みのコマのみ）
 ORDER BY
   crs.date ASC,
@@ -74,23 +76,23 @@ SELECT
  	-- MemberScheduleStatus
   mss.id AS mss_id,
   mss.status AS mss_status,
-            
+
   -- ClassRoomSchedule
   crs.id AS crs_id,
-  crs.date AS crs_date,       
-  crs.start_time AS crs_start_time,     
-            
+  crs.date AS crs_date,
+  crs.start_time AS crs_start_time,
+
   -- CourseHistory
   ch.member_id AS ch_member_id,
   ch.course_id AS ch_course_id,
   ch.paid_tuition_fee AS ch_paid_tuition_fee,
   ch.paid_material_fee AS ch_paid_material_fee,
   ch.start_month AS ch_start_month,
-          
+
   -- Course
   c.title AS c_title,
-  c.tuition_fee AS c_tuition_fee,      
-  c.material_fee AS c_material_fee     
+  c.tuition_fee AS c_tuition_fee,
+  c.material_fee AS c_material_fee
 FROM
   member_schedule_status mss
 inner JOIN
@@ -102,9 +104,9 @@ AND
 inner JOIN
   course c ON ch.course_id = c.course_id
 WHERE
- 
+
 	ch.member_id = #{memberId}
-AND 
+AND
 	mss.status in ('RESERVED', 'ATTENDED') -- 日程変更の再計算対象（予約中・受講済みのコマのみ）
 ORDER BY
   crs.date ASC,
