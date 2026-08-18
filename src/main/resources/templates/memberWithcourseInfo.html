@@ -166,7 +166,10 @@
 					 class="col-md-4 mb-3">
 <!-- 4. 過去日付の場合に 'schedule-ended' クラスを付与してグレーアウト -->
 					<div class="schedule-container h-100"
-						th:classappend="${r.date.isBefore(#temporals.createToday())} ? 'schedule-ended'"					
+						th:classappend="${r.date.isBefore(#temporals.createToday())
+							or (r.date.isEqual(#temporals.createToday()) 
+							and r.startTime.isBefore(#temporals.createNow().toLocalTime()))
+						} ? 'schedule-ended'"					
 						th:data-index="${stat.index}">
 
 						<form th:action="@{/updateSchedule}"
@@ -182,7 +185,10 @@
 								   th:value="${r.id}" />
 							<div class="border-bottom pb-2 mb-2 d-flex justify-content-between align-items-center">
 								<h5 class="mb-0" 
-										th:classappend="${r.date.isBefore(#temporals.createToday())} ? 'text-muted' : 'text-primary'"
+										th:classappend="${r.date.isBefore(#temporals.createToday())
+											or (r.date.isEqual(#temporals.createToday()) 
+											and r.startTime.isBefore(#temporals.createNow().toLocalTime()))
+										} ? 'text-muted' : 'text-primary'"
 										th:text="${stat.count} + '回目'"></h5>
 								<!-- 終了済みのラベルを表示（任意） -->
 								<span th:if="${r.date.isBefore(#temporals.createToday())}" class="badge bg-secondary">終了</span>

@@ -35,7 +35,7 @@ public class MemberServiceImpl  implements MemberService{
 
 		private final MemberMapper memberMapper;
 		private final CourseMapper courseMapper;
-		private final CourseService courseService;
+//		private final CourseService courseService;
 		private final CourseSalesLogMapper courseSalesLogMapper;
 		private final MemberScheduleStatusMapper scheduleStatusMapper;
 

@@ -64,10 +64,18 @@
 				<td>
 				<span	th:text="${c.courseTerm}+回"></span>
 				<span th:text="'(残り'+${rcData.remainingCount}+'回)'"></span>
-				<button type="button"
-					class="btn btn-sm btn-danger toggle-edit-btn">
+				
+				<form th:action="@{/cancelledSchedule/{id}(id=${c.courseId})}" method="post">
+			
+					<input type="hidden" name="courseId" th:value="${c.courseId}"/>
+					<input type="hidden" name="page" th:value="${page}">
+					<input type="hidden" name="searchType" th:value="${searchType}">
+				<button type="submit"
+					class="btn btn-sm btn-danger toggle-edit-btn"
+					th:if="${rcData.remainingCount > 0}">
 				<span th:text="${c.courseTerm == rcData.remainingCount}? '講座中止（'+${rcData.remainingCount}+'回）':'以降講座中止（'+${rcData.remainingCount}+'回）'"></span>
 				</button>
+				</form>
 				</td>
 			</tr>
 
@@ -75,35 +83,28 @@
 	<tr th:if="${c.courseTerm == rcData.remainingCount}">
 				<th>返金見込み額（講座中止）</th>
 				<td>
-					<span th:text="${#numbers.formatInteger
-						((c.courseTerm * c.tuitionFee + c.materialFee)*c.courseCapacity.numberOfApplicant,1,'COMMA')}"></span>円
-						（受講料：<span th:text="${#numbers.formatInteger
-						(c.tuitionFee,1,'COMMA')}"></span>円 ×
-					<span th:text="${c.courseTerm}"></span>回 /
-						教材費：<span th:text="${#numbers.formatInteger
-						(c.materialFee,1,'COMMA')}"></span>円 ） ×
-					<span th:text="${c.courseCapacity.numberOfApplicant}"></span>人 
+					<div th:with="grandTotal=${refundSummaryMap != null && !refundSummaryMap.isEmpty() 
+							? #aggregates.sum(refundSummaryMap.values().![get('totalRefundAmount')]) : 0}">
+					  <p th:text="|${#numbers.formatInteger(grandTotal,1,'COMMA')}円|"></p>
+					</div>
+					<span th:text="|（受講料：@${#numbers.formatInteger(rcData.tuition,1,'COMMA')}円|"></span> 
+					<span th:if="${c.courseCapacity.numberOfApplicant != 0 and rcData.material != 0}" 
+						th:text="|教材費： @${#numbers.formatInteger(rcData.material,1,'COMMA')}円）|"></span>
+
 				</td>
-	</tr>
 
 <!-- 2. 途中受講の場合のみ表示（全回数 > 残回数） -->
 	<tr th:if="${c.courseTerm > rcData.remainingCount}">
 				<th th:utext="|返金見込み額（講座中止）（残り${rcData.remainingCount}回）|"></th>
 				<td>
-					<span th:text="${#numbers.formatInteger
-						(rcData.remainingCount * rcData.tuition *c.courseCapacity.numberOfApplicant,1,'COMMA')}"></span>円
-						（受講料：<span th:text="${#numbers.formatInteger(rcData.tuition,1,'COMMA')}"></span>円 ×
-					<span th:text="${rcData.remainingCount}"></span>回 ×
-					<span th:text="${c.courseCapacity.numberOfApplicant}"></span>人）
+					<div th:with="grandTotal=${refundSummaryMap != null && !refundSummaryMap.isEmpty() 
+							? #aggregates.sum(refundSummaryMap.values().![get('totalRefundAmount')]) : 0}">
+					  <p th:text="|${#numbers.formatInteger(grandTotal,1,'COMMA')}円|"></p>
+					</div>
+					<span th:text="|（受講料：@${#numbers.formatInteger(rcData.tuition,1,'COMMA')}円|"></span> 
 					<span th:if="${c.courseCapacity.numberOfApplicant != 0 and rcData.material != 0}" 
-						th:text="|※返金対象外（教材費： @${#numbers.formatInteger(rcData.material,1,'COMMA')}円）|"></span>
-					
-					<span th:with="gt=${#aggregates.sum(refundSummaryMap.values().![#this['totalRefundAmount']])}"></span>
-											
-					<span th:each="e : ${refundSummaryMap}"></span> 
-					<span th:text="${#numbers.formatInteger(rcData.material,1,'COMMA')}"></span>
-						
-						
+						th:text="|教材費： @${#numbers.formatInteger(rcData.material,1,'COMMA')}円）|"></span>
+
 				</td>
 	</tr>
 		<tr  th:if="${rcData.remainingCount >1}">
@@ -148,7 +149,7 @@
 						<th>受講者ID</th>
 						
 						<th>ステータス</th>
-<!--						<th>日程</th>-->
+						<th>日程</th>
 						<th>返金対象：受講料</th>
 						<th>返金対象：教材費</th>
 						<th>返金見込み合計</th>
@@ -161,8 +162,22 @@
 						<td>
 						    <span th:if="${item.isBeforeStart}" class="badge bg-success">受講開始前</span>
 						    <span th:if="${!item.isBeforeStart && !item.isFinished}" class="badge bg-warning text-dark">受講途中</span>
-<!--						    <span th:if="${item.isFinished}" class="badge bg-secondary">全日程終了</span>-->
+						    <span th:if="${item.isFinished}" class="badge bg-secondary">全日程終了</span>
 						</td>
+							
+						<td>
+							<!-- 💡 返金対象となる残りの日程を縦並びで表示 -->
+							<div th:if="${!item.isFinished}" class="pt-1 text">
+							  <div th:each="s : ${item.remainingSchedules}">
+							     <span th:text="${#temporals.format(s.crsDate, 'yyyy/MM/dd')}">2026/08/25</span>
+							     <span th:text="${s.crsStartTime}">10:00</span>
+							  </div>
+							</div>
+							  <div th:if="${item.isFinished}" class="small text-muted">
+							      （全日程終了のため対象日なし）
+							  </div>	
+						</td>
+						
 						<td>
 						    <span th:text="${#numbers.formatInteger(item.refundTuitionFee,1,'COMMA')} + '円'">1000円</span>
 						    <small class="text-muted d-block" th:if="${!item.isFinished}">
@@ -171,8 +186,14 @@
 						</td>
 						
 						<td>
-						    <span th:if="${item.isBeforeStart}" th:text="${#numbers.formatInteger(item.refundMaterialFee,1,'COMMA')} + '円'">500円</span>
-						    <span th:unless="${item.isBeforeStart}" class="text-muted">0円（対象外）</span>
+							<!-- 1. 初回開始前 かつ 教材費がある場合（返金対象） -->
+						  <span th:if="${item.isBeforeStart and item.refundMaterialFee > 0}" 
+								th:text="${#numbers.formatInteger(item.refundMaterialFee,1,'COMMA')} + '円'">500円</span>
+							<!-- 2. 受講開始後の場合（教材費の設定があっても返金対象外） -->
+							<span th:if="${!item.isBeforeStart and item.firstItem.chPaidMaterialFee > 0}" 
+							  class="text-muted">0円（対象外）</span>
+					    <!-- 3. 元々の教材費設定が0円の場合 -->
+					    <span th:if="${item.firstItem.chPaidMaterialFee == 0}">0円</span>
 						</td>
 						
 						<td class="fw-bold text-primary">

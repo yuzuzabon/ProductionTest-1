@@ -104,17 +104,17 @@
 </resultMap>
 
 	<sql id="standardSelect">
-				course.id AS c_id,
-        course.course_id AS c_course_id,
-        course.title AS c_title,
-        course.detail AS c_detail,
-        course.class_room_id AS c_class_room_id,
-        course.course_term AS c_course_term,
-        course.allow_late_enrollment AS c_allow_late_enrollment,
-        course.tuition_fee AS c_tuition_fee,
-        course.material_fee AS c_material_fee,
-        course.registered_at AS c_registered_at,
-        course.updated_at AS c_updated_at,
+				c.id AS c_id,
+        c.course_id AS c_course_id,
+        c.title AS c_title,
+        c.detail AS c_detail,
+        c.class_room_id AS c_class_room_id,
+        c.course_term AS c_course_term,
+        c.allow_late_enrollment AS c_allow_late_enrollment,
+        c.tuition_fee AS c_tuition_fee,
+        c.material_fee AS c_material_fee,
+        c.registered_at AS c_registered_at,
+        c.updated_at AS c_updated_at,
 
         course_capacity.capacity AS p_capacity,
         course_capacity.number_of_applicant AS p_number_of_applicant,
@@ -166,18 +166,18 @@
 
 	<include refid="standardSelect"></include>
 
-	FROM course 
+	FROM course c
 
 			join  course_capacity
-			on course.course_id=
+			on c.course_id=
 			course_capacity.course_id
 
 			join class_room
-			on course.class_room_id=
+			on c.class_room_id=
 			class_room.id
 
 			join class_room_schedule
-      on course.course_id =
+      on c.course_id =
       class_room_schedule.course_id
       
       
@@ -223,22 +223,22 @@
 </select>
 
 <select id="selectCourseByPage" resultMap="joinCourse">
-	select
+	select DISTINCT
 
 	<include refid="standardSelect"></include>
 
-	FROM course
+	FROM course c
 
 			join  course_capacity
-			on course.course_id=
+			on c.course_id=
 			course_capacity.course_id
 
 			join class_room
-			on course.class_room_id=
+			on c.class_room_id=
 			class_room.id
 
 			join class_room_schedule
-      on course.course_id =
+      on c.course_id =
       class_room_schedule.course_id
 
   	  join(
@@ -284,7 +284,7 @@
     	ORDER BY c.course_id
     	limit #{offset},#{limit}
 			) as limited_course
-			on course.course_id=limited_course.course_id
+			on c.course_id=limited_course.course_id
 
 			order by c_course_id,s_date,s_start_time
 
@@ -400,21 +400,21 @@ AND crs.date &gt;= CURRENT_DATE
 
 	<include refid="standardSelect"></include>
 
-	FROM course
+	FROM course c
 
 			join  course_capacity
-			on course.course_id=
+			on c.course_id=
 			course_capacity.course_id
 
 			join class_room_schedule
-      on course.course_id =
+      on c.course_id =
       class_room_schedule.course_id
 
 			join class_room
 			on class_room_schedule.class_room_id=
 			class_room.id
 
-			where course.course_id=#{courseId}
+			where c.course_id=#{courseId}
       order by c_course_id,s_date,s_start_time
 
 </select>
