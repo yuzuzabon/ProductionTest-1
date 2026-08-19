@@ -179,6 +179,8 @@ public class MemberController {
 					Model model) {
 
 					setMemberInfo(id,model);
+					
+			
 					//データ取得
 					List<ScheduleAccountingDetail> rawList = memberService.servSelectCancellMemberById(id);
 					//chCourseId ごとにグループ化
@@ -239,7 +241,6 @@ public class MemberController {
 
 					    refundSummaryMap.put(courseId, summary);
 					}
-
 					model.addAttribute("refundSummaryMap", refundSummaryMap);
 					return "cancelledMemberWithCourseList";
 

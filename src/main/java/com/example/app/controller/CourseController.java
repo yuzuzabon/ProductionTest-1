@@ -457,7 +457,8 @@ public class CourseController {
 				}
 */
 				System.out.println("GET側******"+refundSummaryMap);
-
+				System.out.println("GET側******"+rcData);
+				System.out.println("GET側******"+course);
 
 				model.addAttribute("refundSummaryMap", refundSummaryMap);
 
@@ -478,6 +479,16 @@ public class CourseController {
 					refundService.calculateRefundSummary(courseId);
 
 			System.out.println("PUT側******"+refundSummaryMap);
+			
+			if(refundSummaryMap==null || refundSummaryMap.isEmpty()) {
+				
+	
+								
+				System.out.println("PUT側******受講生なし"+courseId);
+
+		boolean cancelltest=refundService.servCancellCourse(courseId);
+			
+			}
 
 			rd.addAttribute("page", page);
 	    rd.addAttribute("searchType", searchType);

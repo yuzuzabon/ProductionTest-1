@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RemainingCourseData {
 
-	private boolean ale;
-	private Integer ct;
+	private boolean ale; //途中受講可否 allowLateEnrollment
+	private Integer ct;	//講座回数 CourseTerm	
 	private Integer tuition;
 	private Integer material;
 	private Integer remainingCount;

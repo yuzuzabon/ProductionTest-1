@@ -9,9 +9,12 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.app.domain.ClassRoomSchedule;
+import com.example.app.domain.Course;
 import com.example.app.domain.RefundSummary;
 import com.example.app.domain.ScheduleAccountingDetail;
 import com.example.app.mapper.MemberScheduleStatusMapper;
+import com.example.app.mapper.RefundMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +25,7 @@ public class RefundServiceImpl implements RefundService{
 
 		private final CourseService courseService;
 		private final MemberScheduleStatusMapper scheduleStatusMapper;
+		private final RefundMapper refundMapper;
 
 		@Override
 		public Map<Integer, RefundSummary> calculateRefundSummary(String courseId) {
@@ -91,12 +95,49 @@ public class RefundServiceImpl implements RefundService{
         summary.setTotalRefundAmount(totalRefundAmount);
 
 		    refundSummaryMap.put(memberId, summary);
-
+		    
 			}
 
 			return refundSummaryMap;
 
 		}
+		public boolean servCancellCourse(String courseId){
+			
+			List<Course>courseList=courseService.servSellectCourseByCourseId2(courseId);
+			
+			 if (courseList == null || courseList.isEmpty()) {
+	        return false;
+	    }
+
+			Course course=courseList.get(0);
+			List<ClassRoomSchedule> schedules = course.getClassRoomSchedule();
+			 if (schedules == null || schedules.isEmpty()) {
+	        return false;
+	    }
+   
+	    LocalDateTime today = LocalDateTime.now();
+			
+	    List<Integer> targetIds = schedules.stream()
+          .filter(s -> {
+            // Date と StartTime を結合して LocalDateTime を作成
+            LocalDateTime scheduleDateTime = LocalDateTime.of(s.getDate(), s.getStartTime());
+            // 現在日時より前でない（＝現在時刻以降）コマを残す
+            return !scheduleDateTime.isBefore(today);
+        })
+          .map(ClassRoomSchedule::getId)
+          .collect(Collectors.toList());
+	    System.out.println("******PUT側"+schedules);
+      System.out.println("******PUT側"+targetIds);
+	    
+	    // 更新対象のIDが存在する場合のみ、一括更新処理を1回だけ呼ぶ
+	    if (!targetIds.isEmpty()) {
+	        refundMapper.updateStatusByIds(targetIds, "CANCELLED_COURSE");
+	    }
+
+	    
+			return false;
+		}
+		
 }
 
 

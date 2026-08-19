@@ -319,6 +319,11 @@ public class CourseServiceImpl implements CourseService{
 			// TODO 自動生成されたメソッド・スタブ
 			return courseMapper.selectCourseByCourseId(courseId);
 		}
+		@Override
+		// public class RefundServiceImpl implements RefundService用
+		public List<Course> servSellectCourseByCourseId2(String courseId) {
+			return courseMapper.selectCourseByCourseId(courseId);
+		}
 		//ページ分割　zdrive仕様
 /*		@Override
 		

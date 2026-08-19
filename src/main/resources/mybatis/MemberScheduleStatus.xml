@@ -11,6 +11,7 @@
 
         <!-- ClassRoomSchedule -->
         <result property="crsId" column="crs_id" />
+        <result property="crsScheduleStatus" column="crs_schedule_status" />
         <result property="crsDate" column="crs_date" />
         <result property="crsStartTime" column="crs_start_time" />
 
@@ -37,6 +38,7 @@ SELECT
 
   -- ClassRoomSchedule
   crs.id AS crs_id,
+  crs.schedule_status AS crs_schedule_status,
   crs.date AS crs_date,
   crs.start_time AS crs_start_time,
 
@@ -79,6 +81,7 @@ SELECT
 
   -- ClassRoomSchedule
   crs.id AS crs_id,
+  crs.schedule_status AS crs_schedule_status,
   crs.date AS crs_date,
   crs.start_time AS crs_start_time,
 

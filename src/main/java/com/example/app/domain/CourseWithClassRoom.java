@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CourseWithClassRoom {
+public class CourseWithClassRoom extends Course{
 
 		private Integer id;
 		private String courseId;

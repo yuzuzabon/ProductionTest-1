@@ -20,6 +20,8 @@ public interface CourseMapper {
 		List<Course> selectCourseAll(@Param("searchType") String searchType);
 	//１件
 		List<Course> selectCourseByCourseId(String courseId);
+		//１件 public class RefundServiceImpl implements RefundService用
+		List<Course> selectCourseByCourseId2(String courseId);
 	//登録
 		void insertCourse(Course course);
 		void insertCourseCapacity(CourseCapacity courseCapacity);

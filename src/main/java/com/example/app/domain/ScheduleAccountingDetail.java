@@ -14,9 +14,10 @@ public class ScheduleAccountingDetail {
 	
 //ClassRoomSchedule
 	private Integer crsId;//ClassRoomSchedule主キー
+	private String crsScheduleStatus;
 	private LocalDate crsDate;
 	private LocalTime crsStartTime;
-	
+		
 //CourseHistory
 	private Integer chMemberId;//会員番号
 	private String chCourseId;//講座番号

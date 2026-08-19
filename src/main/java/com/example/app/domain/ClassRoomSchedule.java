@@ -17,7 +17,7 @@ public class ClassRoomSchedule {
 
 	private Integer id;
 	private String courseId;
-	private	String scheduleStatus;
+	private String scheduleStatus;
 	private Integer classRoomId;
 	private LocalDate date;
 	private LocalTime startTime;

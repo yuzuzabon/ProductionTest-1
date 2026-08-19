@@ -16,6 +16,8 @@ public interface CourseService {
 		List<Course> servSelectCourseAll(String searchType);
 	//１件
 		List<Course> servSellectCourseByCourseId(String courseId);
+	//１件 public class RefundServiceImpl implements RefundService用
+		List<Course> servSellectCourseByCourseId2(String courseId);
 	//検索
 
 
