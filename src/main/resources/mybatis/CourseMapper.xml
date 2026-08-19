@@ -139,7 +139,7 @@
 		<result property="coursePeriod" column="s_course_period"/>
 		<result property="registeredAt" column="s_registered_at"/>
 		<result property="updatedAt" column="s_updated_at"/>
-		
+
     <association property="classRoom" javaType="ClassRoom">
     	<id property="id" column="r_id"/>
 			<result property="classRoom" column="r_class_room"/>
@@ -225,41 +225,41 @@
 			join class_room_schedule
       on c.course_id =
       class_room_schedule.course_id
-      
-      
+
+
 <where>
 <!-- もしデータがあればSQLをくっつける -->
 <!-- 「途中受講可（受付中のみ）」の検索条件を選択した場合 -->
     <if test='searchType != null and searchType == "lateEnrollment"'>
         <!-- ① 本日以降に少なくとも1回以上の日程が存在する -->
         EXISTS (
-            SELECT 1 
-            FROM class_room_schedule crs 
-            WHERE crs.course_id = c.course_id 
+            SELECT 1
+            FROM class_room_schedule crs
+            WHERE crs.course_id = c.course_id
               AND crs.date &gt;= CURRENT_DATE
         )
         AND (
             <!-- ②-1 途中受講が可能な講座 -->
             c.allow_late_enrollment = true
-            
+
             OR
-            
+
             <!-- ②-2 途中受講不可だが、まだ1回目も始まっていない講座 -->
             (
                 c.allow_late_enrollment = false
                 AND NOT EXISTS (
-                    SELECT 1 
-                    FROM class_room_schedule crs_past 
-                    WHERE crs_past.course_id = c.course_id 
+                    SELECT 1
+                    FROM class_room_schedule crs_past
+                    WHERE crs_past.course_id = c.course_id
                       AND crs_past.date &lt; CURRENT_DATE
                 )
             )
         )
         <!-- ③ 空きがあること（定員 > 申込者数） -->
         AND EXISTS (
-            SELECT 1 
-            FROM course_capacity cap 
-            WHERE cap.course_id = c.course_id 
+            SELECT 1
+            FROM course_capacity cap
+            WHERE cap.course_id = c.course_id
               AND cap.capacity &gt; cap.number_of_applicant
         )
     </if>
@@ -295,38 +295,39 @@
     <if test='searchType != null and searchType == "lateEnrollment"'>
         <!-- ① 本日以降に少なくとも1回以上の日程が存在する -->
         EXISTS (
-            SELECT 1 
-            FROM class_room_schedule crs 
-            WHERE crs.course_id = c.course_id 
+            SELECT 1
+            FROM class_room_schedule crs
+            WHERE crs.course_id = c.course_id
               AND crs.date &gt;= CURRENT_DATE
+              and crs.schedule_status="OPEN" <!-- 20260819加筆 -->
         )
         AND (
             <!-- ②-1 途中受講が可能な講座 -->
             c.allow_late_enrollment = true
-            
+
             OR
-            
+
             <!-- ②-2 途中受講不可だが、まだ1回目も始まっていない講座 -->
             (
                 c.allow_late_enrollment = false
                 AND NOT EXISTS (
-                    SELECT 1 
-                    FROM class_room_schedule crs_past 
-                    WHERE crs_past.course_id = c.course_id 
+                    SELECT 1
+                    FROM class_room_schedule crs_past
+                    WHERE crs_past.course_id = c.course_id
                       AND crs_past.date &lt; CURRENT_DATE
                 )
             )
         )
         <!-- ③ 空きがあること（定員 > 申込者数） -->
         AND EXISTS (
-            SELECT 1 
-            FROM course_capacity cap 
-            WHERE cap.course_id = c.course_id 
+            SELECT 1
+            FROM course_capacity cap
+            WHERE cap.course_id = c.course_id
               AND cap.capacity &gt; cap.number_of_applicant
         )
     </if>
-</where>  	  
-  	  
+</where>
+
     	ORDER BY c.course_id
     	limit #{offset},#{limit}
 			) as limited_course
@@ -342,39 +343,40 @@
     <if test='searchType != null and searchType == "lateEnrollment"'>
         <!-- ① 本日以降に少なくとも1回以上の日程が存在する -->
         EXISTS (
-            SELECT 1 
-            FROM class_room_schedule crs 
-            WHERE crs.course_id = c.course_id 
+            SELECT 1
+            FROM class_room_schedule crs
+            WHERE crs.course_id = c.course_id
               AND crs.date &gt;= CURRENT_DATE
+              and crs.schedule_status="OPEN" <!-- 20260819加筆 -->
         )
         AND (
             <!-- ②-1 途中受講が可能な講座 -->
             c.allow_late_enrollment = true
-            
+
             OR
-            
+
             <!-- ②-2 途中受講不可だが、まだ1回目も始まっていない講座 -->
             (
                 c.allow_late_enrollment = false
                 AND NOT EXISTS (
-                    SELECT 1 
-                    FROM class_room_schedule crs_past 
-                    WHERE crs_past.course_id = c.course_id 
+                    SELECT 1
+                    FROM class_room_schedule crs_past
+                    WHERE crs_past.course_id = c.course_id
                       AND crs_past.date &lt; CURRENT_DATE
                 )
             )
         )
         <!-- ③ 空きがあること（定員 > 申込者数） -->
         AND EXISTS (
-            SELECT 1 
-            FROM course_capacity cap 
-            WHERE cap.course_id = c.course_id 
+            SELECT 1
+            FROM course_capacity cap
+            WHERE cap.course_id = c.course_id
               AND cap.capacity &gt; cap.number_of_applicant
         )
     </if>
-</where>	
-	
-	
+</where>
+
+
 </select>
 
 <select id="selectCourseByPage2" resultMap="joinCourse">
@@ -399,21 +401,21 @@
   	  join(
 	    SELECT c.course_id
   	  FROM course c
-  	  
+
 <where>
 <!-- もしデータがあればSQLをくっつける -->
 <!-- 「途中受講可 兼 残回数あり」の検索条件を選択した場合 -->
 <if test='searchType != null and searchType == "lateEnrollment"'>
 c.allow_late_enrollment = true
 AND (
-SELECT COUNT(*) 
-FROM class_room_schedule crs 
-WHERE crs.course_id = c.course_id 
+SELECT COUNT(*)
+FROM class_room_schedule crs
+WHERE crs.course_id = c.course_id
 AND crs.date &gt;= CURRENT_DATE
 ) &gt; 0
 </if>
 </where>
-  	  
+
     	ORDER BY c.course_id
     	limit #{offset},#{limit}
 			) as limited_course
@@ -431,14 +433,14 @@ AND crs.date &gt;= CURRENT_DATE
 <if test='searchType != null and searchType == "lateEnrollment"'>
 c.allow_late_enrollment = true
 AND (
-SELECT COUNT(*) 
-FROM class_room_schedule crs 
-WHERE crs.course_id = c.course_id 
+SELECT COUNT(*)
+FROM class_room_schedule crs
+WHERE crs.course_id = c.course_id
 AND crs.date &gt;= CURRENT_DATE
 ) &gt; 0
 </if>
 </where>
-	
+
 </select>
 
 <select id="selectCourseByCourseId" parameterType="String" resultMap="joinCourseWithClassRoom">
@@ -544,20 +546,20 @@ order by class_room_id,date,start_time
 </select>
 
 <select id="selectCourseSalesByCourseId">
-	select 
-	id, 
-	course_sales_status, 
-	course_id, 
-	target_month, 
-	monthly_tuition_fee, 
-	material_fee, 
-	refunds_monthly_tuition_fee, 
-	refunds_material_fee, 
-	registered_at, 
+	select
+	id,
+	course_sales_status,
+	course_id,
+	target_month,
+	monthly_tuition_fee,
+	material_fee,
+	refunds_monthly_tuition_fee,
+	refunds_material_fee,
+	registered_at,
 	updated_at
 	from course_sales
 	where course_id=#{courseId}
-	
+
 </select>
 
 
@@ -609,7 +611,7 @@ order by class_room_id,date,start_time
 	where id=#{id}
 
 	</update>
-	
+
 	<update id="updateCourseSalesReset">
 	update course_sales
 	set
@@ -618,7 +620,7 @@ order by class_room_id,date,start_time
 		updated_at=now()
 	where
 		course_id=#{courseId};
-	
+
 	</update>
 
 

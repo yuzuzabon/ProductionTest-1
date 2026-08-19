@@ -14,6 +14,12 @@
 			padding: 1rem;
 			background-color: #fff;
 		}
+		/* 終了・中止講座用のスタイル */
+		.schedule-ended {
+		  background-color: #e9ecef !important;
+		  color: #6c757d !important;
+		  border-color: #ced4da !important;
+		}
 		/* 変更フォーム用のレイアウト（最初は非表示、展開時に左側に境界線を追加） */
 		.edit-area {
 			background-color: #f8f9fa;
@@ -58,9 +64,9 @@
 				<span	th:text="${c.courseTerm}"></span>
 				<span th:text="| （途中受講${c.allowLateEnrollment ? '可':'不可'}）|"
 							th:classappend="${!c.allowLateEnrollment} ? 'text-danger'"></span>
-				</td> 
+				</td>
 			</tr>
-				
+
 			<tr>
 				<th>受講料等(消費税等込み)</th>
 				<td>
@@ -83,7 +89,10 @@
 		<h4 class="mb-3">講座詳細</h4>
 
 		<div th:each="c : ${course}">
-			<div th:each="r, stat : ${c.classRoomSchedule}" class="schedule-container" th:data-index="${stat.index}">
+			<div th:each="r, stat : ${c.classRoomSchedule}"
+				class="schedule-container"
+				th:classappend="${r.scheduleStatus == 'CANCELLED_COURSE'} ? 'schedule-ended'"
+				th:data-index="${stat.index}">
 
 				<form th:action="@{/updateSchedule}" method="post" class="schedule-form">
 					<input type="hidden" name="courseId" th:value="${c.courseId}" />
@@ -91,8 +100,21 @@
 
 					<div class="row align-items-center">
 						<div class="col-12 mb-2 d-flex justify-content-between align-items-center border-bottom pb-2">
-							<h5 class="text-primary mb-0" th:text="${stat.count} + '回目'"></h5>
-							<button type="button" class="btn btn-sm btn-outline-primary toggle-edit-btn">この回を変更する</button>
+							<h5 class="text-primary mb-0"
+								th:classappend="${r.scheduleStatus == 'CANCELLED_COURSE'} ? 'text-muted'"
+								th:text="${stat.count} + '回目'"></h5>
+							<!-- 中止でない場合：通常の変更ボタンを表示 -->
+							<button type="button"
+								class="btn btn-sm btn-outline-primary toggle-edit-btn"
+								th:if="${r.scheduleStatus != 'CANCELLED_COURSE'}">
+								この回を変更する
+							</button>
+							<!-- 中止の場合：中止バッジを表示 -->
+							<span class="badge bg-danger"
+							  th:if="${r.scheduleStatus == 'CANCELLED_COURSE'}">
+								中止
+							</span>
+
 						</div>
 
 						<div class="col-md-5 info-area">
@@ -108,7 +130,7 @@
 						<div class="col-md-1 text-center d-none arrow-area">
 							<i class="fs-3 text-muted">→</i>
 						</div>
-
+						<!-- 編集エリア（中止の場合はボタンが表示されないため開かれません） -->
 						<div class="col-md-6 edit-area d-none">
 							<span class="badge bg-primary mb-2">新しい設定（変更後）</span>
 
@@ -160,7 +182,7 @@
 
 								<input type="hidden" name="page" th:value="${page}">
 								<input type="hidden" name="searchType" th:value="${searchType}">
-								
+
 							<div class="text-end mt-2">
 								<button type="submit" class="btn btn-primary btn-sm submit-btn">この回を保存</button>
 							</div>

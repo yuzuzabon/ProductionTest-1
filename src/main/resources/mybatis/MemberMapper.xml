@@ -8,9 +8,9 @@
 
 <select id="selectMemberAll" >
 	SELECT * FROM members
-	 
-</select> 
- 
+
+</select>
+
 <select id="selectMemberByWord">
  SELECT * FROM members
 	<where>
@@ -22,72 +22,74 @@
 				and id like concat(#{id},'%')
 		</if>
 	</where>
- 
+
 </select>
 
 <select id="selectMemberById">
 	SELECT * FROM members
 	where id=#{id}
-	
+
 </select>
- 
+
 <select id="selectByCourseIdForUpdate">
 	select
 		course_id,
 		capacity,
-		number_of_applicant 
-	from 
+		number_of_applicant
+	from
 		course_capacity
 	where
 		course_id=#{courseId}
-	for update	
-</select> 
+	for update
+</select>
 
 <select id="selectMonthlyCount">
-	select 
+	select
 		course_id,
 		date_format(date,'%Y%m') AS salesMonth,
 		count(*) AS count
 	from
 		class_room_schedule
 	where
-		course_id=#{courseId}	
+		course_id=#{courseId}
 	group by
 		date_format(date,'%Y%m')
-	ORDER BY 
+	ORDER BY
 		salesMonth ASC
 </select>
 
 <select id="selectRemainingMonthlyCount">
-	select 
+	select
 		course_id,
 		date_format(date,'%Y%m') AS salesMonth,
 		count(*) AS count
 	from
 		class_room_schedule
 	where
-		course_id=#{courseId}	
+		course_id=#{courseId}
 		and
 		TIMESTAMP(date, start_time) >= NOW()
 	group by
 		date_format(date,'%Y%m')
-	ORDER BY 
+	ORDER BY
 		salesMonth ASC
 </select>
 
 <select id="selectRemainingCount" resultType="int">
-	select 
+	select
 		count(*) AS count
 	from
 		class_room_schedule
 	where
-		course_id=#{courseId}	
+		course_id=#{courseId}
 		and
 		TIMESTAMP(date, start_time) >= NOW()
-	
+		and
+		schedule_status='OPEN'
+
 </select>
 
-<select id="sellectCourseSchedulesByCourseId" resultType="ClassRoomSchedule"> 
+<select id="sellectCourseSchedulesByCourseId" resultType="ClassRoomSchedule">
 	select
 		id,
 		course_id,
@@ -98,7 +100,7 @@
 		class_room_schedule
 	where
 		course_id=#{courseId}
-	and 
+	and
 		TIMESTAMP(date, start_time) >= NOW()
 	order by
 		date ASC,start_time ASC
@@ -107,7 +109,7 @@
 
 
 <select id="selectCourseFee">
-	select 
+	select
 		course_id,
 		course_term,
 		allow_late_enrollment,
@@ -116,7 +118,7 @@
 	from
 		course
 	where
-		course_id=#{courseId}	
+		course_id=#{courseId}
 
 </select>
 
@@ -125,18 +127,18 @@
 	FROM course_history
 	WHERE member_id = #{memberId}
   	AND course_id = #{courseId}
-	 	
+
 </select>
 
 <select id="sellectCourseHistoryById">
-	SELECT 
+	SELECT
 		course_id,
 		member_status
 	FROM course_history
 	WHERE member_id = #{memberId}
-	ORDER BY 
-		course_id ASC  
-	 	
+	ORDER BY
+		course_id ASC
+
 </select>
 
 <update id="updateApplyedCount">
@@ -148,47 +150,47 @@
 		updated_at=now()
 	where
 		course_id=#{courseId}
-		
-		
+
+
 </update>
 
  <update id="updateCourseHistoryStartMonth">
  	update
  		course_history
- 	set	
+ 	set
  		start_month=#{newStartMonth},
  		updated_at=now()
  	where
 		course_id=#{courseId}
 	and
-		member_id=#{memberId}	
+		member_id=#{memberId}
  </update>
- 
+
 <insert id="upsertCourseSales">
-	insert into 
+	insert into
 		course_sales(
-		
+
 			course_id,
 			target_month,
 			monthly_tuition_fee,
 			material_fee)
 		values(
-		
+
 			#{courseId},
 			#{targetMonth},
 			#{monthlyTuitionFee},
 			#{materialFee})
 	on duplicate key update
 			monthly_tuition_fee=
-			monthly_tuition_fee + #{monthlyTuitionFee},	
+			monthly_tuition_fee + #{monthlyTuitionFee},
 			material_fee=
 			material_fee + #{materialFee},
-			updated_at=now()			
-	
-</insert> 
- 
+			updated_at=now()
+
+</insert>
+
  <insert id="insertCourseHistory">
- insert into 
+ insert into
 		course_history(
 			member_id,
 			member_status,
@@ -209,9 +211,9 @@
 			#{paidTuitionFee},
 			#{paidMaterialFee},
 			#{startMonth})
- 
+
  </insert>
- 
+
  <insert id="upsertMemberScheduleStatus">
     INSERT INTO member_schedule_status (
         member_id,
