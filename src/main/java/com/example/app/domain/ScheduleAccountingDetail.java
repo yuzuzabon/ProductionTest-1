@@ -5,29 +5,30 @@ import java.time.LocalTime;
 
 import lombok.Data;
 
-@Data 
+@Data
 public class ScheduleAccountingDetail {
 
 //MemberScheduleStatus
 	private Integer mssId; //
 	private String mssStatus;//RESERVED など
-	
+
 //ClassRoomSchedule
 	private Integer crsId;//ClassRoomSchedule主キー
 	private String crsScheduleStatus;
 	private LocalDate crsDate;
 	private LocalTime crsStartTime;
-		
+
 //CourseHistory
 	private Integer chMemberId;//会員番号
 	private String chCourseId;//講座番号
+	private Integer chLateEnrollment;//途中受講フラグ
 	private Integer chPaidTuitionFee;//支払い済み受講料合計
 	private Integer chPaidMaterialFee;//支払い済み教材費
 	private String chStartMonth;//受講開始月 日程変更後に再計算
-	
+
 //Course
 	private String cTitle;
 	private Integer cTuitionFee; //受講料単価
 	private Integer cMaterialFee;//教材費単価
-	
+
 }

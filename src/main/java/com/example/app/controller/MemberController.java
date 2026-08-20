@@ -179,8 +179,8 @@ public class MemberController {
 					Model model) {
 
 					setMemberInfo(id,model);
-					
-			
+
+
 					//データ取得
 					List<ScheduleAccountingDetail> rawList = memberService.servSelectCancellMemberById(id);
 					//chCourseId ごとにグループ化
@@ -216,7 +216,7 @@ public class MemberController {
 	          })
 	            .collect(Collectors.toList());
 
-					    
+
 					    // 全コマ数と未受講コマ数（今日以降のコマ）をカウント
 					    long totalCount = details.size();
 					    long remainingCount = remainingSchedules.size(); // 今日以降のコマ

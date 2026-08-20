@@ -18,6 +18,7 @@
         <!-- CourseHistory -->
         <result property="chMemberId" column="ch_member_id" />
         <result property="chCourseId" column="ch_course_id" />
+        <result property="chLateEnrollment" column="ch_late_enrollment" />
         <result property="chPaidTuitionFee" column="ch_paid_tuition_fee" />
         <result property="chPaidMaterialFee" column="ch_paid_material_fee" />
         <result property="chStartMonth" column="ch_start_month" />
@@ -45,6 +46,7 @@ SELECT
   -- CourseHistory
   ch.member_id AS ch_member_id,
   ch.course_id AS ch_course_id,
+  ch.late_enrollment AS ch_late_enrollment,
   ch.paid_tuition_fee AS ch_paid_tuition_fee,
   ch.paid_material_fee AS ch_paid_material_fee,
   ch.start_month AS ch_start_month,
@@ -88,6 +90,7 @@ SELECT
   -- CourseHistory
   ch.member_id AS ch_member_id,
   ch.course_id AS ch_course_id,
+  ch.late_enrollment AS ch_late_enrollment,
   ch.paid_tuition_fee AS ch_paid_tuition_fee,
   ch.paid_material_fee AS ch_paid_material_fee,
   ch.start_month AS ch_start_month,

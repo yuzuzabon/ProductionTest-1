@@ -72,10 +72,14 @@
 
 			            <!-- 3. ステータス表示 -->
 			            <td>
+										<div class="d-flex flex-column align-items-start gap-1">
 			                <span th:if="${item.isBeforeStart}" class="badge bg-success">受講開始前</span>
 			                <span th:if="${!item.isBeforeStart && !item.isFinished}" class="badge bg-warning text-dark">受講途中</span>
 			                <span th:if="${item.isFinished}" class="badge bg-secondary">全日程終了</span>
-			            </td>
+											<span th:if="${item.firstItem?.chLateEnrollment == 1}" class="badge bg-info text-dark ms-1">途中受講</span>
+
+										</div>
+									</td>
 
 			            <!-- 4. 未受講コマ数 / 全コマ数 -->
 									<td>
