@@ -456,9 +456,9 @@ public class CourseController {
 
 				}
 */
-				System.out.println("GET側******"+refundSummaryMap);
-				System.out.println("GET側******"+rcData);
-				System.out.println("GET側******"+course);
+//				System.out.println("GET側******"+refundSummaryMap);
+//				System.out.println("GET側******"+rcData);
+//				System.out.println("GET側******"+course);
 
 				model.addAttribute("refundSummaryMap", refundSummaryMap);
 
@@ -478,17 +478,31 @@ public class CourseController {
 			Map<Integer,RefundSummary> refundSummaryMap =
 					refundService.calculateRefundSummary(courseId);
 
-			System.out.println("PUT側******"+refundSummaryMap);
-			
+//			System.out.println("PUT側******"+refundSummaryMap);
 			if(refundSummaryMap==null || refundSummaryMap.isEmpty()) {
-				
 	
-								
 				System.out.println("PUT側******受講生なし"+courseId);
+			//受講生なし講座中止メソッド
+			boolean isSuccess=refundService.servCancellCourse(courseId);
+				
+				if(isSuccess) {
+					rd.addFlashAttribute("statusMessage","講座中止手続きを承りました");
 
-		boolean cancelltest=refundService.servCancellCourse(courseId);
-			
+				}else {
+					rd.addFlashAttribute("errorMessage","講座中止手続き対象講座がみつかりません");
+				}
 			}
+			
+				System.out.println("PUT側******受講生あり"+courseId);
+			//受講生あり講座中止メソッド
+			boolean isSuccess=refundService.servCancellCourseWithMemberId(courseId);
+			
+				if(isSuccess) {
+					rd.addFlashAttribute("statusMessage","講座中止手続きを承りました");
+
+				}else {
+					rd.addFlashAttribute("errorMessage","講座中止手続き対象講座がみつかりません");
+				}
 
 			rd.addAttribute("page", page);
 	    rd.addAttribute("searchType", searchType);

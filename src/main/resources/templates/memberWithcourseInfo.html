@@ -165,11 +165,15 @@
 				<div th:each="r, stat : ${c.classRoomSchedule}"
 					 class="col-md-4 mb-3">
 <!-- 4. 過去日付の場合に 'schedule-ended' クラスを付与してグレーアウト -->
-					<div class="schedule-container h-100"
-						th:classappend="${r.date.isBefore(#temporals.createToday())
-							or (r.date.isEqual(#temporals.createToday()) 
-							and r.startTime.isBefore(#temporals.createNow().toLocalTime()))
-						} ? 'schedule-ended'"					
+				<!-- 変数 isEndedOrCancelled に「終了または中止」の判定をまとめる -->
+				<div th:with="isEndedOrCancelled=${
+								r.scheduleStatus == 'CANCELLED_COURSE'
+								or r.date.isBefore(#temporals.createToday())
+								or (r.date.isEqual(#temporals.createToday())
+								and r.startTime.isBefore(#temporals.createNow().toLocalTime()))
+						}"
+						class="schedule-container h-100"
+						th:classappend="${isEndedOrCancelled} ? 'schedule-ended'"		
 						th:data-index="${stat.index}">
 
 						<form th:action="@{/updateSchedule}"
@@ -185,13 +189,12 @@
 								   th:value="${r.id}" />
 							<div class="border-bottom pb-2 mb-2 d-flex justify-content-between align-items-center">
 								<h5 class="mb-0" 
-										th:classappend="${r.date.isBefore(#temporals.createToday())
-											or (r.date.isEqual(#temporals.createToday()) 
-											and r.startTime.isBefore(#temporals.createNow().toLocalTime()))
-										} ? 'text-muted' : 'text-primary'"
+										th:classappend="${isEndedOrCancelled} ? 'text-muted' : 'text-primary'"
 										th:text="${stat.count} + '回目'"></h5>
 								<!-- 終了済みのラベルを表示（任意） -->
-								<span th:if="${r.date.isBefore(#temporals.createToday())}" class="badge bg-secondary">終了</span>
+								<!-- バッジ表示：中止の場合は「中止」、終了の場合は「終了」 -->
+								<span th:if="${r.scheduleStatus == 'CANCELLED_COURSE'}" class="badge bg-danger">中止</span>
+								<span th:if="${r.scheduleStatus != 'CANCELLED_COURSE' and isEndedOrCancelled}" class="badge bg-secondary">終了</span>
 							</div>
 <!--							<div class="border-bottom pb-2 mb-2">-->
 <!--								<h5 class="text-primary mb-0"-->

@@ -1,6 +1,6 @@
 package com.example.app.controller;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -191,7 +191,7 @@ public class MemberController {
 					        Collectors.toList()
 					    ));
 					// 今日の日付（開始前/開始後の判定用）
-					LocalDate today = LocalDate.now();
+					LocalDateTime today = LocalDateTime.now();
 
 					//画面表示・計算用にグループごとの集計情報を保持する Map を作成
 					Map<String, Map<String, Object>> refundSummaryMap = new LinkedHashMap<>();
@@ -203,9 +203,20 @@ public class MemberController {
 
 					 // 今日以降（未受講）のコマデータだけを抽出したリストを作成
 					    List<ScheduleAccountingDetail> remainingSchedules = details.stream()
-					            .filter(s -> !s.getCrsDate().isBefore(today)) // 今日以降のコマ
-					            .collect(Collectors.toList());
+//					            .filter(s -> !s.getCrsDate().isBefore(today)) // 今日以降のコマ
+//					            .collect(Collectors.toList());
+					    .filter(s -> {
+					    	if (s.getCrsDate() == null || s.getCrsStartTime() == null) {
+	                return false;
+	            }
+	              // crsDate と crsStartTime を結合して LocalDateTime を作成
+	              LocalDateTime scheduleDateTime = LocalDateTime.of(s.getCrsDate(), s.getCrsStartTime());
+	              // 現在日時より前でない（＝現在時刻以降）コマを残す
+	              return !scheduleDateTime.isBefore(today);
+	          })
+	            .collect(Collectors.toList());
 
+					    
 					    // 全コマ数と未受講コマ数（今日以降のコマ）をカウント
 					    long totalCount = details.size();
 					    long remainingCount = remainingSchedules.size(); // 今日以降のコマ
