@@ -65,8 +65,8 @@ before_tuition_fee,
 before_material_fee,
 after_tuition_fee,
 after_material_fee,
-refunds_monthly_tuitionFee,
-refunds_material_fee,
+refund_monthly_tuitionFee,
+refund_material_fee,
 registered_at
 )
 	values
@@ -79,8 +79,8 @@ registered_at
 	#{beforeMaterialFee},
 	#{afterTuitionFee},
 	#{afterMaterialFee},
-	#{refundsMonthlyTuitionFee},
-	#{refundsMaterialFee},
+	#{refundMonthlyTuitionFee},
+	#{refundMaterialFee},
 	NOW()
 )
  </insert>

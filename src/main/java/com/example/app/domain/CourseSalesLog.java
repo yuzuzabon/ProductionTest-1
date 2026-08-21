@@ -18,8 +18,8 @@ public class CourseSalesLog {
 	private Integer beforeMaterialFee;
 	private Integer afterTuitionFee;
 	private Integer afterMaterialFee;
-	private Integer refundsMonthlyTuitionFee=0;
-	private Integer refundsMaterialFee=0;
+	private Integer refundMonthlyTuitionFee=0;
+	private Integer refundMaterialFee=0;
 	
 	private LocalDateTime registeredAt;
 	//private LocalDateTime updatedAt; insertのみの運用

@@ -23,8 +23,8 @@ public class CourseHistory {
 		
 		private Integer paidTuitionFee;
 		private Integer paidMaterialFee;
-		private Integer refundsTuitionFee;
-		private Integer refundsMaterialFee;
+		private Integer refundTuitionFee;
+		private Integer refundMaterialFee;
 				
 		private LocalDateTime registeredAt;
 		private LocalDateTime updatedAt;

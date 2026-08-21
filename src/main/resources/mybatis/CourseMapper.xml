@@ -553,8 +553,8 @@ order by class_room_id,date,start_time
 	target_month,
 	monthly_tuition_fee,
 	material_fee,
-	refunds_monthly_tuition_fee,
-	refunds_material_fee,
+	refund_monthly_tuition_fee,
+	refund_material_fee,
 	registered_at,
 	updated_at
 	from course_sales

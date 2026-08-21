@@ -41,5 +41,12 @@ public interface MemberService {
 	//受講生事由の払い戻し用
 		public List<ScheduleAccountingDetail>
 			servSelectCancellMemberById(Integer id);
+	//	
+		public void recordCourseSalesLog
+		(String courseId,String reasonType,String targetMonth,
+				Integer beforeTuition,Integer beforeMaterial,
+				Integer afterTuition,Integer afterMaterial,
+				Integer refundMonthlyTuitionFee,Integer refundMaterialFee);
+		
 		
 }

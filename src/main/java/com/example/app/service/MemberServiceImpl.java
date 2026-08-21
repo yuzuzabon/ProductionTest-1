@@ -86,10 +86,13 @@ public class MemberServiceImpl  implements MemberService{
 //			return courseMapper.selectCourseSalesByCourseId(courseId); 
 //		}
 		//ログ記録用共通部分
-		private void recordCourseSalesLog
+		@Override
+		public void recordCourseSalesLog
 		(String courseId,String reasonType,String targetMonth,
 				Integer beforeTuition,Integer beforeMaterial,
-				Integer afterTuition,Integer afterMaterial) {
+				Integer afterTuition,Integer afterMaterial,
+				Integer refundMonthlyTuitionFee,Integer refundMaterialFee) {
+			
 			CourseSalesLog log=new CourseSalesLog();
 			log.setCourseId(courseId);
 			log.setReasonType(reasonType);
@@ -98,6 +101,9 @@ public class MemberServiceImpl  implements MemberService{
 			log.setBeforeMaterialFee(beforeMaterial);
 			log.setAfterTuitionFee(afterTuition);
 			log.setAfterMaterialFee(afterMaterial);
+			log.setRefundMonthlyTuitionFee(refundMonthlyTuitionFee);
+			log.setRefundMaterialFee(refundMaterialFee);
+			
 			
 // test---
 			courseSalesLogMapper.insertLog(log);
@@ -223,7 +229,7 @@ public class MemberServiceImpl  implements MemberService{
 //				//System.out.println("application log-----"+log);
 				//courseSalesLogMapper.insertLog(log);
 				recordCourseSalesLog
-				(courseId,"APPLICATION",targetMonth,0,0,calcTuition,calcMaterial);
+				(courseId,"APPLICATION",targetMonth,0,0,calcTuition,calcMaterial,0,0);
 				
 				}
 				//
@@ -380,7 +386,7 @@ public class MemberServiceImpl  implements MemberService{
 //				courseSalesLogMapper.insertLog(log);
 				
 				recordCourseSalesLog
-				(courseId,"REMAINING_APPLICATION",targetMonth,0,0,calcTuition,calcMaterial);
+				(courseId,"REMAINING_APPLICATION",targetMonth,0,0,calcTuition,calcMaterial,0,0);
 				
 				}
 				//
@@ -639,7 +645,7 @@ public class MemberServiceImpl  implements MemberService{
 //							System.out.println("log-----"+log);
 //							courseSalesLogMapper.insertLog(log);
 							recordCourseSalesLog
-							(courseId,"SCHEDULE_CHANGE",month,beforeTuition,beforeMaterial,afterTuition,afterMaterial);
+							(courseId,"SCHEDULE_CHANGE",month,beforeTuition,beforeMaterial,afterTuition,afterMaterial,0,0);
 					}
 				}
 				

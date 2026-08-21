@@ -3,7 +3,7 @@
 <!--  -->
 <mapper namespace="com.example.app.mapper.RefundMapper">
 
-<update id="updateStatusByIds">
+<update id="updateCrsStatusForCancellation">
 	update 
 		class_room_schedule
 	set
@@ -13,7 +13,36 @@
 		<foreach item="id" collection="targetIds" open="(" separator="," close=")">
         #{id}
     </foreach>	
+</update>
 
+<update id="updateCourseHistoryForRefund">
+	update
+		course_history
+	set
+		member_status=9, <!-- 払い戻し仮フラグ -->
+		refund_tuition_fee=refund_tuition_fee+COALESCE(#{refundtuitionFee},0),
+		refund_material_fee=refund_material_fee+COALESCE(#{refundmaterialFee},0),	
+		updated_at=now()
+	where
+		member_id =#{memberId}
+		and
+		course_id =#{courseId}
+		
+</update>
+
+<update id="updateCourseSalesForRefund">
+	<foreach collection="list" item="item" separator=";">
+		UPDATE 
+			course_sales
+		SET
+			course_sales_status=9, <!-- 払い戻し仮フラグ -->
+			refund_monthly_tuition_fee = refund_monthly_tuition_fee + #{item.refundTuitionFee},
+			refund_material_fee = refund_material_fee + #{item.refundMaterialFee},
+			updated_at = NOW()
+		WHERE 
+			course_id = #{item.courseId}
+		AND target_month = #{item.targetMonth}
+	</foreach>
 </update>
 
 </mapper>
