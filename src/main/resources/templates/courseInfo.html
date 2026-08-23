@@ -5,28 +5,7 @@
 	<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
 	<link th:href="@{/css/style.css}" rel="stylesheet" />
 	<title>講座詳細・変更</title>
-	<style>
-		/* スケジュールごとの外枠スタイル */
-		.schedule-container {
-			border: 1px solid #dee2e6;
-			border-radius: 0.25rem;
-			margin-bottom: 1.5rem;
-			padding: 1rem;
-			background-color: #fff;
-		}
-		/* 終了・中止講座用のスタイル */
-		.schedule-ended {
-		  background-color: #e9ecef !important;
-		  color: #6c757d !important;
-		  border-color: #ced4da !important;
-		}
-		/* 変更フォーム用のレイアウト（最初は非表示、展開時に左側に境界線を追加） */
-		.edit-area {
-			background-color: #f8f9fa;
-			border-left: 2px dashed #dee2e6;
-			padding-left: 1.5rem;
-		}
-	</style>
+
 </head>
 <body>
 	<div class="container mt-4">
@@ -91,7 +70,8 @@
 		<div th:each="c : ${course}">
 			<div th:each="r, stat : ${c.classRoomSchedule}"
 				class="schedule-container"
-				th:classappend="${r.scheduleStatus == 'CANCELLED_COURSE'} ? 'schedule-ended'"
+				th:classappend="${r.scheduleStatus == 'CANCELLED_COURSE'
+											or r.scheduleStatus == 'CANCELLED_SESSION'} ? 'schedule-ended'"
 				th:data-index="${stat.index}">
 
 				<form th:action="@{/updateSchedule}" method="post" class="schedule-form">
@@ -101,20 +81,25 @@
 					<div class="row align-items-center">
 						<div class="col-12 mb-2 d-flex justify-content-between align-items-center border-bottom pb-2">
 							<h5 class="text-primary mb-0"
-								th:classappend="${r.scheduleStatus == 'CANCELLED_COURSE'} ? 'text-muted'"
+								th:classappend="${r.scheduleStatus == 'CANCELLED_COURSE'
+															or r.scheduleStatus == 'CANCELLED_SESSION'} ? 'text-muted'"
 								th:text="${stat.count} + '回目'"></h5>
 							<!-- 中止でない場合：通常の変更ボタンを表示 -->
 							<button type="button"
 								class="btn btn-sm btn-outline-primary toggle-edit-btn"
-								th:if="${r.scheduleStatus != 'CANCELLED_COURSE'}">
+								th:if="${r.scheduleStatus != 'CANCELLED_COURSE'
+										and r.scheduleStatus != 'CANCELLED_SESSION'}">
 								この回を変更する
 							</button>
-							<!-- 中止の場合：中止バッジを表示 -->
+							<!-- 中止、休講の場合：バッジを表示 -->
 							<span class="badge bg-danger"
 							  th:if="${r.scheduleStatus == 'CANCELLED_COURSE'}">
 								中止
 							</span>
-
+							<span class="badge bg-warning"
+							  th:if="${r.scheduleStatus == 'CANCELLED_SESSION'}">
+								休講
+							</span>
 						</div>
 
 						<div class="col-md-5 info-area">

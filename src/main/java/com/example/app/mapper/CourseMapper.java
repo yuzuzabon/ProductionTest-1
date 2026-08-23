@@ -49,16 +49,18 @@ public interface CourseMapper {
 		List<Course> selectCourseByPage(
 				@Param("offset")int offset,
 				@Param("limit")int limit);
-		
+
 		Long selectTotalPages();
 */
+		//
 		List<Course> selectCourseByPage(
 				@Param("offset")int offset,
 				@Param("limit")int limit,
 				@Param("searchType")String searchType
 				);
 		Long selectTotalPages(@Param("searchType")String searchType);
-		
+
+
 	//重複チェック
 		List<ClassRoomSchedule> selectRegisteredSchedule(
         @Param("classRoomId") Integer classRoomId,
@@ -69,6 +71,8 @@ public interface CourseMapper {
 
 		//日程変更course_salesリセット
 		void updateCourseSalesReset(String courseId);
+		void updateCourseSalesTuitionFeeReset(String courseId);
+
 		//日程変更変更前当該講座のcourse_sales取得
 		List<CourseSales>selectCourseSalesByCourseId(String courseId);
 

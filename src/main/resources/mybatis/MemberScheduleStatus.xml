@@ -70,6 +70,8 @@ WHERE
 	ch.course_id = #{courseId}
 AND
 	mss.status in ('RESERVED', 'ATTENDED') -- 日程変更の再計算対象（予約中・受講済みのコマのみ）
+and
+	crs.schedule_status in ('OPEN')
 ORDER BY
   crs.date ASC,
   crs.start_time ASC;
@@ -114,6 +116,8 @@ WHERE
 	ch.member_id = #{memberId}
 AND
 	mss.status in ('RESERVED', 'ATTENDED') -- 日程変更の再計算対象（予約中・受講済みのコマのみ）
+and
+	crs.schedule_status in ('OPEN')
 ORDER BY
   crs.date ASC,
   crs.start_time ASC;

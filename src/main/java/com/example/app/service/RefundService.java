@@ -11,6 +11,9 @@ public interface RefundService {
 	//講座中止（受講生なし）
 		public boolean servCancellCourse(String courseId);
 	//講座中止（受講生あり）
-		public boolean servCancellCourseWithMemberId(String courseId);	
-
+		public boolean servCancellCourseWithMemberId(String courseId);
+	//講座休講（受講生なし）
+		public boolean servCancellSession(String courseId,Integer scheduleId);
+	//講座休講（受講生あり）
+		public boolean servCancellSessionWithMemberId(String courseId,Integer targetId);
 }

@@ -352,7 +352,7 @@ public class CourseController {
 		@GetMapping("/cancelledSchedule")
 		//@ResponseBody
 		public String contCancelledSchedule(//(@ModelAttribute("classRoomSchedule")
-					@RequestParam(name = "searchType", defaultValue = "lateEnrollment") String searchType,
+					@RequestParam(name = "searchType", defaultValue = "refund") String searchType,
 					@RequestParam(name="page",defaultValue = "1")Integer page,
 					Model model) {
 
@@ -369,7 +369,7 @@ public class CourseController {
 		@GetMapping("/cancelledSchedule/{courseId}")
 		public String contCancelledScheduleRequestByCourseId(
 				@PathVariable String courseId,
-				@RequestParam(name = "searchType", defaultValue = "lateEnrollment") String searchType,
+				@RequestParam(name = "searchType", defaultValue = "refund") String searchType,
 				@RequestParam(defaultValue = "1") Integer page,
 
 				Model model	) {
@@ -469,7 +469,7 @@ public class CourseController {
 		public String contCancelledScheduleByCourseId(
 //				Errors errors,
 				@PathVariable("courseId") String courseId,
-				@RequestParam(name = "searchType", defaultValue = "lateEnrollment") String searchType,
+				@RequestParam(name = "searchType", defaultValue = "refund") String searchType,
 				@RequestParam(defaultValue = "1") Integer page,
 //				@RequestParam("courseId")String courseId,
 				RedirectAttributes rd,
@@ -480,11 +480,23 @@ public class CourseController {
 
 //			System.out.println("PUT側******"+refundSummaryMap);
 			if(refundSummaryMap==null || refundSummaryMap.isEmpty()) {
-	
+
 				System.out.println("PUT側******受講生なし"+courseId);
 			//受講生なし講座中止メソッド
 			boolean isSuccess=refundService.servCancellCourse(courseId);
-				
+
+				if(isSuccess) {
+					rd.addFlashAttribute("statusMessage","講座中止手続きを承りました");
+
+				}else {
+					rd.addFlashAttribute("errorMessage","講座中止手続き対象講座がみつかりません");
+				}
+			} else {
+
+				System.out.println("PUT側******受講生あり"+courseId);
+			//受講生あり講座中止メソッド
+			boolean isSuccess=refundService.servCancellCourseWithMemberId(courseId);
+
 				if(isSuccess) {
 					rd.addFlashAttribute("statusMessage","講座中止手続きを承りました");
 
@@ -492,24 +504,58 @@ public class CourseController {
 					rd.addFlashAttribute("errorMessage","講座中止手続き対象講座がみつかりません");
 				}
 			}
-			
-				System.out.println("PUT側******受講生あり"+courseId);
-			//受講生あり講座中止メソッド
-			boolean isSuccess=refundService.servCancellCourseWithMemberId(courseId);
-			
-				if(isSuccess) {
-					rd.addFlashAttribute("statusMessage","講座中止手続きを承りました");
-
-				}else {
-					rd.addFlashAttribute("errorMessage","講座中止手続き対象講座がみつかりません");
-				}
-
 			rd.addAttribute("page", page);
 	    rd.addAttribute("searchType", searchType);
 
 			return "redirect:/cancelledSchedule/" + courseId;
 		}
 
+		@PostMapping("/cancelledSession/{courseId}")
+		public String contCancelledSessionByCourseId(
+//				Errors errors,
+				@PathVariable("courseId") String courseId,
+				@RequestParam("id") Integer targetId,
+				@RequestParam(name = "searchType", defaultValue = "refund") String searchType,
+				@RequestParam(defaultValue = "1") Integer page,
+//				@RequestParam("courseId")String courseId,
+				RedirectAttributes rd,
+				Model model	) {
 
+			Map<Integer,RefundSummary> refundSummaryMap =
+					refundService.calculateRefundSummary(courseId);
+
+			System.out.println("休講PUT側******"+refundSummaryMap);
+			if(refundSummaryMap==null || refundSummaryMap.isEmpty()) {
+
+				System.out.println("PUT側******受講生なし"+courseId);
+				System.out.println("休講対象のSchedule ID: " + targetId);
+			//受講生なし講座休講メソッド
+			boolean isSuccess=refundService.servCancellSession(courseId,targetId);
+
+				if(isSuccess) {
+					rd.addFlashAttribute("statusMessage","講座休講手続きを承りました");
+
+				}else {
+					rd.addFlashAttribute("errorMessage","講座休講手続き対象講座がみつかりません");
+				}
+			} else {
+
+			System.out.println("PUT側******受講生あり"+courseId);
+			//受講生あり講座休講メソッド
+			boolean isSuccess=refundService.servCancellSessionWithMemberId(courseId,targetId);
+
+			if(isSuccess) {
+				rd.addFlashAttribute("statusMessage","講座休講手続きを承りました");
+
+				}else {
+				rd.addFlashAttribute("errorMessage","講座休講手続き対象講座がみつかりません");
+				}
+			}
+			rd.addAttribute("page", page);
+	    rd.addAttribute("searchType", searchType);
+
+			return "redirect:/cancelledSchedule/" + courseId;
+
+		}
 
 }

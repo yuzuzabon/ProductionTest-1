@@ -230,7 +230,8 @@
 <where>
 <!-- もしデータがあればSQLをくっつける -->
 <!-- 「途中受講可（受付中のみ）」の検索条件を選択した場合 -->
-    <if test='searchType != null and searchType == "lateEnrollment"'>
+    <if test='searchType != null and
+    	(searchType == "lateEnrollment" or searchType == "refund")'>
         <!-- ① 本日以降に少なくとも1回以上の日程が存在する -->
         EXISTS (
             SELECT 1
@@ -291,8 +292,9 @@
 	    SELECT c.course_id
   	  FROM course c
 <where>
-<!-- 「途中受講可（受付中のみ）」の検索条件を選択した場合 -->
-    <if test='searchType != null and searchType == "lateEnrollment"'>
+<!-- 「途中受講可」または「返金対象」のどちらかが選択された場合（共通条件①・②） -->
+    <if test='searchType != null and
+    	(searchType == "lateEnrollment" or searchType == "refund")'>
         <!-- ① 本日以降に少なくとも1回以上の日程が存在する -->
         EXISTS (
             SELECT 1
@@ -318,13 +320,15 @@
                 )
             )
         )
-        <!-- ③ 空きがあること（定員 > 申込者数） -->
-        AND EXISTS (
-            SELECT 1
-            FROM course_capacity cap
-            WHERE cap.course_id = c.course_id
-              AND cap.capacity &gt; cap.number_of_applicant
+        <!-- ③ 空きがあること（定員 > 申込者数）（lateEnrollment のときのみ適用） -->
+        <if test='searchType == "lateEnrollment"'>
+        	AND EXISTS (
+          	  SELECT 1
+            	FROM course_capacity cap
+            	WHERE cap.course_id = c.course_id
+              	AND cap.capacity &gt; cap.number_of_applicant
         )
+    		</if>
     </if>
 </where>
 
@@ -336,11 +340,13 @@
 			order by c_course_id,s_date,s_start_time
 
 </select>
+
 <select id="selectTotalPages" resultType="long">
 	select count(*) from course c
 <where>
-<!-- 「途中受講可（受付中のみ）」の検索条件を選択した場合 -->
-    <if test='searchType != null and searchType == "lateEnrollment"'>
+<!-- 「途中受講可」または「返金対象」のどちらかが選択された場合（共通条件①・②） -->
+    <if test='searchType != null and
+    	(searchType == "lateEnrollment" or searchType == "refund")'>
         <!-- ① 本日以降に少なくとも1回以上の日程が存在する -->
         EXISTS (
             SELECT 1
@@ -366,16 +372,17 @@
                 )
             )
         )
-        <!-- ③ 空きがあること（定員 > 申込者数） -->
-        AND EXISTS (
-            SELECT 1
-            FROM course_capacity cap
-            WHERE cap.course_id = c.course_id
-              AND cap.capacity &gt; cap.number_of_applicant
+        <!-- ③ 空きがあること（定員 > 申込者数）（lateEnrollment のときのみ適用） -->
+        <if test='searchType == "lateEnrollment"'>
+        	AND EXISTS (
+          	  SELECT 1
+            	FROM course_capacity cap
+            	WHERE cap.course_id = c.course_id
+              	AND cap.capacity &gt; cap.number_of_applicant
         )
+    		</if>
     </if>
 </where>
-
 
 </select>
 
@@ -623,5 +630,15 @@ order by class_room_id,date,start_time
 
 	</update>
 
+	<update id="updateCourseSalesTuitionFeeReset">
+	update course_sales
+	set
+		monthly_tuition_fee=0,
+		
+		updated_at=now()
+	where
+		course_id=#{courseId};
+
+	</update>
 
 </mapper>

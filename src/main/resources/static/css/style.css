@@ -2,10 +2,60 @@
 
 .title-box{
     width:300px;
-   
+
 }
 
 .detail-box{
     width:400px;
     height:300px;
 }
+
+/* スケジュールごとの外枠スタイル */
+	.schedule-container {
+		border: 1px solid #dee2e6;
+		border-radius: 0.25rem;
+		margin-bottom: 1.5rem;
+		padding: 1rem;
+		background-color: #fff;
+	}
+/* 終了・中止講座用のスタイル */
+	.schedule-ended {
+	  background-color: #e9ecef !important;
+	  color: #6c757d !important;
+	  border-color: #ced4da !important;
+	}
+/* 変更フォーム用のレイアウト（最初は非表示、展開時に左側に境界線を追加） */
+	.edit-area {
+		background-color: #f8f9fa;
+		border-left: 2px dashed #dee2e6;
+		padding-left: 1.5rem;
+	}
+
+	/* スケジュール列セル自体の位置調整と、内部要素の完全追従 */
+	td.schedule-cell {
+	    vertical-align: top !important; /* セル内部の上下余白の自動発生を防ぐ */
+	    height: 1px;                     /* 高さをパーセント計算可能にするハック */
+	}
+
+	td.schedule-cell > div {
+	    display: flex;
+	    flex-direction: column;
+	    height: 100% !important;
+	    min-height: 100% !important;
+	}
+
+	/* 日程の行（row）自体も高さを上下いっぱいに伸ばす */
+	td.schedule-cell .row {
+	    flex: 1 0 auto;
+
+	}
+
+	/* スケジュール列内の各子要素（col）の文字配置と余白を一括定義 */
+	td.schedule-cell .row > [class^="col-"] {
+	    display: flex;
+	    align-items: center;
+	    justify-content: center;
+	    padding-top: 0.25rem;    /* py-1 相当 */
+	    padding-bottom: 0.25rem; /* py-1 相当 */
+	}
+
