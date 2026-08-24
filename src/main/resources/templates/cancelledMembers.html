@@ -71,7 +71,7 @@
 				<td>[[${m.address}]]</td>
 				<td>[[${#temporals.format(m.created,
 				'yyyy 年 MM 月 dd 日 HH:mm:ss')}]]</td>
-				<td> <a th:href="@{/cancelledMember/{id}(id=${m.id})}" class="btn btn-secondary">選択</a></td>
+				<td> <a th:href="@{/cancelledMember/{memberId}(memberId=${m.id})}" class="btn btn-secondary">選択</a></td>
 			</tr>
 		</tbody>
 	</table>

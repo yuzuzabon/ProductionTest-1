@@ -58,8 +58,9 @@ public class RefundServiceImpl implements RefundService{
 						LinkedHashMap::new, // 順序を維持
 						Collectors.toList()
 						));
-
+		// 今日の日付（開始前/開始後の判定用）
 			LocalDateTime today = LocalDateTime.now();
+		//画面表示・計算用にグループごとの集計情報を保持する Map を作成
 			Map<Integer, RefundSummary>refundSummaryMap = new LinkedHashMap<>();
 
 		//各受講生の返金額計算ループ
@@ -132,7 +133,7 @@ public class RefundServiceImpl implements RefundService{
 			return refundSummaryMap;
 
 		}
-
+		@Override
 		public Map<Integer, RefundSummary> calculateRefundSummaryForSession
 																			(String courseId, Integer targetId) {
 
@@ -215,6 +216,104 @@ public class RefundServiceImpl implements RefundService{
 
 	    return refundSummaryMap;
 	}
+		@Override
+		public Map<String, RefundSummary> calculateRefundSummaryForMember(Integer memberId) {
+			
+			//データ取得
+			List<ScheduleAccountingDetail> rawList = memberService.servSelectCancellMemberById(memberId);
+			if (rawList == null || rawList.isEmpty()) {
+        return new LinkedHashMap<>();
+			}
+			//chCourseId ごとにグループ化
+			Map<String, List<ScheduleAccountingDetail>> groupedCourses = rawList.stream()
+			    .collect(Collectors.groupingBy(
+			        ScheduleAccountingDetail::getChCourseId,
+			        LinkedHashMap::new, // 順序を維持
+			        Collectors.toList()
+			    ));
+			// 今日の日付（開始前/開始後の判定用）
+			LocalDateTime today = LocalDateTime.now();
+
+			//画面表示・計算用にグループごとの集計情報を保持する Map を作成
+			Map<String, RefundSummary> refundSummaryMap = new LinkedHashMap<>();
+
+			for (Map.Entry<String, List<ScheduleAccountingDetail>> entry : groupedCourses.entrySet()) {
+			    String courseId = entry.getKey();
+			    List<ScheduleAccountingDetail> details = entry.getValue();
+			    if(details.isEmpty())continue;
+			    
+			    ScheduleAccountingDetail firstItem = details.get(0);
+
+			 // 今日以降（未受講）のコマデータだけを抽出したリストを作成
+			    List<ScheduleAccountingDetail> remainingSchedules = details.stream()
+//			            .filter(s -> !s.getCrsDate().isBefore(today)) // 今日以降のコマ
+//			            .collect(Collectors.toList());
+			    .filter(s -> {
+			    	if (s.getCrsDate() == null || s.getCrsStartTime() == null) {
+              return false;
+          }
+            // crsDate と crsStartTime を結合して LocalDateTime を作成
+            LocalDateTime scheduleDateTime = LocalDateTime.of(s.getCrsDate(), s.getCrsStartTime());
+            // 現在日時より前でない（＝現在時刻以降）コマを残す
+            return !scheduleDateTime.isBefore(today);
+        })
+          .collect(Collectors.toList());
+
+
+			    // 全コマ数と未受講コマ数（今日以降のコマ）をカウント
+			    long totalCount = details.size();
+			    long remainingCount = remainingSchedules.size(); // 今日以降のコマ
+
+			    // 判定フラグ
+			    boolean isBeforeStart = (remainingCount == totalCount); // 1度も開始していないか
+			    boolean isFinished = (remainingCount == 0);             // すべて終了しているか
+
+			    // 1コマあたりの受講料単価
+			    int unitTuitionFee = firstItem.getCTuitionFee();
+
+			    // 返金対象の受講料計算（未受講コマ数 × 単価）
+			    int refundTuitionFee = (int) remainingCount * unitTuitionFee;
+
+			    // 返金対象の教材費計算（開始前のみ全額、開始後は0円）
+			    int refundMaterialFee = isBeforeStart ? firstItem.getChPaidMaterialFee() : 0;
+
+			    // 返金合計額
+			    int totalRefundAmount = refundTuitionFee + refundMaterialFee;
+
+			    // 画面渡し用の Map に格納
+			    RefundSummary summary = new RefundSummary();
+			    summary.setDetails(details);
+			    summary.setFirstItem(firstItem);// 1コマあたりの受講料単価
+			    summary.setTotalCount(totalCount);
+	        summary.setRemainingCount(remainingCount);
+	        summary.setRemainingSchedules(remainingSchedules);
+	        summary.setBeforeStart(isBeforeStart);
+	        summary.setFinished(isFinished);
+	        summary.setRefundTuitionFee(refundTuitionFee);
+	        summary.setRefundMaterialFee(refundMaterialFee);
+	        summary.setTotalRefundAmount(totalRefundAmount);
+/*			    
+			    RefundSummary summary = new RefundSummary(
+			    		details,
+			    		firstItem,// 1コマあたりの受講料単価
+			    		totalCount,
+			    		remainingCount,
+			    		remainingSchedules,
+			    		isBeforeStart,
+			    		isFinished,
+			    		refundTuitionFee,
+			    		refundMaterialFee,
+			    		totalRefundAmount
+			 		);
+*/			 		
+			    refundSummaryMap.put(courseId, summary);
+			}
+			System.out.println("*****払い戻しtest"+refundSummaryMap);
+				
+			return refundSummaryMap;
+		}
+		
+		
 		@Override
 		public boolean servCancellCourse(String courseId){
 
@@ -305,7 +404,7 @@ public class RefundServiceImpl implements RefundService{
 				}
 				DateTimeFormatter formatter=
 						DateTimeFormatter.ofPattern("yyyyMM");//getCrsDate().format(formatter);
-			// キー: "courseId_targetMonth" (例: "2026070007_2026-09")
+			// キー: "courseId_targetMonth" (例: "2026070007_202609")
 				Map<String, CourseSalesRefund> summaryMap = new HashMap<>();
 
 					for (RefundSummary summary : refundSummaryMap.values()) {
@@ -651,13 +750,16 @@ public class RefundServiceImpl implements RefundService{
 				            String currentStartMonth = s.getChStartMonth();// 変更前の月（旧月）を保持
 				            // 初回月（startMonth）に変更が発生した場合のみ実行
 				            if (!currentStartMonth.equals(newStartMonth)) {
+				            	
+System.out.println("StartMonth書き換え前"+memberId+" courseId"+courseId+" currentStartMonth"+currentStartMonth+" newStartMonth"+newStartMonth);
 				            		// 1. course_history の startMonth を更新
 				                memberMapper.updateCourseHistoryStartMonth(
 				                    memberId,courseId,newStartMonth);
 				                // 2. 教材費（chPaidMaterialFee）を取得
 				                Integer pmFee = s.getChPaidMaterialFee();
 				                if (pmFee != null && pmFee > 0) {
-
+System.out.println("StartMonth書き換え後"+memberId+" courseId"+courseId+" newStartMonth"+newStartMonth);
+System.out.println("StartMonth書き換え後"+courseId+" currentStartMonth"+currentStartMonth+" newStartMonth"+newStartMonth+" pmFee"+pmFee);
 				                // 旧月(currentStartMonth)から新月(newStartMonth)へ pmFee 分を付け替え
 				                	refundMapper.updateCourseSalesMaterialFee(
 				                  		courseId, currentStartMonth, newStartMonth,pmFee);
@@ -716,8 +818,91 @@ public class RefundServiceImpl implements RefundService{
 
 			return true;
 		}
+		@Override
+		public boolean servRefundCourseWithMemberId(String targetCourseId,Integer memberId) {
+			
+			List<Course>courseList=courseService.servSellectCourseByCourseId2(targetCourseId);
+			//講座情報なし判定
+				if (courseList == null || courseList.isEmpty()) {
+					return false;
+				}
 
+			Course course=courseList.get(0);
+			List<ClassRoomSchedule> schedules = course.getClassRoomSchedule();
+		//スケジュール情報なし判定
+				if (schedules == null || schedules.isEmpty()) {
+					return false;
+			}
+				
+				Map<String,RefundSummary> refundSummaryMap =
+						calculateRefundSummaryForMember(memberId);
+//				Set<Integer>memberIds=refundSummaryMap.keySet();
+				//course_history用
+					System.out.println("member*****course_history書き込み");
+					if(refundSummaryMap.containsKey(targetCourseId)) {
+							RefundSummary summary=refundSummaryMap.get(targetCourseId);
 
+							int refundtuitionFee = summary.getRefundTuitionFee();   // 返金受講料
+							int refundmaterialFee = summary.getRefundMaterialFee(); // 返金教材費
+							// 個別のDB更新や通知処理を実施
+							System.out.println("member****courseId:"+targetCourseId+" membereId:"+
+								memberId+" tuitionFee:"+refundtuitionFee+" materialFee:"+refundmaterialFee);
+						} else {
+							System.out.println("該当するコースデータが存在しません:"+targetCourseId);
+						}
+					DateTimeFormatter formatter=
+							DateTimeFormatter.ofPattern("yyyyMM");//getCrsDate().format(formatter);
+				// キー: "courseId_targetMonth" (例: "2026070007_202609")
+					Map<String, CourseSalesRefund> summaryMap = new HashMap<>();
+
+						RefundSummary summary = refundSummaryMap.get(targetCourseId);
+						
+						if(summary != null && summary.getRemainingSchedules() != 
+								null && !summary.getRemainingSchedules().isEmpty()) {
+							
+							List<ScheduleAccountingDetail> remainingSchedules =
+									summary.getRemainingSchedules();
+							
+							//受講料の集計（コマごとにループして対象月へ加算）
+							for (ScheduleAccountingDetail detail : remainingSchedules) {
+									if (detail.getCrsDate() != null) {
+
+										//String courseId = detail.getChCourseId();
+										String tuitionTargetMonth = detail.getCrsDate().format(formatter);
+										// 複合キーの作成
+										String key = targetCourseId + "_" + tuitionTargetMonth;
+
+										CourseSalesRefund dto = summaryMap.computeIfAbsent(
+												key, k -> new CourseSalesRefund(targetCourseId, tuitionTargetMonth)
+												);
+										dto.addTuitionFee(detail.getCTuitionFee());
+					        }
+								}
+
+							//教材費の集計（返金対象の教材費がある場合のみ、未受講講座の初回日付へ加算）
+							if(summary.getRefundMaterialFee()>0) {
+							// 未受講講座の先頭コマを取得
+								ScheduleAccountingDetail firstRemainingSchedule = remainingSchedules.get(0);
+								if(firstRemainingSchedule.getCrsDate()!=null) {
+									String materialTargetMonth = firstRemainingSchedule.getCrsDate().format(formatter);
+									String key = targetCourseId + "_" + materialTargetMonth;
+
+									CourseSalesRefund dto = summaryMap.computeIfAbsent(
+											key, k -> new CourseSalesRefund(targetCourseId, materialTargetMonth)
+											);
+									// 集計結果のリストをDB更新処理へ渡す
+									dto.addMaterialFee(summary.getRefundMaterialFee());
+				        }
+							}
+						}
+						List<CourseSalesRefund> refundList = new ArrayList<>(summaryMap.values());
+						
+						System.out.println("*****course_sales書き込み"+refundList);
+						System.out.println("*****このあとcourse_capacty書き込み");
+						
+			return false;
+		}
+					
 }
 
 

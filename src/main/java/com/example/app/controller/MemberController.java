@@ -1,11 +1,6 @@
 package com.example.app.controller;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,7 +14,6 @@ import com.example.app.domain.Course;
 import com.example.app.domain.CourseHistory;
 import com.example.app.domain.Member;
 import com.example.app.domain.RemainingCourseData;
-import com.example.app.domain.ScheduleAccountingDetail;
 import com.example.app.service.CourseService;
 import com.example.app.service.MemberService;
 
@@ -34,7 +28,7 @@ public class MemberController {
 		private final CourseService courseService;
 //		private final int NUM_PER_PAGE=5;
 
-		private List<CourseHistory> setMemberInfo(Integer id,Model model) {
+		public List<CourseHistory> setMemberInfo(Integer id,Model model) {
 			Member member= memberService.servSelectMemberById(id);
 			model.addAttribute("member",member);
 
@@ -164,96 +158,5 @@ public class MemberController {
 						return "redirect:/memberjoin/"+id;
 
 		}
-		@GetMapping("/cancelledMembers")
-		public String contSelectCancelledMemberAll(Model model) {
-			model.addAttribute("members",memberService.servSelectMemberAll());
-			return "cancelledMembers";
-	}
-		@GetMapping("/cancelledMember/{id}")
-		//@ResponseBody
-			public String contSelectCancellMemberById(
-					@PathVariable("id") Integer id,
-					@RequestParam(name = "searchType", defaultValue = "lateEnrollment") String searchType,
-//					@RequestParam(name = "searchType", defaultValue = "all") String searchType,
-					@RequestParam(name="page",defaultValue = "1")Integer page,
-					Model model) {
 
-					setMemberInfo(id,model);
-
-
-					//データ取得
-					List<ScheduleAccountingDetail> rawList = memberService.servSelectCancellMemberById(id);
-					//chCourseId ごとにグループ化
-					Map<String, List<ScheduleAccountingDetail>> groupedCourses = rawList.stream()
-					    .collect(Collectors.groupingBy(
-					        ScheduleAccountingDetail::getChCourseId,
-					        LinkedHashMap::new, // 順序を維持
-					        Collectors.toList()
-					    ));
-					// 今日の日付（開始前/開始後の判定用）
-					LocalDateTime today = LocalDateTime.now();
-
-					//画面表示・計算用にグループごとの集計情報を保持する Map を作成
-					Map<String, Map<String, Object>> refundSummaryMap = new LinkedHashMap<>();
-
-					for (Map.Entry<String, List<ScheduleAccountingDetail>> entry : groupedCourses.entrySet()) {
-					    String courseId = entry.getKey();
-					    List<ScheduleAccountingDetail> details = entry.getValue();
-					    ScheduleAccountingDetail firstItem = details.get(0);
-
-					 // 今日以降（未受講）のコマデータだけを抽出したリストを作成
-					    List<ScheduleAccountingDetail> remainingSchedules = details.stream()
-//					            .filter(s -> !s.getCrsDate().isBefore(today)) // 今日以降のコマ
-//					            .collect(Collectors.toList());
-					    .filter(s -> {
-					    	if (s.getCrsDate() == null || s.getCrsStartTime() == null) {
-	                return false;
-	            }
-	              // crsDate と crsStartTime を結合して LocalDateTime を作成
-	              LocalDateTime scheduleDateTime = LocalDateTime.of(s.getCrsDate(), s.getCrsStartTime());
-	              // 現在日時より前でない（＝現在時刻以降）コマを残す
-	              return !scheduleDateTime.isBefore(today);
-	          })
-	            .collect(Collectors.toList());
-
-
-					    // 全コマ数と未受講コマ数（今日以降のコマ）をカウント
-					    long totalCount = details.size();
-					    long remainingCount = remainingSchedules.size(); // 今日以降のコマ
-
-					    // 判定フラグ
-					    boolean isBeforeStart = (remainingCount == totalCount); // 1度も開始していないか
-					    boolean isFinished = (remainingCount == 0);             // すべて終了しているか
-
-					    // 1コマあたりの受講料単価
-					    int unitTuitionFee = firstItem.getCTuitionFee();
-
-					    // 返金対象の受講料計算（未受講コマ数 × 単価）
-					    int refundTuitionFee = (int) remainingCount * unitTuitionFee;
-
-					    // 返金対象の教材費計算（開始前のみ全額、開始後は0円）
-					    int refundMaterialFee = isBeforeStart ? firstItem.getChPaidMaterialFee() : 0;
-
-					    // 返金合計額
-					    int totalRefundAmount = refundTuitionFee + refundMaterialFee;
-
-					    // 画面渡し用の Map に格納
-					    Map<String, Object> summary = new HashMap<>();
-					    summary.put("details", details);
-					    summary.put("firstItem", firstItem);
-					    summary.put("totalCount", totalCount);
-					    summary.put("remainingCount", remainingCount);
-					    summary.put("remainingSchedules", remainingSchedules);
-					    summary.put("isBeforeStart", isBeforeStart);
-					    summary.put("isFinished", isFinished);
-					    summary.put("refundTuitionFee", refundTuitionFee);
-					    summary.put("refundMaterialFee", refundMaterialFee);
-					    summary.put("totalRefundAmount", totalRefundAmount);
-
-					    refundSummaryMap.put(courseId, summary);
-					}
-					model.addAttribute("refundSummaryMap", refundSummaryMap);
-					return "cancelledMemberWithCourseList";
-
-		}
 }

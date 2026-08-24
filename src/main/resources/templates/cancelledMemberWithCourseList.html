@@ -63,7 +63,7 @@
 
 		<tbody>
 			<tr th:each="entry : ${refundSummaryMap}" th:with="item=${entry.value}">
-
+				<div th:if="${!item.isFinished}">
 			            <!-- 1. 講座ID -->
 			            <td th:text="${entry.key}">2026080001</td>
 
@@ -116,12 +116,13 @@
 			            <!-- 7. 返金見込み合計額 -->
 			            <td class="fw-bold text-primary">
 			                <span th:text="${#numbers.formatInteger(item.totalRefundAmount,1,'COMMA')} + '円'">1500円</span>
-											<form th:action="@{/refund/member/{memberId}/course/{courseId}(memberId=${member.id}, courseId=${entry.key})}" method="post">
+											<form th:action="@{/cancelledCourse/{memberId}/{courseId}(memberId=${member.id}, courseId=${entry.key})}" method="post">
+											
 											    <button type="submit" class="btn btn-danger">受講中止</button>
-
 											</form>
 			            </td>
-			        </tr>
+				</div>
+			</tr>
 		</tbody>
 	</table>
 </div>
