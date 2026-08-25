@@ -4,15 +4,19 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.app.domain.ClassRoomSchedule;
@@ -244,5 +248,28 @@ public class CourseController {
 
 		}
 
+		@RestController
+		@RequestMapping("/api")
+		@CrossOrigin(origins = "http://localhost:5173")
+//		@CrossOrigin(origins = "http://localhost:3000") // React開発環境からのCORS許可
+		public class RoomScheduleController {
+
+		    @Autowired
+		    private CourseService courseService;
+
+		    @GetMapping("/roomSchedules")
+		    public OccupiedRoomSchedule getRoomSchedules(
+		            @RequestParam(name = "baseDate", required = false) String baseDateStr) {
+
+		    	System.out.println("******受け取ったbaseDateStr: " + baseDateStr);
+
+		        LocalDate baseDate = (baseDateStr == null || baseDateStr.isEmpty())
+		                ? LocalDate.now()
+		                : LocalDate.parse(baseDateStr);
+
+		        // Serviceは既存のロジックをそのまま活用
+		        return courseService.servSelectClassRoomScheduleAll(baseDate);
+		    }
+		}
 
 }

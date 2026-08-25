@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 //@NoArgsConstructor
 public class CourseServiceImpl implements CourseService{
 
-	
+
 		private final CourseMapper courseMapper;
 		private final MemberScheduleStatusMapper scheduleStatusMapper;
 	//private final MemberService memberService;
@@ -88,9 +88,9 @@ public class CourseServiceImpl implements CourseService{
 				throw new IllegalArgumentException("設定された講座回数（" + expectedCount + "回）と、選択された開催日の日数（" + actualCount + "日）が一致しません。");
 			}
 			//Integer classRoomCode=course.getClassRoomId();//教室ID実行位置移動
-			
+
 			//回数が2未満で、途中受講が「可(true)」になっている場合
-			if(expectedCount != null && expectedCount < 2 
+			if(expectedCount != null && expectedCount < 2
           && Boolean.TRUE.equals(course.getAllowLateEnrollment())) {
 				throw new IllegalArgumentException("途中受講は1回以下の講座には設定できません");
 			}
@@ -174,8 +174,8 @@ public class CourseServiceImpl implements CourseService{
         		System.out.println("****** 過去日付への変更不可");
         			return "past_date_error"; // 過去日付エラーの目印を返す
     			}
-		    
-		   // 2. 変更箇所なしチェック 
+
+		   // 2. 変更箇所なしチェック
 		    	boolean isClassRoomSame=current.getClassRoomId().equals(updateRequest.getClassRoomId());
 		    	boolean isDateSame=current.getDate().equals(updateRequest.getDate());
 		    	boolean isStartTimeSame =current.getStartTime().equals(updateRequest.getStartTime());
@@ -184,8 +184,8 @@ public class CourseServiceImpl implements CourseService{
 		    		System.out.println("****** 変更箇所なし");
 						return "no_change"; // 変更なしエラーの目印を返す
 		    	}
-		    } 
-	*/	   
+		    }
+	*/
 
 		    // 重複がなければMapperを呼び出してUPDATEを実行
 		    // ※引数の渡し方は既存のMapperの仕様（オブジェクトに詰め直すか、個別で渡すか）に合わせて調整してください
@@ -193,9 +193,9 @@ public class CourseServiceImpl implements CourseService{
 		    courseMapper.updateSingleSchedule(updateRequest.getId(), updateRequest.getClassRoomId(), updateRequest.getDate(), start, end);
 
 		   // System.out.println("updateRequest---"+updateRequest);
-		  
+
 		    // //////////////////////////////////////////////////////////
-		
+
 		    return "success"; // 成功の目印
 		}
 
@@ -326,7 +326,7 @@ public class CourseServiceImpl implements CourseService{
 		}
 		//ページ分割　zdrive仕様
 /*		@Override
-		
+
 		public List<Course> servSelectCourseByPage
 		(int page, int numPerPage) {
 			// TODO 自動生成されたメソッド・スタブ
@@ -349,7 +349,7 @@ public class CourseServiceImpl implements CourseService{
         int offset = (page - 1) * NUM_PER_PAGE;
         return courseMapper.selectCourseByPage(offset, NUM_PER_PAGE, searchType);
     }
-		
+
     // 総ページ数の計算
 		@Override
     public double servSelectTotalPages(String searchType) {
@@ -360,7 +360,7 @@ public class CourseServiceImpl implements CourseService{
         // 総件数 ÷ 1ページ件数 を切り上げ計算
         return Math.ceil((double) totalCount / NUM_PER_PAGE);
     }
-		
+
 		@Override
 		public List<ClassRoomSchedule>servSelectRegisteredSchedule(Integer classRoomId,List<LocalDate> date) {
 			// TODO 自動生成されたメソッド・スタブ
@@ -414,6 +414,7 @@ public class CourseServiceImpl implements CourseService{
 
 			return new OccupiedRoomSchedule(dateList,timeList,occupiedMap);
 		}
+
 			//Map<LocalDate,List<LocalTime>>scheduleTemp=new HashMap<>();
 			//mapよりも縦軸横軸別のlistを渡した方がthymeleaf上の処理が簡単になる
 		private List<LocalDate>servGenerateDateList(LocalDate baseDate){
@@ -446,7 +447,6 @@ public class CourseServiceImpl implements CourseService{
 		public List<ScheduleAccountingDetail> servSelectScheduleAccountingDetails(String memberId) {
 			return scheduleStatusMapper.selectScheduleAccountingDetails(memberId);
 		}
-
 
 }
 
