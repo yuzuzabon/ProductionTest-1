@@ -18,8 +18,8 @@ public interface RefundMapper {
 		void updateCourseHistoryForRefund(
 				@Param("memberId") Integer memberId,
 				@Param("courseId") String courseId,
-				@Param("refundtuitionFee") int refundtuitionFee,
-				@Param("refundmaterialFee") int refundmaterialFee
+				@Param("refundTuitionFee") int refundTuitionFee,
+				@Param("refundMaterialFee") int refundMaterialFee
 
 				);
 		// 講座中止 course_salesカラムへの書き込み
@@ -38,7 +38,17 @@ public interface RefundMapper {
 		    @Param("newStartMonth") String newStartMonth,
 		    @Param("pmFee") Integer pmFee
 				);
-
-
+		//受講生事由払い戻し
+		void updateCourseHistoryForMemberRefundRefund(
+				@Param("memberId") Integer memberId,
+				@Param("courseId") String targetCourseId,
+				@Param("refundTuitionFee") int refundTuitionFee,
+				@Param("refundMaterialFee") int refundMaterialFee);
+		
+		void updateCourseSalesForMemberRefund(
+				@Param("list") List<CourseSalesRefund> refundList);
+		
+		void updateCourseCapacityForMemberRefund(
+				@Param("targetId")String targetCourseId);
 
 }

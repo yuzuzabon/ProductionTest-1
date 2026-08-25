@@ -20,6 +20,14 @@
 
 		<a th:href="@{/cancelledMembers}" class="btn btn-secondary">受講生選択にもどる</a>
 	</div>
+	
+	<div th:if="${statusMessage}" class="alert alert-success mt-4">
+	    <span th:text="${statusMessage}"></span>
+	</div>
+
+	<div th:if="${errorMessage}" class="alert alert-danger mt-4">
+	    <span th:text="${errorMessage}"></span>
+	</div>
 
 	<table class="table table-bordered table-striped mb-4">
 		<thead class="table-dark">

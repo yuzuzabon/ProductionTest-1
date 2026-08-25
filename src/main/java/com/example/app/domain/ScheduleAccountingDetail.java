@@ -20,6 +20,7 @@ public class ScheduleAccountingDetail {
 
 //CourseHistory
 	private Integer chMemberId;//会員番号
+	private Integer chMemberStatus;
 	private String chCourseId;//講座番号
 	private Integer chLateEnrollment;//途中受講フラグ
 	private Integer chPaidTuitionFee;//支払い済み受講料合計

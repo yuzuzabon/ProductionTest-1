@@ -350,7 +350,7 @@ public class RefundController {
 			boolean isSuccess=refundService.servRefundCourseWithMemberId(courseId,memberId);		
 			
 			if(isSuccess) {
-				rd.addFlashAttribute("statusMessage","講座休講手続きを承りました");
+				rd.addFlashAttribute("statusMessage","講座払い戻し手続きを承りました");
 
 				}else {
 				rd.addFlashAttribute("errorMessage","講座休講手続き対象講座がみつかりません");

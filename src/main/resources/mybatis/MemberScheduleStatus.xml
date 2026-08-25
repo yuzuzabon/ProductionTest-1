@@ -17,6 +17,7 @@
 
         <!-- CourseHistory -->
         <result property="chMemberId" column="ch_member_id" />
+        <result property="chMemberStatus" column="ch_member_status" />
         <result property="chCourseId" column="ch_course_id" />
         <result property="chLateEnrollment" column="ch_late_enrollment" />
         <result property="chPaidTuitionFee" column="ch_paid_tuition_fee" />
@@ -45,6 +46,7 @@ SELECT
 
   -- CourseHistory
   ch.member_id AS ch_member_id,
+  ch.member_status AS ch_member_status,
   ch.course_id AS ch_course_id,
   ch.late_enrollment AS ch_late_enrollment,
   ch.paid_tuition_fee AS ch_paid_tuition_fee,
@@ -72,6 +74,8 @@ AND
 	mss.status in ('RESERVED', 'ATTENDED') -- 日程変更の再計算対象（予約中・受講済みのコマのみ）
 and
 	crs.schedule_status in ('OPEN')
+and
+	ch.member_status !=7	
 ORDER BY
   crs.date ASC,
   crs.start_time ASC;
@@ -91,6 +95,7 @@ SELECT
 
   -- CourseHistory
   ch.member_id AS ch_member_id,
+  ch.member_status AS ch_member_status,
   ch.course_id AS ch_course_id,
   ch.late_enrollment AS ch_late_enrollment,
   ch.paid_tuition_fee AS ch_paid_tuition_fee,
@@ -118,6 +123,8 @@ AND
 	mss.status in ('RESERVED', 'ATTENDED') -- 日程変更の再計算対象（予約中・受講済みのコマのみ）
 and
 	crs.schedule_status in ('OPEN')
+and
+	ch.member_status !=7
 ORDER BY
   crs.date ASC,
   crs.start_time ASC;
