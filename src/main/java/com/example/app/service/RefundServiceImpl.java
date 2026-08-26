@@ -219,7 +219,7 @@ public class RefundServiceImpl implements RefundService{
 	}
 		@Override
 		public Map<String, RefundSummary> calculateRefundSummaryForMember(Integer memberId) {
-			
+
 			//データ取得
 			List<ScheduleAccountingDetail> rawList = memberService.servSelectCancellMemberById(memberId);
 			if (rawList == null || rawList.isEmpty()) {
@@ -242,7 +242,7 @@ public class RefundServiceImpl implements RefundService{
 			    String courseId = entry.getKey();
 			    List<ScheduleAccountingDetail> details = entry.getValue();
 			    if(details.isEmpty())continue;
-			    
+
 			    ScheduleAccountingDetail firstItem = details.get(0);
 
 			 // 今日以降（未受講）のコマデータだけを抽出したリストを作成
@@ -293,7 +293,7 @@ public class RefundServiceImpl implements RefundService{
 	        summary.setRefundTuitionFee(refundTuitionFee);
 	        summary.setRefundMaterialFee(refundMaterialFee);
 	        summary.setTotalRefundAmount(totalRefundAmount);
-/*			    
+/*
 			    RefundSummary summary = new RefundSummary(
 			    		details,
 			    		firstItem,// 1コマあたりの受講料単価
@@ -306,15 +306,15 @@ public class RefundServiceImpl implements RefundService{
 			    		refundMaterialFee,
 			    		totalRefundAmount
 			 		);
-*/			 		
+*/
 			    refundSummaryMap.put(courseId, summary);
 			}
 			System.out.println("*****払い戻しtest"+refundSummaryMap);
-				
+
 			return refundSummaryMap;
 		}
-		
-		
+
+
 		@Override
 		public boolean servCancellCourse(String courseId){
 
@@ -752,7 +752,7 @@ public class RefundServiceImpl implements RefundService{
 				            String currentStartMonth = s.getChStartMonth();// 変更前の月（旧月）を保持
 				            // 初回月（startMonth）に変更が発生した場合のみ実行
 				            if (!currentStartMonth.equals(newStartMonth)) {
-				            	
+
 System.out.println("StartMonth書き換え前"+memberId+" courseId"+courseId+" currentStartMonth"+currentStartMonth+" newStartMonth"+newStartMonth);
 				            		// 1. course_history の startMonth を更新
 				                memberMapper.updateCourseHistoryStartMonth(
@@ -773,6 +773,8 @@ System.out.println("StartMonth書き換え後"+courseId+" currentStartMonth"+cur
 				        processedMemberIds.add(memberId);// 処理済み会員として記録
 				    }
 				}
+				// MemberScheduleStatusへの預り金フラグ(未実装)
+
 			// 2. ★すべての DB 更新が完了した後に「変更後の course_sales」を取得する
 				List<CourseSales> afterList = courseMapper.selectCourseSalesByCourseId(courseId);
 			System.out.println("session*****afterList----"+afterList);
@@ -822,7 +824,7 @@ System.out.println("StartMonth書き換え後"+courseId+" currentStartMonth"+cur
 		}
 		@Override
 		public boolean servRefundCourseWithMemberId(String targetCourseId,Integer memberId) {
-			
+
 		// 1. 講座情報チェック
 			List<Course>courseList=courseService.servSellectCourseByCourseId2(targetCourseId);
 			//講座情報なし判定
@@ -836,24 +838,24 @@ System.out.println("StartMonth書き換え後"+courseId+" currentStartMonth"+cur
 				if (schedules == null || schedules.isEmpty()) {
 					return false;
 			}
-		// 2. 定員・申込人数の事前チェック（DB更新より前に実施）		
+		// 2. 定員・申込人数の事前チェック（DB更新より前に実施）
 				CourseCapacity ca=memberMapper.selectByCourseIdForUpdate(targetCourseId)
 						.orElseThrow(() -> new IllegalArgumentException("指定された講座が存在しないため処理を中断しました"+targetCourseId));
 				System.out.println("*****"+ca);
 					if(ca.getNumberOfApplicant()<1) {
 							return false;//　申し込み人数なしの払い戻し防止のため
-					}	
-		// 3. 返金サマリー取得・存在チェック		
+					}
+		// 3. 返金サマリー取得・存在チェック
 				Map<String,RefundSummary> refundSummaryMap =
 						calculateRefundSummaryForMember(memberId);
 				RefundSummary summary=refundSummaryMap.get(targetCourseId);
-				
+
 				if(summary==null) {
 					System.out.println("該当する返金対象データが存在しません: " + targetCourseId);
-	        return false;					
+	        return false;
 				}
 //				Set<Integer>memberIds=refundSummaryMap.keySet();
-				
+
 		// 4. course_history 更新
 					System.out.println("member*****course_history書き込み");
 				int refundTuitionFee = summary.getRefundTuitionFee();   // 返金受講料
@@ -865,17 +867,17 @@ System.out.println("StartMonth書き換え後"+courseId+" currentStartMonth"+cur
 									refundMapper.updateCourseHistoryForMemberRefundRefund(
 									memberId,targetCourseId,refundTuitionFee,refundMaterialFee);
 				}
-		// 5. 月別返金集計データの作成		
+		// 5. 月別返金集計データの作成
 				DateTimeFormatter formatter=
 							DateTimeFormatter.ofPattern("yyyyMM");//getCrsDate().format(formatter);
 				// キー: "courseId_targetMonth" (例: "2026070007_202609")
 				Map<String, CourseSalesRefund> summaryMap = new HashMap<>();
-				
-				if(summary.getRemainingSchedules() != null && 
+
+				if(summary.getRemainingSchedules() != null &&
 						!summary.getRemainingSchedules().isEmpty()) {
 					List<ScheduleAccountingDetail> remainingSchedules =
 							summary.getRemainingSchedules();
-					
+
 					//受講料の集計（コマごとにループして対象月へ加算）
 					for (ScheduleAccountingDetail detail : remainingSchedules) {
 						if (detail.getCrsDate() != null) {
@@ -883,7 +885,7 @@ System.out.println("StartMonth書き換え後"+courseId+" currentStartMonth"+cur
 							String tuitionTargetMonth = detail.getCrsDate().format(formatter);
 							// 複合キーの作成
 							String key = targetCourseId + "_" + tuitionTargetMonth;
-		
+
 							CourseSalesRefund dto = summaryMap.computeIfAbsent(
 									key, k -> new CourseSalesRefund(targetCourseId, tuitionTargetMonth)
 									);
@@ -898,7 +900,7 @@ System.out.println("StartMonth書き換え後"+courseId+" currentStartMonth"+cur
 						if(firstRemainingSchedule.getCrsDate()!=null) {
 							String materialTargetMonth = firstRemainingSchedule.getCrsDate().format(formatter);
 							String key = targetCourseId + "_" + materialTargetMonth;
-		
+
 							CourseSalesRefund dto = summaryMap.computeIfAbsent(
 									key, k -> new CourseSalesRefund(targetCourseId, materialTargetMonth)
 									);
@@ -913,17 +915,19 @@ System.out.println("StartMonth書き換え後"+courseId+" currentStartMonth"+cur
 				System.out.println("*****withdrawn-beforeList"+beforeList);
 		Map<String, CourseSales> beforeMap = beforeList.stream()
 				.collect(Collectors.toMap(CourseSales::getTargetMonth, cs -> cs));
-								
+
 		//course_sales書き込み
 		List<CourseSalesRefund> refundList = new ArrayList<>(summaryMap.values());
-						
+
 				System.out.println("*****course_sales書き込み"+refundList);
 		if(!refundList.isEmpty()) {
 		 		refundMapper.updateCourseSalesForMemberRefund(refundList);
 		}
 				System.out.println("*****このあとcourse_capacty書き込み");
 				refundMapper.updateCourseCapacityForMemberRefund(targetCourseId);
-								
+				// MemberScheduleStatusへの返金フラグ(未実装)
+
+
 		// ★すべての DB 更新が完了した後に「変更後の course_sales」を取得する
 		List<CourseSales> afterList = courseMapper.selectCourseSalesByCourseId(targetCourseId);
 				System.out.println("*****withdrawn-afterList"+afterList);
@@ -966,10 +970,10 @@ System.out.println("StartMonth書き換え後"+courseId+" currentStartMonth"+cur
 											diffTuition,diffMaterial);
 			}
 		}
-						
+
 			return true;
 		}
-					
+
 }
 
 
