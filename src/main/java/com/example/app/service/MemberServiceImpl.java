@@ -78,8 +78,10 @@ public class MemberServiceImpl  implements MemberService{
 		public List<ScheduleAccountingDetail> servSelectCancellMemberById(Integer id) {
 			return scheduleStatusMapper.selectCancellMemberByMemberId(id);
 		}
-		
-		
+		@Override
+		public CourseHistory servSellectCourseHistoryWithcourseId(Integer id,String courseId) {
+			return memberMapper.sellectCourseHistoryWithcourseId(id,courseId);
+		}
 //		@Override
 //		public List<CourseSales> selectCourseSalesByCourseId(String courseId) {
 //		
@@ -118,7 +120,7 @@ public class MemberServiceImpl  implements MemberService{
 			int ct=rcData.getCt();
 			int rc=rcData.getRemainingCount();
 			//途中受講の判定
-			//途中受講可allow_late_enrollment=1　
+			//途中受講可allow_late_enrollment=1
 			//講座回数 course_term > 残り回数 remainingCount
 			
 			return ct==rc;
@@ -262,6 +264,8 @@ public class MemberServiceImpl  implements MemberService{
 		public RemainingCourseData servSelectRemainingCourseData(String courseId) {
 
 				//途中受講用の情報取得
+			System.out.println("*****service courseId "+courseId );
+			
 				Course cf=memberMapper.selectCourseFee(courseId);
 					boolean ale=cf.getAllowLateEnrollment();
 					Integer ct=cf.getCourseTerm();
@@ -649,10 +653,10 @@ public class MemberServiceImpl  implements MemberService{
 					}
 				}
 				
-
 		
 		}
 // /////////////////////////////////
+		
 		
 		
 }

@@ -19,7 +19,7 @@
 		padding: 1rem;
 		background-color: #fff;
 	}
-/* 終了・中止講座用のスタイル */
+/* 終了・中止講座用のスタイル（薄く表示） */
 	.schedule-ended {
 	  background-color: #e9ecef !important;
 	  color: #6c757d !important;

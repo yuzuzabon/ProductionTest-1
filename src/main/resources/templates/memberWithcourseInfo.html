@@ -5,29 +5,7 @@
 	<link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
 	<link th:href="@{/css/style.css}" rel="stylesheet" />
 	<title>受講申し込み</title>
-	<style>
-		/* スケジュールごとの外枠スタイル */
-		.schedule-container {
-			border: 1px solid #dee2e6;
-			border-radius: 0.25rem;
-			margin-bottom: 1.5rem;
-			padding: 1rem;
-			background-color: #fff;
-		}
-		/* 終了した講座用のスタイル（薄く表示） */
-				.schedule-ended {
-					background-color: #e9ecef;
-					color: #6c757d;
-					border-color: #ced4da;
-				}
 
-		/* 変更フォーム用のレイアウト（最初は非表示、展開時に左側に境界線を追加） */
-		.edit-area {
-			background-color: #f8f9fa;
-			border-left: 2px dashed #dee2e6;
-			padding-left: 1.5rem;
-		}
-	</style>
 </head>
 <body>
 	<div class="container mt-4">
@@ -130,19 +108,45 @@
 					定員: <span th:text="${c.courseCapacity.capacity}"></span> /
 					申込数: <span th:text="${c.courseCapacity.numberOfApplicant}"></span> /
 					空き: <span th:text="${c.courseCapacity.capacity - c.courseCapacity.numberOfApplicant}"></span>
-					<form th:action="@{/apply}" method="post"  th:unless="${isApplied}">
-						<input type="hidden" name="id" th:value="${member.id}"/>
-						<input type="hidden" name="courseId" th:value="${c.courseId}"/>
-						<input type="hidden" name="page" th:value="${page}">
+<!--					<form th:action="@{/apply}" method="post"  th:unless="${isApplied}">-->
+<!--						<input type="hidden" name="id" th:value="${member.id}"/>-->
+<!--						<input type="hidden" name="courseId" th:value="${c.courseId}"/>-->
+<!--						<input type="hidden" name="page" th:value="${page}">-->
 <!-- 3. ボタンの動的切り替え（全回数: btn-secondary / 途中受講: btn-warning） -->
-							<button type="submit" 
+	<div th:each="c : ${course}">
+		<th:block th:with="lastSchedule=${c.classRoomSchedule[c.classRoomSchedule.size() - 1]},
+								isEnded=${
+								lastSchedule.date.isBefore(#temporals.createToday())
+								or (lastSchedule.date.isEqual(#temporals.createToday())
+								and lastSchedule.startTime.isBefore(#temporals.createNow().toLocalTime()))
+				}">
+			<form th:action="@{/apply}" method="post" th:unless="${isApplied}">
+				            <input type="hidden" name="id" th:value="${member.id}"/>
+				            <input type="hidden" name="courseId" th:value="${c.courseId}"/>
+				            <input type="hidden" name="page" th:value="${page}">
+<!-- ① 再申し込み用のボタン (isRefunded == true) -->
+				<button th:if="${isRefunded and !isEnded}"
+        	type="submit" 
+					class="btn"
+        	th:classappend="${c.courseTerm > rcData.remainingCount} ? 'btn-info' : 'btn-primary'"
+        	th:disabled="${c.courseCapacity.capacity <= c.courseCapacity.numberOfApplicant}"
+        	th:text="${c.courseTerm > rcData.remainingCount} ? '途中受講再申し込み' : '受講再申し込み'">
+    再受講申し込み
+				</button>
+
+<!-- ② 初回申し込み用のボタン (isRefunded == false) -->
+<!--							<button type="submit" -->
+				<button th:if="${!isRefunded and !isEnded}"
+      	  type="submit" 
 								class="btn"
 								th:classappend="${c.courseTerm > rcData.remainingCount} ? 'btn-warning' : 'btn-secondary'"
 								th:disabled="${c.courseCapacity.capacity <= c.courseCapacity.numberOfApplicant}"
 								th:text="${c.courseTerm > rcData.remainingCount} ? '途中受講申し込み' : '受講申し込み'">
 								受講申し込み
-							</button>
-						
+				</button>
+			</form>
+		</th:block>
+	</div>					
 <!--						<button type="submit" class="btn btn-secondary"-->
 <!--						th:disabled="${c.courseCapacity.capacity <= c.courseCapacity.numberOfApplicant}"-->
 <!--						>受講申し込み</button>-->
@@ -150,7 +154,7 @@
 						class="text-danger">
 						空きがありません
 					</span>
-					</form>
+<!--					</form>-->
 					<!-- <a th:href="@{/apply/{id}(id=${member.id},courseId=${c.courseId})}" class="btn btn-secondary">受講</a> -->
 				</td>
 			</tr>

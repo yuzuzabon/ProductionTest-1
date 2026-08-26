@@ -26,6 +26,8 @@ public interface MemberService {
 		public Course selectCourseFee(String courseId);
 	//	
 		public List<CourseHistory>servSellectCourseHistoryById(Integer id);
+	//講座申し込み時の当該講座受講履歴有無と払い戻し判定用	
+		public CourseHistory servSellectCourseHistoryWithcourseId(Integer id,String courseId);
 	//講座日程変更時の受講料振り分け用
 		public void servScheduleChangeCourse(String courseId);
 	//講座日程変更時の変更前データ取得

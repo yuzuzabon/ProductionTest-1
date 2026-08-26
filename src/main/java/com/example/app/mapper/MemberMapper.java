@@ -61,6 +61,10 @@ public interface MemberMapper {
 	List<Course>sellectCourseByMemberId(
 				@Param("memberId") Integer memberId);
 	
+	CourseHistory sellectCourseHistoryWithcourseId(
+			 @Param("memberId")Integer id,
+			 @Param("courseId")String courseId);
+	
 	//講座の日程取得
 	List<ClassRoomSchedule>sellectCourseSchedulesByCourseId(
 				@Param("courseId")String courseId);

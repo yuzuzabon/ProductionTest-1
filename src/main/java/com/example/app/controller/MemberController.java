@@ -35,7 +35,7 @@ public class MemberController {
 			List<CourseHistory>history=
 					memberService.servSellectCourseHistoryById(id);
 			model.addAttribute("history",history);
-
+			
 				return history;
 		}
 
@@ -98,14 +98,39 @@ public class MemberController {
 //			System.out.println("controller---"+course);
 
 				List<CourseHistory>history=setMemberInfo(id,model);
+				CourseHistory latestHistory=
+						memberService.servSellectCourseHistoryWithcourseId(id,courseId);
+				model.addAttribute("history",history);
 				RemainingCourseData rcData=
 						memberService.servSelectRemainingCourseData(courseId);
 				model.addAttribute("rcData",rcData);
-
-				boolean isApplied=history.stream()
-						.map(CourseHistory::getCourseId)
-						.anyMatch(courseIdStr -> courseIdStr.equals(courseId));
+				
+					boolean isApplied=false;
+					boolean isRefunded=false;
+					
+					if(latestHistory != null) {
+						if(latestHistory.getMemberStatus()==7) {
+							isRefunded = true;
+						}else {
+							isApplied=true;
+						}
+						
+					}
+					
+//				boolean isApplied=history.stream()
+// courseIdが一致し、かつ member_status が 7 以外（受講生事由払い戻し以外）の履歴が存在するか判定						
+//						.filter(h -> courseId.equals(h.getCourseId()))
+//		        .anyMatch(h -> h.getMemberStatus() != 7);
+// courseIdが一致	すると	isApplied=trueとする判定			
+//						.map(CourseHistory::getCourseId)
+//						.anyMatch(courseIdStr -> courseIdStr.equals(courseId));
+				System.out.println("*****controller　courseId "+courseId);
+				System.out.println("*****controller　isApplied "+isApplied);
+				System.out.println("*****controller　isRefunded "+isRefunded);
+				System.out.println("*****controller history "+latestHistory);
+				System.out.println("*****controller course "+course);
 				model.addAttribute("isApplied",isApplied);
+				model.addAttribute("isRefunded",isRefunded);
 				model.addAttribute("page", page);
 
 					return "memberWithCourseInfo";

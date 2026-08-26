@@ -300,8 +300,10 @@
             SELECT 1
             FROM class_room_schedule crs
             WHERE crs.course_id = c.course_id
-              AND crs.date &gt;= CURRENT_DATE
+          	  and TIMESTAMP(date, start_time) >= NOW()<!-- 20260826加筆 -->
+<!--              AND crs.date &gt;= CURRENT_DATE-->
               and crs.schedule_status="OPEN" <!-- 20260819加筆 -->
+
         )
         AND (
             <!-- ②-1 途中受講が可能な講座 -->
@@ -316,7 +318,8 @@
                     SELECT 1
                     FROM class_room_schedule crs_past
                     WHERE crs_past.course_id = c.course_id
-                      AND crs_past.date &lt; CURRENT_DATE
+<!--                      AND crs_past.date &lt; CURRENT_DATE-->
+										AND TIMESTAMP(crs_past.date, crs_past.start_time) &lt; NOW()<!-- 20260826加筆 -->
                 )
             )
         )
@@ -352,7 +355,8 @@
             SELECT 1
             FROM class_room_schedule crs
             WHERE crs.course_id = c.course_id
-              AND crs.date &gt;= CURRENT_DATE
+              and TIMESTAMP(date, start_time) >= NOW()<!-- 20260826加筆 -->
+<!--              AND crs.date &gt;= CURRENT_DATE-->
               and crs.schedule_status="OPEN" <!-- 20260819加筆 -->
         )
         AND (
@@ -368,7 +372,8 @@
                     SELECT 1
                     FROM class_room_schedule crs_past
                     WHERE crs_past.course_id = c.course_id
-                      AND crs_past.date &lt; CURRENT_DATE
+<!--                      AND crs_past.date &lt; CURRENT_DATE-->
+								AND TIMESTAMP(crs_past.date, crs_past.start_time) &lt; NOW()<!-- 20260826加筆 -->
                 )
             )
         )
