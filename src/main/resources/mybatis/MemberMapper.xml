@@ -187,7 +187,7 @@ SELECT COUNT(*)
 		member_id=#{memberId}
 	and
 		member_status = 1 <!-- 払い戻し後再申し込み講座への書き込み防止 -->
-<!--	order by-->　<!-- 最新のレコードに絞る場合 -->
+<!--	order by--> <!-- 最新のレコードに絞る場合 -->
 <!--      registered_at desc-->
 <!--    limit 1	-->
  </update>

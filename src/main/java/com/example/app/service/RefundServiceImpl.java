@@ -92,7 +92,11 @@ public class RefundServiceImpl implements RefundService{
 		            .collect(Collectors.toList());
 
 				System.out.println("*****検証用"+remainingSchedules);
-
+				
+// ////////////////////				
+				//参考　servCancellSessionWithMemberId
+				
+// ////////////////////
 		    // 全コマ数と未受講コマ数（今日以降のコマ）をカウント
 		    long totalCount = details.size();
 		    long remainingCount = remainingSchedules.size(); // 今日以降のコマ
@@ -877,7 +881,8 @@ System.out.println("StartMonth書き換え後"+courseId+" currentStartMonth"+cur
 						!summary.getRemainingSchedules().isEmpty()) {
 					List<ScheduleAccountingDetail> remainingSchedules =
 							summary.getRemainingSchedules();
-
+	System.out.println("*****-remainingSchedules"+remainingSchedules);
+					
 					//受講料の集計（コマごとにループして対象月へ加算）
 					for (ScheduleAccountingDetail detail : remainingSchedules) {
 						if (detail.getCrsDate() != null) {
